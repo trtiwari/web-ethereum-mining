@@ -5,7 +5,7 @@ var web3 = new Web3(nodeLink);
 // we generate random nonces of 32 bytes and test if they work
 var nonceSize = 32;
 // if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
- // units = ms
+// units = ms
 var timeToGetCurrentBlock = 100000;
 // the hash must be less than the following for the nonce to be a valid solutions
 var solutionThreshold = 100000000000000;
