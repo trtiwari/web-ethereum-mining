@@ -41,7 +41,7 @@ function mine(block)
 		// else if you surpass a given time window while running the mining function,
 		// you simply return null
 	    now = new Date().getTime();
-	    else if( (now - startTime) > timeToGetCurrentBlock) 
+	    if( (now - startTime) > timeToGetCurrentBlock) 
 	    {
 	        return solution;
 	    } 
