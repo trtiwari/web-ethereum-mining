@@ -1,6 +1,7 @@
 # web-ethereum-mining
 
 USAGE:
+
 Open index.html in your browser (run "xdg-open index.html" in terminal to do so)
 
 TO DO:
