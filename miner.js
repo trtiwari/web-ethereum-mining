@@ -1,47 +1,85 @@
+// function: makes reques
+// string theUrl = URL of endpoint
+// string method = GET / POST
+
+// convert keyword arg to js equivalent
+function http(theUrl,method,data=null)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open(method, theUrl, false ); // false for synchronous request
+    xmlHttp.send(data);
+    if (method == "POST")
+    {
+    	http.setRequestHeader("Content-type", "application/json");
+    }
+    return xmlHttp.responseText;
+}
+
 // link to our node's rpc endpoint
-var nodeLink = "ws://localhost:8546"
-// connect to node
-var web3 = new Web3(nodeLink);
-// we generate random nonces of 32 bytes and test if they work
-var nonceSize = 32;
+var recieve_endpoint = "http://localhost:8000";
+var send_endpoint = "http://localhost:9000";
+
+// we generate random nonces of 64 bytes and test if they work
+var nonceSize = 64;
+
 // if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
 // units = ms
 var timeToGetCurrentBlock = 100000;
 // the hash must be less than the following for the nonce to be a valid solutions
 var solutionThreshold = 100000000000000;
 
-function hash(nonce,block)
+// header = block header
+// mix = slices of the dag
+function hash(header, nonce, full_size, mix)
 {
-	// needs to return the hash and the digest as an array of the format : [hash,digest]
-	return null
+	
+    var n = full_size / HASH_BYTES;
+    var w = Math.floor(MIX_BYTES / WORD_BYTES);
+    var mixhashes = MIX_BYTES / HASH_BYTES;
+    // combine header+nonce into a 64 byte seed
+
+    // convert string slicing to js equivalent
+    var s = Sha3.hash256(header + nonce[::-1]);
+    // compress mix
+
+    // convert to js equivalent
+    cmix = new Array();
+    for i in range(0, len(mix), 4):
+        cmix.append(fnv(fnv(fnv(mix[i], mix[i+1]), mix[i+2]), mix[i+3]));
+
+    // convert to js equivalent
+    return 
+    {
+        "mix digest": serialize_hash(cmix),
+        "result": serialize_hash(Sha3.hash256(s+cmix))
+    }
 }
 
-function mine(block)
+function mine(header,fullsize,mix)
 {
-	var digest = null;
 	var solution = null;
 	var nonce = null;
-	var hash = null;
 	startTime = new Date().getTime();
 	while(true)
 	{
 		// get a random nonce
-		nonce = parseInt(web3.utils.randomHex(nonceSize), 16);
+		// FIX
+		nonce = Math.floor(Math.random() * 2**nonceSize);
 		// get the hash for the current nonce and block
-		[hash,digest] = hash(nonce,block);
+		result = hash(header,nonce,fullsize,mix);
 		// if hash is less than the threshold, prepare the solution and return
-		if (hash < solutionThreshold)
+		if (result["result"] < solutionThreshold)
 		{
 			solution = new Array(3);
 			solution[0] = nonce;
-			solution[1] = hash
-			solution[2] = digest;
+			solution[1] = result["result"];
+			solution[2] = result["mix digest"];
 			return solution;
 		}
 		// else if you surpass a given time window while running the mining function,
 		// you simply return null
 	    now = new Date().getTime();
-	    if( (now - startTime) > timeToGetCurrentBlock) 
+	    if ( (now - startTime) > timeToGetCurrentBlock) 
 	    {
 	        return solution;
 	    } 
@@ -52,15 +90,15 @@ function mine(block)
 while (true)
 {
 	// get the block the node is currently mining
-	block = web3.eth.getBlock("pending",true);
+	var response = http(recieve_endpoint,"GET");
+	var header = response["header"];
+	var fullsize = response["fullsize"];
+	var mix = response["mix"];
 	// get the mined block (could be null if solution was not found in the given time limit)
-	solution = mine(block);
+	var solution = mine(block);
 	// if an actual solution was found, ship it over to the node
 	if (solution != null)
 	{
-		nonce = solution[0];
-		powHash = solution[1];
-		digest = solution[2];
-		web3.eth.submitWork(nonce, powHash, digest);
+		http(send_endpoint,"POST",solution);
 	}
 }
