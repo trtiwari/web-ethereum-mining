@@ -1,4 +1,6 @@
-// function: makes reques
+// import * as Sha3 from 'sha3.js';
+
+// function: makes request
 // string theUrl = URL of endpoint
 // string method = GET / POST
 
@@ -16,8 +18,7 @@ function http(theUrl,method,data=null)
 }
 
 // link to our node's rpc endpoint
-var recieve_endpoint = "http://localhost:8000";
-var send_endpoint = "http://localhost:9000";
+var endpoint = "http://localhost:8000";
 
 // we generate random nonces of 64 bytes and test if they work
 var nonceSize = 64;
@@ -39,7 +40,6 @@ function reverseString(str)
 // mix = slices of the dag
 function hash(header, nonce, full_size, mix)
 {
-	
     var n = full_size / HASH_BYTES;
     var w = Math.floor(MIX_BYTES / WORD_BYTES);
     var mixhashes = MIX_BYTES / HASH_BYTES;
@@ -99,15 +99,18 @@ function mine(header,fullsize,mix)
 while (true)
 {
 	// get the block the node is currently mining
-	var response = http(recieve_endpoint,"GET");
+	var response = http(endpoint,"GET");
+	console.log(response);
+	// header = Array
 	var header = response["header"];
 	var fullsize = response["fullsize"];
+	// mix = DAG slices = Array
 	var mix = response["mix"];
 	// get the mined block (could be null if solution was not found in the given time limit)
 	var solution = mine(block);
 	// if an actual solution was found, ship it over to the node
 	if (solution != null)
 	{
-		http(send_endpoint,"POST",solution);
+		http(endpoint,"POST",solution);
 	}
 }
