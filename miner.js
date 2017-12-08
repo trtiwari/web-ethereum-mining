@@ -28,6 +28,13 @@ var timeToGetCurrentBlock = 100000;
 // the hash must be less than the following for the nonce to be a valid solutions
 var solutionThreshold = 100000000000000;
 
+function reverseString(str)
+{
+
+    return str.split("").reverse().join("")
+
+}
+
 // header = block header
 // mix = slices of the dag
 function hash(header, nonce, full_size, mix)
@@ -39,20 +46,22 @@ function hash(header, nonce, full_size, mix)
     // combine header+nonce into a 64 byte seed
 
     // convert string slicing to js equivalent
-    var s = Sha3.hash256(header + nonce[::-1]);
+    var s = Sha3.hash256(header + reverseString(nonce));
     // compress mix
 
     // convert to js equivalent
     cmix = new Array();
-    for i in range(0, len(mix), 4):
-        cmix.append(fnv(fnv(fnv(mix[i], mix[i+1]), mix[i+2]), mix[i+3]));
-
+    var mixlen = len(mix)
+    for (i = 0; i < mixlen; i += 4){
+        cmix.push(fnv(fnv(fnv(mix[i], mix[i+1]), mix[i+2]), mix[i+3]));
+    }
     // convert to js equivalent
-    return 
+    var obj = 
     {
         "mix digest": serialize_hash(cmix),
         "result": serialize_hash(Sha3.hash256(s+cmix))
     }
+    return obj
 }
 
 function mine(header,fullsize,mix)
