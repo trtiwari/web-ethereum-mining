@@ -36,8 +36,9 @@ function reverseString(str)
 
 }
 
-// header = block header
-// mix = slices of the dag
+// Array(ints) header = block header
+// Array(ints) mix = slices of the dag
+// int fullsize = size of dag
 function hash(header, nonce, full_size, mix)
 {
     var n = full_size / HASH_BYTES;
@@ -46,6 +47,8 @@ function hash(header, nonce, full_size, mix)
     // combine header+nonce into a 64 byte seed
 
     // convert string slicing to js equivalent
+    // TO DO -- header is an array, and nonce is a string, not sure if adding them will give us anything
+    // probably should convert nonce to an int and append to header and then calculate Sha3.
     var s = Sha3.hash256(header + reverseString(nonce));
     // compress mix
 
