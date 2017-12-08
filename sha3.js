@@ -1,3 +1,4 @@
+// src = https://www.movable-type.co.uk/scripts/sha3.html#src-code
 // JavaScript is not an obvious candidate for an SHA-3 (Keccak) implementation, as it is far from ‘close to the metal’, and also has no native 64-bit words.
 // but here is a SHA3 implementation in JS:
 
