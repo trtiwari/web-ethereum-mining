@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 
 import sys, socket, threading, traceback
@@ -8,7 +7,7 @@ from network_thread import *
 
 #------BETWEEN SERVER AND CLIENT--------#
 
-#creating socket that supports IPv4 and is relaible. This is for reciecing client side data
+#creating socket that supports IPv4 and is relaible. This is for recieving client side data
 serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # bind to port 8000
