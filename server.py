@@ -9,6 +9,7 @@ from network_thread import *
 
 #creating socket that supports IPv4 and is relaible. This is for recieving client side data
 serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print type(serversock)
 
 # bind to port 8000
 port = 8000
@@ -28,15 +29,19 @@ print "[*] Server started, listening on port " + str(port)
 #------MAIN LOOP--------#
 
 counter = 0
+print counter
 main_thread = threading.currentThread()
+print "Threat"
+#print mainthread
 while 1:
 	try:
-		(clientsock, addr) = serversock.accept()
+		clientsock, addr = serversock.accept()
 		# handle each connection on a seperate thread
 		header = [random.randint(1,1000) for i in range(15)]
 		threadclient = network_thread(clientsock,header)
 		threadclient.daemon = True
 		threadclient.start()
+		print "Started"
 	except KeyboardInterrupt:
 		print "\n\n[*] User requested server.py to be aborted..."
 		print "[*] Closing port " + str(port) + "..."

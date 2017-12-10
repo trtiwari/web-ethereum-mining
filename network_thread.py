@@ -12,13 +12,16 @@ import traceback,sys,json,random,threading
 # browsers another block header)
 
 class network_thread(threading.Thread):
-	def __init__(self, clientsock):
+	def __init__(self, clientsock, header):
+		print "got here"
+		sys.stdout.flush()
 		threading.Thread.__init__(self,header)
 		self.clientsock = clientsock
 		self.header = header
 
 	def run(self):
 		try:
+			print "Running"
 			self.clientsock.settimeout(4)
 			while not self.terminate:
 				# generate random block header, fullsize and dag_slices
@@ -26,6 +29,7 @@ class network_thread(threading.Thread):
 				dag_slices = [[random.randint(1,1000) for j in range(16)] for i in range(full_size)]
 				json_dict = {"header":header,"fullsize":fullsize,"mix":mix}
 				# send over to client
+				print "made"
 				self.clientsock.sendall(json.dumps(json_dict))
 				# recieve the nonce from the client
 				# this method will block (keep hanging) until the browser actually sends something back
