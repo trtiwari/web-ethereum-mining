@@ -1,4 +1,16 @@
-// import * as Sha3 from 'sha3.js';
+WORD_BYTES = 4; //                    # bytes in word
+DATASET_BYTES_INIT = 2**30; //        # bytes in dataset at genesis
+DATASET_BYTES_GROWTH = 2**23; //      # dataset growth per epoch
+CACHE_BYTES_INIT = 2**24; //          # bytes in cache at genesis
+CACHE_BYTES_GROWTH = 2**17; //        # cache growth per epoch
+CACHE_MULTIPLIER=1024; //             # Size of the DAG relative to the cache
+EPOCH_LENGTH = 30000; //              # blocks per epoch
+MIX_BYTES = 128; //                   # width of mix
+HASH_BYTES = 64; //                   # hash length in bytes
+DATASET_PARENTS = 256; //             # number of parents of each dataset element
+CACHE_ROUNDS = 3; //                  # number of rounds in cache production
+ACCESSES = 64; //                     # number of accesses in hashimoto loop
+
 
 // function: makes request
 // string theUrl = URL of endpoint
@@ -9,6 +21,7 @@ function http(theUrl,method,data=null)
 {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open(method, theUrl, false ); // false for synchronous request
+    xmlHttp.setRequestHeader("Access-Control-Allow-Origin", "*");
     xmlHttp.send(data);
     if (method == "POST")
     {
@@ -49,14 +62,16 @@ function hash(header, nonce, full_size, mix)
     // convert string slicing to js equivalent
     // TO DO -- header is an array, and nonce is a string, not sure if adding them will give us anything
     // probably should convert nonce to an int and append to header and then calculate Sha3.
-    var nonce_array = new Array(parseInt(nonce));
+    console.log(nonce);
+    var nonce_array = [nonce];
     var s = Sha3.hash256(header.concat(nonce_array));
     // compress mix
 
     // convert to js equivalent
     cmix = new Array();
-    var mixlen = len(mix)
-    for (i = 0; i < mixlen; i += 4){
+    var mixlen = mix.length;
+    for (i = 0; i < mixlen; i += 4)
+    {
         cmix.push(fnv(fnv(fnv(mix[i], mix[i+1]), mix[i+2]), mix[i+3]));
     }
     // convert to js equivalent
@@ -100,19 +115,24 @@ function mine(header,fullsize,mix)
 	}
 }
 
+// document.domain = "localhost";
 // the main while loop
 while (true)
 {
 	// get the block the node is currently mining
 	var response = http(endpoint,"GET");
-	console.log(response);
+	var response = JSON.parse(response);
 	// header = Array
 	var header = response["header"];
+	console.log(response["header"]);
+
 	var fullsize = response["fullsize"];
+	console.log(response["fullsize"]);
+
 	// mix = DAG slices = Array
 	var mix = response["mix"];
 	// get the mined block (could be null if solution was not found in the given time limit)
-	var solution = mine(block);
+	var solution = mine(header,fullsize,mix);
 	// if an actual solution was found, ship it over to the node
 	if (solution != null)
 	{

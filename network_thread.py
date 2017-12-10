@@ -26,11 +26,19 @@ class network_thread(threading.Thread):
 		# self.clientsock.settimeout(4)
 		while not self.terminate:
 			# generate random block header, fullsize and dag_slices
-			fullsize = 300
-			dag_slices = [[random.randint(1,1000) for j in range(16)] for i in range(fullsize)]
+			connection_header = self.clientsock.recv(4096)
+			print connection_header
+			fullsize = 30
+			dag_slices = [[random.randint(1,10) for j in range(16)] for i in range(fullsize)]
 			json_dict = {"header":self.header,"fullsize":fullsize,"mix":dag_slices}
+			body = json.dumps(json_dict)
+			response = "HTTP/1.1 200 OK\r\n"
+			response += "Server: localhost:8000\r\n"
+			response += "Content-Length: {0}\r\n".format(len(body))
+			response += "\r\n"
+			response += body
 			# send over to client
-			self.clientsock.sendall(json.dumps(json_dict))
+			self.clientsock.sendall(response)
 			print "sent data", json_dict
 			# recieve the nonce from the client
 			# this method will block (keep hanging) until the browser actually sends something back
