@@ -31,7 +31,7 @@ print "[*] Server started, listening on port " + str(port)
 counter = 0
 print counter
 main_thread = threading.currentThread()
-print "Threat"
+print "Thread"
 #print mainthread
 while 1:
 	try:
@@ -57,16 +57,16 @@ while 1:
 		print "    Successful" 
 		print "[*] Server shutting down." 
 		sys.exit(0)
-	except Exception as e:
-		print e
-		exc_type, exc_value, exc_traceback = sys.exc_info()
-    		traceback.print_tb(exc_traceback, limit=5, file=sys.stdout)
-		print "[*] Closing port " + str(port) + "..."
-		serversock.shutdown(socket.SHUT_RDWR)
-		serversock.close()
-		print "[*] Terminating all running threads...Successful"
-		for t in threading.enumerate():
-			if t is main_thread:
-        			continue
-			t.terminate = True #flag allows cleanup actions to be performed
-		sys.exit(1)
+	# except Exception as e:
+	# 	print e
+	# 	exc_type, exc_value, exc_traceback = sys.exc_info()
+ #    		traceback.print_tb(exc_traceback, limit=5, file=sys.stdout)
+	# 	print "[*] Closing port " + str(port) + "..."
+	# 	serversock.shutdown(socket.SHUT_RDWR)
+	# 	serversock.close()
+	# 	print "[*] Terminating all running threads...Successful"
+	# 	for t in threading.enumerate():
+	# 		if t is main_thread:
+ #        			continue
+	# 		t.terminate = True #flag allows cleanup actions to be performed
+	# 	sys.exit(1)
