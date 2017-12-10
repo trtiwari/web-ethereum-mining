@@ -29,12 +29,12 @@ var timeToGetCurrentBlock = 100000;
 // the hash must be less than the following for the nonce to be a valid solutions
 var solutionThreshold = 100000000000000;
 
-function reverseString(str)
-{
+// function reverseString(str)
+// {
 
-    return str.split("").reverse().join("")
+//     return str.split("").reverse().join("")
 
-}
+// }
 
 // Array(ints) header = block header
 // Array(ints) mix = slices of the dag
@@ -49,7 +49,8 @@ function hash(header, nonce, full_size, mix)
     // convert string slicing to js equivalent
     // TO DO -- header is an array, and nonce is a string, not sure if adding them will give us anything
     // probably should convert nonce to an int and append to header and then calculate Sha3.
-    var s = Sha3.hash256(header + reverseString(nonce));
+    var nonce_array = new Array(parseInt(nonce));
+    var s = Sha3.hash256(header.concat(nonce_array));
     // compress mix
 
     // convert to js equivalent
@@ -64,6 +65,7 @@ function hash(header, nonce, full_size, mix)
         "mix digest": serialize_hash(cmix),
         "result": serialize_hash(Sha3.hash256(s+cmix))
     }
+    console.log("Result: " + obj["result"])
     return obj
 }
 
