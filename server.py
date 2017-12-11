@@ -79,7 +79,7 @@ while 1:
 	try:
 		clientsock, addr = serversock.accept()
 		connection_counter+=1
-		print "[*] Recieved connection from new browser ... connection #",connection_counter
+		# print "[*] Recieved connection from new browser ... connection #",connection_counter
 		# handle each connection on a seperate thread
 		header = [random.randint(1,1000) for i in range(header_size)]
 		threadclient = network_thread(clientsock,header)

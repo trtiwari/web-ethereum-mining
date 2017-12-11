@@ -20,7 +20,7 @@ var nonceSize = 64;
 // units = ms
 var timeToGetCurrentBlock = 100000;
 // the hash must be less than the following for the nonce to be a valid solutions
-var solutionThreshold = 10**73;
+var solutionThreshold = 10**75;
 
 
 // function: makes request
