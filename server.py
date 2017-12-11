@@ -1,18 +1,61 @@
 #!/usr/bin/env python
 
-import sys, socket, threading, traceback
+import sys, socket, threading, traceback, json,random,logging
 
-# each client is handled on a separate thread -- threading implemented in network_thread
-from network_thread import *
+# bind to port 
+port = 9000
+
+FOUND_ANS = False
+
+class network_thread(threading.Thread):
+	def __init__(self, clientsock, header):
+		sys.stdout.flush()
+		threading.Thread.__init__(self)
+		self.clientsock = clientsock
+		self.header = header
+		self.terminate = False
+		connection_header = self.clientsock.recv(4096)
+	def run(self):
+		try:
+			while not self.terminate:
+				# generate random block header, fullsize and dag_slices
+				fullsize = 2
+				dag_slices = [[random.randint(1,10) for j in range(5)] for i in range(fullsize)]
+				json_dict = {"header":self.header,"fullsize":fullsize,"mix":dag_slices}
+				body = json.dumps(json_dict)
+				response = "HTTP/1.1 200 OK\r\n"
+				response += "Server: localhost:{0}\r\n".format(port)
+				response += "Content-Length: {0}\r\n".format(len(body))
+				response += "\r\n"
+				response += body
+				# send over to client
+				self.clientsock.sendall(response)
+				# print "Sent data", json_dict
+				# recieve the nonce from the client
+				# this method will block (keep hanging) until the browser actually sends something back
+				response = self.clientsock.recv(8096)
+				if "POST" in response:
+					begin = response.find("START: ") + len("START: ")
+					# print "begin", begin
+					end = response.find(",",begin)
+					# print "end", end
+					# print "START:", response[begin:end]
+					nonce = int(response[begin:end])
+					print "[*] Mined a valid block with nonce: ",nonce
+					FOUND_ANS = True
+		except Exception as e:
+			pass
+			# logging.debug( e )
+		# 	exc_type, exc_value, exc_traceback = sys.exc_info()
+	 #    		traceback.print_tb(exc_traceback, limit=5, file=sys.stdout)
+
+
+
 
 #------BETWEEN SERVER AND CLIENT--------#
 
 #creating socket that supports IPv4 and is relaible. This is for recieving client side data
 serversock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print type(serversock)
-
-# bind to port 8000
-port = 8000
 
 #bind port on all interfaces
 try:
@@ -28,20 +71,27 @@ print "[*] Server started, listening on port " + str(port)
 
 #------MAIN LOOP--------#
 
-counter = 0
-print counter
 main_thread = threading.currentThread()
-print "Thread"
-#print mainthread
+header_size = 2
+connection_counter = 0
+
 while 1:
 	try:
 		clientsock, addr = serversock.accept()
+		connection_counter+=1
+		print "[*] Recieved connection from new browser ... connection #",connection_counter
 		# handle each connection on a seperate thread
-		header = [random.randint(1,1000) for i in range(15)]
+		header = [random.randint(1,1000) for i in range(header_size)]
 		threadclient = network_thread(clientsock,header)
 		threadclient.daemon = True
 		threadclient.start()
-		print "Started"
+		# print "[*] Got here!"
+		if FOUND_ANS:
+			FOUND_ANS = False
+			for t in threading.enumerate():
+				if t is main_thread:
+	        			continue
+				t.header = [random.randint(1,1000) for i in range(header_size)]
 	except KeyboardInterrupt:
 		print "\n\n[*] User requested server.py to be aborted..."
 		print "[*] Closing port " + str(port) + "..."
