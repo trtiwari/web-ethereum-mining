@@ -20,7 +20,7 @@ class network_thread(threading.Thread):
 			while not self.terminate:
 				# generate random block header, fullsize and dag_slices
 				fullsize = 2
-				cache = [[random.randint(1,10) for j in range(5)] for i in range(fullsize)]
+				cache = [[random.randint(1,10) for j in range(512)] for i in range(fullsize)]
 				json_dict = {"header":self.header,"fullsize":fullsize,"cache":cache}
 				body = json.dumps(json_dict)
 				response = "HTTP/1.1 200 OK\r\n"
