@@ -20,8 +20,8 @@ class network_thread(threading.Thread):
 			while not self.terminate:
 				# generate random block header, fullsize and dag_slices
 				fullsize = 2
-				dag_slices = [[random.randint(1,10) for j in range(5)] for i in range(fullsize)]
-				json_dict = {"header":self.header,"fullsize":fullsize,"mix":dag_slices}
+				cache = [[random.randint(1,10) for j in range(5)] for i in range(fullsize)]
+				json_dict = {"header":self.header,"fullsize":fullsize,"cache":cache}
 				body = json.dumps(json_dict)
 				response = "HTTP/1.1 200 OK\r\n"
 				response += "Server: localhost:{0}\r\n".format(port)

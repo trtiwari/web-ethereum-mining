@@ -29,14 +29,11 @@ function zpad(s, length)
 function serialize_hash(h)
 {
     str = ""
-    // console.log("Array length");
-    // console.log(h.length);
     for (x in h)
     {
 		str +=	zpad(encode_int(x), 4)
     }
-    // console.log("hashed input to str: " + str);
-    //return ''.join([zpad(encode_int(x), 4) for x in h]);
+    
     return str
 }
 

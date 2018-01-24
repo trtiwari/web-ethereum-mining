@@ -28,6 +28,22 @@ var solutionThreshold = 10**75;
 // string method = GET / POST
 
 // convert keyword arg to js equivalent
+
+function calculate_node(cache)
+{
+	var n = len(cache,i)
+    var r = HASH_BYTES / WORD_BYTES
+    // initialize the mix
+    mix = copy.copy(cache[i % n])
+    mix[0] ^= i
+    mix = sha3_512(mix)
+    // fnv it with a lot of random cache nodes based on i
+    for j in range(DATASET_PARENTS):
+        cache_index = fnv(i ^ j, mix[j % r])
+        mix = map(fnv, mix, cache[cache_index % n])
+    return sha3_512(mix)
+}
+
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -65,7 +81,7 @@ function http_post(theUrl,data)
 // Array(ints) header = block header
 // Array(ints) mix = slices of the dag
 // int fullsize = size of dag
-function hash(header, nonce, full_size, mix)
+function hash(header, nonce, full_size, cache)
 {
     var n = full_size / HASH_BYTES;
     var w = Math.floor(MIX_BYTES / WORD_BYTES);
@@ -75,35 +91,39 @@ function hash(header, nonce, full_size, mix)
     // convert string slicing to js equivalent
     // TO DO -- header is an array, and nonce is a string, not sure if adding them will give us anything
     // probably should convert nonce to an int and append to header and then calculate Sha3.
-    // console.log("Header length");
-    // console.log(header.length);
-    // console.log("Nonce array length");
     Sha3.hash256(header.push(nonce));
     var s = header;
-    // console.log("array length of header + nonce");
-    // console.log(s.length);
     // compress mix
+
+    // ----------------------begin addition -----------------------
+ 	mix = []
+    for (var _ = 0; _ <  MIX_BYTES / HASH_BYTES; _++):
+        mix.extend(s)
+    // mix in random dataset nodes
+    for (i = 0; i < ACCESSES; i++):
+        p = fnv(i ^ s[0], mix[i % w]) % (n / mixhashes) * mixhashes
+        newdata = []
+        for (var j = 0; j < MIX_BYTES / HASH_BYTES; j++):
+            newdata.extend(calculate_node(cache,p + j))
+        mix = map(fnv, mix, newdata)
+
+    // ----------------------end addition -------------------------
 
     // convert to js equivalent
     cmix = new Array();
     var mixlen = mix.length;
-    // console.log("Initialized variables, going to compress mix");
     for (i = 0; i < mixlen; i += 4)
     {
         cmix.push(fnv(fnv(fnv(mix[i], mix[i+1]), mix[i+2]), mix[i+3]));
     }
-    // console.log("computed compressed dag slices");
-    // console.log("array length of header + nonce + compressed dag slices");
+
     var x = s.concat(cmix);
-    // console.log("cmix");
-    // console.log(x.length);
     // convert to js equivalent
     var obj = 
     {
         "mix digest": serialize_hash(cmix),
         "result": Sha3.hash256(x)
     }
-    // console.log("got serialized hashes");
     return obj
 }
 
@@ -163,11 +183,11 @@ function start_mine(response)
 	var fullsize = response["fullsize"];
 
 	// mix = DAG slices = Array
-	var mix = response["mix"];
+	var cache = response["cache"];
 	// get the mined block (could be null if solution was not found in the given time limit)
 
 	// console.log("Got response, beginning to Mine");
-	var solution = mine(header,fullsize,mix);
+	var solution = mine(header,fullsize,cache);
 	// if an actual solution was found, ship it over to the node
 	if (solution != null)
 	{
