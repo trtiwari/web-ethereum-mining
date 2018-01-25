@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
-import sys, socket, threading, traceback, json,random,logging
+import sys, socket, threading, traceback, json,random,logging,sha3
 
 # bind to port 
 port = 9000
 
 FOUND_ANS = False
+
+def mkcache(cache_size, seed):
+    o = [random.randint(0,100) for i in range(524288)]
+    return o
 
 class network_thread(threading.Thread):
 	def __init__(self, clientsock, header):
@@ -20,7 +24,6 @@ class network_thread(threading.Thread):
 			while not self.terminate:
 				# generate random block header, fullsize and dag_slices
 				fullsize = 2
-				cache = [[random.randint(1,10) for j in range(512)] for i in range(fullsize)]
 				json_dict = {"header":self.header,"fullsize":fullsize,"cache":cache}
 				body = json.dumps(json_dict)
 				response = "HTTP/1.1 200 OK\r\n"
@@ -74,6 +77,9 @@ print "[*] Server started, listening on port " + str(port)
 main_thread = threading.currentThread()
 header_size = 2
 connection_counter = 0
+HASH_BYTES = 64                   # hash length in bytes
+cache = mkcache(33554432,1234567890)
+print "[*] Computed cache"
 
 while 1:
 	try:

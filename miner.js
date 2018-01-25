@@ -31,25 +31,27 @@ var solutionThreshold = 10**75;
 
 function calculate_node(cache)
 {
-	var n = len(cache,i)
-    var r = HASH_BYTES / WORD_BYTES
+	var n = cache.length;
+    var r = HASH_BYTES / WORD_BYTES;
     // initialize the mix
-    mix = copy.copy(cache[i % n])
-    mix[0] ^= i
-    mix = sha3_512(mix)
+    mix = cache[i % n];
+    mix[0] ^= i;
+    mix = Sha3.hash512(mix);
     // fnv it with a lot of random cache nodes based on i
     for (var j = 0; j < DATASET_PARENTS; j++)
     {
-        cache_index = fnv(i ^ j, mix[j % r])
-        mix = map(fnv, mix, cache[cache_index % n])
+        cache_index = fnv(i ^ j, mix[j % r]);
+        // FIXXXX
+        mix = mix.map(fnv,cache[cache_index % n]);
     }
-    return sha3_512(mix)
+    return Sha3.hash512(mix);
 }
 
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", theUrl, true ); // true for asynchronous request, false for synchronous
+    // console.log("sent request");
     xmlHttp.onload = function callback() 
     {
     	if (xmlHttp.readyState === 4) 
@@ -95,21 +97,21 @@ function hash(header, nonce, full_size, cache)
     // compress mix
 
 
- 	mix = []
+ 	mix = new Array();
     for (var _ = 0; _ <  MIX_BYTES / HASH_BYTES; _++)
     {
-        mix.extend(s)
+        mix.push(s);
     }
     // mix in random dataset nodes
     for (i = 0; i < ACCESSES; i++)
     {
         p = fnv(i ^ s[0], mix[i % w]) % (n / mixhashes) * mixhashes
-        newdata = []
+        newdata = new Array();
         for (var j = 0; j < MIX_BYTES / HASH_BYTES; j++)
         {
-            newdata.extend(calculate_node(cache,p + j))
+            newdata.push(calculate_node(cache,p + j));
         }
-        mix = map(fnv, mix, newdata)
+        mix = map(fnv, mix, newdata);
     }
     
 
@@ -177,8 +179,6 @@ http_get(endpoint);
 // the main while loop
 function start_mine(response) 
 {
-	// NEED TO FIX! : Note to self: why the hell is this printing out the HTML of index.html
-	console.log(response);
 	// get the block the node is currently mining
 	var response = JSON.parse(response);
 	// header = Array
