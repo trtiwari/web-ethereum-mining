@@ -35,7 +35,6 @@ class Sha3 {
         return Sha3.keccak1600(576, 1024, message, options);
     }
 
-
     /**
      * Generates SHA-3 / Keccak hash of message M.
      *

@@ -40,7 +40,8 @@ def mkcache(cache_size, seed):
         for i in range(n):
             v = o[i][0] % n
             o[i] = sha3_512(map(xor, o[(i-1+n) % n], o[v]))
-
+    print "cache", len(o)
+    print "cache item", len(o[0])
     return o
 
 FNV_PRIME = 0x01000193
@@ -53,12 +54,15 @@ def calc_dataset_item(cache, i):
     r = HASH_BYTES // WORD_BYTES
     # initialize the mix
     mix = copy.copy(cache[i % n])
+    # print "Original mix:", mix
     mix[0] ^= i
     mix = sha3_512(mix)
+    # print "sha3ed mix:", mix
     # fnv it with a lot of random cache nodes based on i
     for j in range(DATASET_PARENTS):
         cache_index = fnv(i ^ j, mix[j % r])
         mix = map(fnv, mix, cache[cache_index % n])
+    # print "Final mix:", sha3_512(mix)
     return sha3_512(mix)
 
 def calc_dataset(full_size, cache):
@@ -70,7 +74,9 @@ def hashimoto(header, nonce, full_size, dataset_lookup):
     mixhashes = MIX_BYTES / HASH_BYTES
     # combine header+nonce into a 64 byte seed
     # had to change from nonce[::-1] to [nonce] because it doesn't make sense to slice a number
+
     s = sha3_512(header + [nonce])
+    print "seed:",s
     # start the mix with replicated s
     mix = []
     for _ in range(MIX_BYTES / HASH_BYTES):

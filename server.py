@@ -8,7 +8,7 @@ port = 9000
 FOUND_ANS = False
 
 def mkcache(cache_size, seed):
-    o = [random.randint(0,100) for i in range(524288)]
+    o = [[random.randint(0,100) for i in range(16)] for i in range(262139)]
     return o
 
 class network_thread(threading.Thread):

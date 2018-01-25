@@ -18,6 +18,19 @@ function encode_int(s)
 	}
 }
 
+function decode_int(s)
+{
+	// changed from s.reverse().encode('hex') to s.reverse()
+	if (s == '')
+	{
+		return 0;
+	}
+	else
+	{
+		return parseInt(s.reverse(), 16);
+	}
+}
+
 // convert to js equivalents
 function zpad(s, length)
 {
@@ -37,8 +50,41 @@ function serialize_hash(h)
     return str
 }
 
+  
+function deserialize_hash(h)
+{
+	// FIXXXXX
+    return [decode_int(h[i:i+WORD_BYTES]) for i in range(0, len(h), WORD_BYTES)];
+}
+
 // convert to js equivalents
 function fnv(v1, v2)
 {
     return ((v1 * FNV_PRIME) ^ v2) % 2**32;
+}
+
+function hash_words(h, sz, x)
+{
+    if (Array.isArray(x))
+    {
+        x = serialize_hash(x);
+    }
+    y = h(x);
+    return deserialize_hash(y);
+}
+
+function sha3_512(x)
+{
+    return hash_words(function h(v)
+    	{
+    		Sha3.hash512(v).digest()
+    	}, 64, x);
+}
+
+function sha3_256(x)
+{
+    return hash_words(function h(v)
+    	{
+    		Sha3.hash256(v).digest()
+    	}, 32, x);
 }

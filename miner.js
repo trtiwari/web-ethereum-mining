@@ -28,30 +28,34 @@ var solutionThreshold = 10**75;
 // string method = GET / POST
 
 // convert keyword arg to js equivalent
-
+// --------------------------------------------------
 function calculate_node(cache)
 {
 	var n = cache.length;
     var r = HASH_BYTES / WORD_BYTES;
-    // initialize the mix
-    mix = cache[i % n];
+    // initialize the mix to be an array
+    var mix = cache[i % n];
     mix[0] ^= i;
-    mix = Sha3.hash512(mix);
+    mix = sha3_512(mix);
+    // mix is still an array
+    console.log(mix);
     // fnv it with a lot of random cache nodes based on i
     for (var j = 0; j < DATASET_PARENTS; j++)
     {
         cache_index = fnv(i ^ j, mix[j % r]);
         // FIXXXX
-        mix = mix.map(fnv,cache[cache_index % n]);
+        mix = mix.map(function callback(currentValue)
+        {
+        	fnv(currentValue,cache[cache_index % n]);
+        });
     }
-    return Sha3.hash512(mix);
+    return sha3_512(mix);
 }
-
+// -------------------------------------------------
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", theUrl, true ); // true for asynchronous request, false for synchronous
-    // console.log("sent request");
     xmlHttp.onload = function callback() 
     {
     	if (xmlHttp.readyState === 4) 
@@ -92,11 +96,11 @@ function hash(header, nonce, full_size, cache)
     var mixhashes = MIX_BYTES / HASH_BYTES;
     // combine header+nonce into a 64 byte seed
 
-    Sha3.hash256(header.push(nonce));
-    var s = header;
+    // s = Array
+    var s = sha3_256(header.push(nonce));
+
+// ----------------------------------------------------------------
     // compress mix
-
-
  	mix = new Array();
     for (var _ = 0; _ <  MIX_BYTES / HASH_BYTES; _++)
     {
@@ -111,12 +115,13 @@ function hash(header, nonce, full_size, cache)
         {
             newdata.push(calculate_node(cache,p + j));
         }
-        mix = map(fnv, mix, newdata);
+        // FIXX
+        mix = mix.mapmap(fnv, mix, newdata);
     }
-    
+// --------------------------------------------------------------
 
     // convert to js equivalent
-    cmix = new Array();
+    var cmix = new Array();
     var mixlen = mix.length;
     for (i = 0; i < mixlen; i += 4)
     {
@@ -184,9 +189,10 @@ function start_mine(response)
 	// header = Array
 	var header = response["header"];
 
+	// fullsize = int
 	var fullsize = response["fullsize"];
 
-	// mix = DAG slices = Array
+	// cache = 2D Array
 	var cache = response["cache"];
 	// get the mined block (could be null if solution was not found in the given time limit)
 
