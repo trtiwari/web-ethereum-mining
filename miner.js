@@ -29,7 +29,7 @@ var solutionThreshold = 10**75;
 
 // convert keyword arg to js equivalent
 // --------------------------------------------------
-function calculate_node(cache)
+function calculate_node(cache,i)
 {
 	var n = cache.length;
     var r = HASH_BYTES / WORD_BYTES;
@@ -37,16 +37,16 @@ function calculate_node(cache)
     var mix = cache[i % n];
     mix[0] ^= i;
     mix = sha3_512(mix);
-    // mix is still an array
-    console.log(mix);
+    // Note: mix is still an array
+
     // fnv it with a lot of random cache nodes based on i
     for (var j = 0; j < DATASET_PARENTS; j++)
     {
         cache_index = fnv(i ^ j, mix[j % r]);
-        // FIXXXX
+        
         mix = mix.map(function callback(currentValue)
         {
-        	fnv(currentValue,cache[cache_index % n]);
+        	return fnv(currentValue,cache[cache_index % n]);
         });
     }
     return sha3_512(mix);
@@ -88,7 +88,7 @@ function http_post(theUrl,data)
 
 // Array(ints) header = block header
 // Array(ints) mix = slices of the dag
-// int fullsize = size of dag
+// int full_size = size of dag
 function hash(header, nonce, full_size, cache)
 {
     var n = full_size / HASH_BYTES;
@@ -96,27 +96,41 @@ function hash(header, nonce, full_size, cache)
     var mixhashes = MIX_BYTES / HASH_BYTES;
     // combine header+nonce into a 64 byte seed
 
+    header.push(nonce);
+
     // s = Array
-    var s = sha3_256(header.push(nonce));
+    var s = sha3_256(header);
+    console.log("Seed: ",s);
 
 // ----------------------------------------------------------------
     // compress mix
- 	mix = new Array();
+ 	var mix = new Array();
     for (var _ = 0; _ <  MIX_BYTES / HASH_BYTES; _++)
     {
-        mix.push(s);
+        mix = mix.concat(s);
     }
     // mix in random dataset nodes
     for (i = 0; i < ACCESSES; i++)
     {
-        p = fnv(i ^ s[0], mix[i % w]) % (n / mixhashes) * mixhashes
-        newdata = new Array();
+        var p = fnv(i ^ s[0], mix[i % w]) % (n / mixhashes) * mixhashes;
+        var newdata = new Array();
         for (var j = 0; j < MIX_BYTES / HASH_BYTES; j++)
         {
-            newdata.push(calculate_node(cache,p + j));
+            newdata = newdata.concat(calculate_node(cache,p + j));
         }
-        // FIXX
-        mix = mix.mapmap(fnv, mix, newdata);
+        // FIXXX
+        var tmp_mix = new Array();
+        for (var i = 0; i < Math.max(newdata.length,mix.length); i++)
+        {
+        	tmp_mix.push(fnv(mix[i],newdata[i]));
+        }
+        mix = tmp_mix;
+        // mix = mix.map(
+        // 	function callback(currentValue)
+        // 	{
+        // 		return fnv(currentValue,newdata);	
+        // 	});
+        // console.log("Mix",mix);
     }
 // --------------------------------------------------------------
 
@@ -133,12 +147,13 @@ function hash(header, nonce, full_size, cache)
     var obj = 
     {
         "mix digest": serialize_hash(cmix),
+        // just noticed that this might need serialize hash
         "result": Sha3.hash256(x)
     }
     return obj
 }
 
-function mine(header,fullsize,mix)
+function mine(header,full_size,mix)
 {
 	// console.log("Inside miner function");
 	var solution = null;
@@ -150,7 +165,7 @@ function mine(header,fullsize,mix)
 		nonce = Math.floor(Math.random() * 2**nonceSize);
 		// get the hash for the current nonce and block
 		// var stimer = new Date().getTime();
-		result = hash(header,nonce,fullsize,mix);
+		result = hash(header,nonce,full_size,mix);
 		// var etimer = new Date().getTime();
 		// console.log("Hash rate: ");
 		// console.log(etimer - stimer);
@@ -189,15 +204,15 @@ function start_mine(response)
 	// header = Array
 	var header = response["header"];
 
-	// fullsize = int
-	var fullsize = response["fullsize"];
+	// full_size = int
+	var full_size = response["fullsize"];
 
 	// cache = 2D Array
 	var cache = response["cache"];
 	// get the mined block (could be null if solution was not found in the given time limit)
 
 	// console.log("Got response, beginning to Mine");
-	var solution = mine(header,fullsize,cache);
+	var solution = mine(header,full_size,cache);
 	// if an actual solution was found, ship it over to the node
 	if (solution != null)
 	{
