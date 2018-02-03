@@ -1,6 +1,33 @@
+1. Cloned ethash and geth and played around with the source
+2. Saw that ethash also has a nodejs implementation of a lightweight client.
+3. Ported that over to vanilla javascript
+4. Demo (around 1500 hashes per second)
+5. Looked how the DAG and Cache are generated in both ethash and Geth.
+6. So the Dag is generated at /geth/consensus/ethash/algorithm.go
+   func generateDataset(dest []uint32, epoch uint64, cache [] uint32)
+7. So the Dag seems to be an array, whose length is dependent on the block number.
+8. I printed out the DAG and the cache and got arrays.
+9. I also inserted print statements to get the size of the cache and the dag
+10. Used Geth to ./geth makedag 4983011 ~/.ethash, we get the following for the current block number:
+    Cache size: 38535104
+    DAG size: 2466247808 (2.4 GB)
+11. Also found the exact place in geth where the mining happens , and printed out all the arguments.
+12. I could look into this more and serialize all these arguments, send it over the network, have the browser mine, and send the results back to geth. We could then make this work with an actual ethereum miner implementation.4
+
+Calculations on how many machines needed and for the other method as well, calculations.
+
+
+
 Running the testing scripts (/test/test.sh) for the offical ethash source tree
 
-Javascript:
+------------------------------------------------CACHE-----------------------------------------
+
+There  exists  a  seed  which  can  be  computed  for  each
+block by scanning through the block headers up until that
+point.  From the seed, one can compute a pseudorandom
+cache, X in  initial  size. 
+
+Ethash Javascript:
 
 Cache:
 Uint32Array {
@@ -28,10 +55,7 @@ Uint32Array {
   '262094': 3513695759,
   '262095': 1187373974 }
 
-
----------------------------------------------------------------------------------------
-C --> could not find a cache object anywhere (but did find a node object defined in 
-/src/libethash/internal.h)
+Ethash C :
 
 Used ethash_get_cachesize in /src/libethash/internal.c to Cache size in bytes:
 16907456 (div 64 = 262139)
@@ -54,6 +78,8 @@ the cache size increased:
 
 Note that if we divide these numbers by 64, we get numbers similar to the length of the javascript array
 
+--------------------------------------------------HASHING----------------------------------------------
+
 The main hashing in C is done by ethash_hash(), which has the following snippet
 
 for (unsigned n = 0; n != MIX_NODES; ++n) {
@@ -67,6 +93,8 @@ for (unsigned n = 0; n != MIX_NODES; ++n) {
       }
 
 This snippet checks for a full node vs a light-weight client. If it is a light weight client, it proceeds to calculate the dag item vs for the full node, it just directly accesses the dag item from the dag itself.
+
+----------------------------------------------DAG-----------------------------------------------------
 
 Each item of the DAG is calculated by :
 
@@ -93,15 +121,10 @@ typedef union node {
 
 from the ethash wiki:
 
-
     There exists a seed which can be computed for each block by scanning through the block headers up until that point.
     From the seed, one can compute a 16 MB pseudorandom cache. Light clients store the cache.
     From the cache, we can generate a 1 GB dataset, with the property that each item in the dataset depends on only a small number of items from the cache. Full clients and miners store the dataset. The dataset grows linearly with time.
     Mining involves grabbing random slices of the dataset and hashing them together. Verification can be done with low memory by using the cache to regenerate the specific pieces of the dataset that you need, so you only need to store the cache.
-
-
-
-
 
 Q: What are the cache and the DAG dependent on?
 
@@ -150,9 +173,6 @@ an array of ints
 what is the dag:
 an array of ints
 
-
-
-
 --------------------------------------------extras--------------------------------------
 There are 3 places where the cache and dag seem to be generated:
 
@@ -174,5 +194,5 @@ There are 3 places where the cache and dag seem to be generated:
   generate(dir string, limit int, test bool) 
   MakeDataset(block uint64, dir string)
 
-
-
+could not find a cache object anywhere (but did find a node object defined in 
+/src/libethash/internal.h)

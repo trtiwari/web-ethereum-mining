@@ -132,9 +132,9 @@ function convertSeed(seed)
 function defaultParams()
 {
 	return {
-		cacheSize: 1048384,
+		cacheSize: 19529408, // new size 19529408 old size 1048384
 		cacheRounds: 3,
-		dagSize: 1073739904,
+		dagSize: 2466247808, // new size 2466247808 old size 1073739904
 		dagParents: 256,
 		mixSize: 128,
 		mixParents: 64,
