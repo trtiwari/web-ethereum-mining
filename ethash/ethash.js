@@ -143,11 +143,11 @@ function defaultParams()
 
 class Ethash
 {
-	constructor(params, seed)
+	constructor(params,cache)
 	{
 		this.params = params;
-		this.seed = convertSeed(seed);
-		this.cache = computeCache(params, seed);
+		// this.seed = convertSeed(seed);
+		this.cache = cache;//computeCache(params, seed);
 	
 		// preallocate buffers/etc
 		this.initBuf = new ArrayBuffer(96);
