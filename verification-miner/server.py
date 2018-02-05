@@ -24,7 +24,7 @@ class network_thread(threading.Thread):
 			while not self.terminate:
 				# generate random block header, fullsize and dag_slices
 				fullsize = 2
-				json_dict = {"header":self.header,"fullsize":fullsize,"cache":cache}
+				json_dict = {"header":self.header,"cache":cache}
 				body = json.dumps(json_dict)
 				response = "HTTP/1.1 200 OK\r\n"
 				response += "Server: localhost:{0}\r\n".format(port)
@@ -38,11 +38,10 @@ class network_thread(threading.Thread):
 				# this method will block (keep hanging) until the browser actually sends something back
 				response = self.clientsock.recv(8096)
 				if "POST" in response:
-					begin = response.find("START: ") + len("START: ")
-					# print "begin", begin
-					end = response.find(",",begin)
-					# print "end", end
-					# print "START:", response[begin:end]
+					print response
+					begin = response.find("\r\n\r\n") + len("\r\n\r\n")
+					print "GOT here!"
+					print json.loads(response[begin:])
 					nonce = int(response[begin:end])
 					print "[*] Mined a valid block with nonce: ",nonce
 					FOUND_ANS = True
@@ -87,7 +86,7 @@ while 1:
 		connection_counter+=1
 		# print "[*] Recieved connection from new browser ... connection #",connection_counter
 		# handle each connection on a seperate thread
-		header = [random.randint(1,1000) for i in range(header_size)]
+		header = "129109f0910901ecd0302c"
 		threadclient = network_thread(clientsock,header)
 		threadclient.daemon = True
 		threadclient.start()
