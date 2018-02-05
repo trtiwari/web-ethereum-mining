@@ -152,13 +152,14 @@ class Ethash
 		// preallocate buffers/etc
 		this.initBuf = new ArrayBuffer(96);
 		this.initBytes = new Uint8Array(this.initBuf);
+		// this.initBytes = new Array(this.initBuf);
 		this.initWords = new Uint32Array(this.initBuf);
 		this.mixWords = new Uint32Array(this.params.mixSize / 4);
 		this.tempNode = new Uint32Array(16);
 		this.keccak = new Keccak();
 		
 		this.retWords = new Uint32Array(8);
-		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only	
+		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
 	}
 	// precompute cache and related values
 	
@@ -185,7 +186,7 @@ class Ethash
 			
 		// final keccak hashes
 		this.keccak.digestWords(this.retWords, 0, 8, this.initWords, 0, 24); // keccak-256(s + cmix)
-		return this.retBytes;
+		return [this.initBytes,this.retBytes];
 	};
 	
 	cacheDigest()

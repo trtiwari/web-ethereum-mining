@@ -94,11 +94,35 @@ static toWords(input)
 	return null;
 }
 
-// exports.stringToBytes = stringToBytes;
-// exports.hexStringToBytes = hexStringToBytes;
-// exports.bytesToHexString = bytesToHexString;
-// exports.wordsToHexString = wordsToHexString;
-// exports.uint32ToHexString = uint32ToHexString;
-// exports.toWords = toWords;
+static longToByteArray(long) {
+    // we want to represent the input as a 8-bytes array
+    var byteArray = new Uint8Array(8);
+
+    for ( var index = 0; index < byteArray.length; index ++ ) {
+        var byte = long & 0xff;
+        byteArray [ index ] = byte;
+        long = (long - byte) / 256 ;
+    }
+
+    return byteArray;
+}
+
+static byteArrayToLong(byteArray) {
+    var value = 0;
+    for ( var i = byteArray.length - 1; i >= 0; i--) {
+        value = (value * 256) + byteArray[i];
+    }
+
+    return value;
+}
+
+static serializeIterableObject(iterable) {
+	var returnVal = new Array(iterable.length)
+	const iterableIterator = iterable.values();
+	for (var i = 0; i < iterable.length; i++) {
+		returnVal[i] = iterableIterator.next().value;
+	}
+	return returnVal;
+}
 
 }

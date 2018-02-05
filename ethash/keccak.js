@@ -401,5 +401,4 @@ class Keccak
 		this.stateBytes[(r<<2) - 1] ^= 0x80;
 		keccak_f1600(oWords, oOffset, oLength, this.stateWords);
 	};
-// module.exports = Keccak;
 }
