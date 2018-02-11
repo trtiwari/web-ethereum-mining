@@ -25,7 +25,7 @@ function http_get(theUrl)
     		} 
     		else 
     		{
-      			console.log(xmlHttp.statusText);
+      			// console.log(xmlHttp.statusText);
       			return null;
     		}
   		}
@@ -48,7 +48,7 @@ function start_mine(response)
 {
 	// get the block the node is currently mining
 	var response = JSON.parse(response);
-	console.log(response)
+	// console.log(response);
 	// header = Array
 	var header = response["header"];
 
@@ -58,10 +58,13 @@ function start_mine(response)
 
 	var dag = response["dag"];
 
+	var startIndex = response["startIndex"];
+
+	var endIndex = response["endIndex"];
+
 	hasher = new Ethash(ethashParams,cache,dag);
 
 	header = Util.hexStringToBytes(header);
-	console.log("Header Length",header.length)
 	// get the mined block (could be null if solution was not found in the given time limit)
 
 	// console.log("Got response, beginning to Mine");
@@ -70,7 +73,7 @@ function start_mine(response)
 	if (solution != null)
 	{
 		var resp = http_post(endpoint,solution);
-		console.log(resp);
+		// console.log(resp);
 
 	}
 	http_get(endpoint);
@@ -97,9 +100,9 @@ function mine(header)
 		// console.log("Hash rate: ");
 		// console.log(etimer - stimer);
 		// if hash is less than the threshold, prepare the solution and return
-		console.log("Hashed, found result");
-		console.log(result);
-		console.log("Here is the digest result");
+		// console.log("Hashed, found result");
+		// console.log(result);
+		// console.log("Here is the digest result");
 		var hash = Util.bytesToHexString(result);
 		if (parseInt(hash,16) < solutionThreshold)
 		{
