@@ -38,7 +38,10 @@ function http_post(theUrl,data)
 	var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", theUrl+"/post", false );
     xmlHttp.setRequestHeader("Content-type", "application/json");
-    console.log(data);
+    console.log("Cache hit : Cache miss ratio" + cacheHits/cacheMisses);
+    cacheHits = 0;
+    cacheMisses = 0;
+    // console.log(data);
     xmlHttp.send(data);
     return;	
 }
@@ -94,15 +97,12 @@ function mine(header)
 		nonce = Math.floor(Math.random() * 2**nonceSize);
 		nonceAsArray = Util.longToByteArray(nonce);
 		// get the hash for the current nonce and block
-		// var stimer = new Date().getTime();
+		var stimer = new Date().getTime();
 		[digest,result] = hasher.hash(header,nonceAsArray);
-		// var etimer = new Date().getTime();
-		// console.log("Hash rate: ");
-		// console.log(etimer - stimer);
+		var etimer = new Date().getTime();
+		console.log("Single Hash timing: " + etimer - stimer);
+		
 		// if hash is less than the threshold, prepare the solution and return
-		// console.log("Hashed, found result");
-		// console.log(result);
-		// console.log("Here is the digest result");
 		var hash = Util.bytesToHexString(result);
 		if (parseInt(hash,16) < solutionThreshold)
 		{
@@ -119,6 +119,7 @@ function mine(header)
 	    } 
 	}
 }
+
 //ethashParams.cacheRounds = 0;
 
 // create hasher

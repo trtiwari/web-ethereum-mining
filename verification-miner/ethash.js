@@ -9,8 +9,9 @@
 var dag = {};
 var DAG_STORE_SIZE = 512000000;
 var hashWords = 16;
+var cacheHits;
+var cacheMisses;
 
-// FIXX
 function changeDataStructure(dagArray,startIndex,endIndex)
 {
 		for (var i = startIndex; i < endIndex; i++)
@@ -125,9 +126,12 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 			// modded to check for already present value of dag node
 			if (dag[(d + n)|0] != null)
 			{
+				cacheHits = cacheHits + 1;
 				tempNode = dag[(d + n)|0];
 			}
-			else {
+			else 
+			{
+				cacheMisses = cacheMisses + 1;
 				computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
 			}
 			
