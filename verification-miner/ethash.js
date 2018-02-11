@@ -7,10 +7,10 @@
 
 // we save some values of in this dag object
 var dag = {};
-var DAG_STORE_SIZE = 512000000;
+var DAG_STORE_SIZE = 0; // 512000000; // change value to get hash rate
 var hashWords = 16;
-var cacheHits;
-var cacheMisses;
+var cacheHits = 0;
+var cacheMisses = 0;
 
 function changeDataStructure(dagArray,startIndex,endIndex)
 {

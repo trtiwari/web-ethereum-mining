@@ -1,3 +1,4 @@
+
 var endpoint = "http://localhost:9000";
 var nonceSize = 64;
 var hasher;
@@ -38,7 +39,6 @@ function http_post(theUrl,data)
 	var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", theUrl+"/post", false );
     xmlHttp.setRequestHeader("Content-type", "application/json");
-    console.log("Cache hit : Cache miss ratio" + cacheHits/cacheMisses);
     cacheHits = 0;
     cacheMisses = 0;
     // console.log(data);
@@ -100,7 +100,11 @@ function mine(header)
 		var stimer = new Date().getTime();
 		[digest,result] = hasher.hash(header,nonceAsArray);
 		var etimer = new Date().getTime();
-		console.log("Single Hash timing: " + etimer - stimer);
+		console.log("Single Hash timing: ");
+		console.log(etimer - stimer);
+		console.log("Cache hit : Cache miss ratio");
+    	console.log(cacheHits);
+    	console.log(cacheMisses);
 		
 		// if hash is less than the threshold, prepare the solution and return
 		var hash = Util.bytesToHexString(result);
@@ -119,25 +123,32 @@ function mine(header)
 	    } 
 	}
 }
+/*
 
-//ethashParams.cacheRounds = 0;
+// init params
+var ethashParams = defaultParams();
+
 
 // create hasher
-// var seed = Util.hexStringToBytes("9410b944535a83d9adf6bbdcc80e051f30676173c16ca0d32d6f1263fc246466")
-// var startTime = new Date().getTime();
+// FIXX
+var hasher = new Ethash(ethashParams, seed );
+var seed = Util.hexStringToBytes("9410b944535a83d9adf6bbdcc80e051f30676173c16ca0d32d6f1263fc246466")
+var startTime = new Date().getTime();
 
-// console.log('Ethash startup took: '+(new Date().getTime() - startTime) + "ms");
+console.log('Ethash startup took: '+(new Date().getTime() - startTime) + "ms");
 
-// var header = util.hexStringToBytes("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
+var header = util.hexStringToBytes("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
 
-// console.log("Nonce Length",header.length)
-// var hash;
+console.log("Nonce Length",header.length)
+var hash;
 
-// startTime = new Date().getTime();
-// var trials = 10;
-// for (var i = 0; i < trials; ++i)
-// {
-// 	hash = hasher.hash(header, nonce);
-// }
-// console.log("Light client hashes averaged: " + (new Date().getTime() - startTime)/trials + "ms");
-// console.log("Hash = " + Util.bytesToHexString(hash));
+startTime = new Date().getTime();
+var trials = 10;
+for (var i = 0; i < trials; ++i)
+{
+	hash = hasher.hash(header, nonce);
+}
+console.log("Light client hashes averaged: " + (new Date().getTime() - startTime)/trials + "ms");
+console.log("Hash = " + Util.bytesToHexString(hash));
+
+*/
