@@ -56,7 +56,9 @@ function start_mine(response)
 	var cache = response["cache"];
 	// console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
 
-	hasher = new Ethash(ethashParams,cache);
+	var dag = response["dag"];
+
+	hasher = new Ethash(ethashParams,cache,dag);
 
 	header = Util.hexStringToBytes(header);
 	console.log("Header Length",header.length)
