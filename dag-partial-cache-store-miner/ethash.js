@@ -11,8 +11,10 @@ var NUM_DAG_SLICES = 1; // 512000000; // change value to get hash rate
 var hashWords = 16;
 var cacheHits = 0;
 var cacheMisses = 0;
+var startIndex;
+var endIndex;
 
-function changeDataStructure(dagArray,startIndex,endIndex)
+function changeDataStructure(dagArray)
 {
 		for (var i = startIndex; i < endIndex; i++)
 		{
@@ -167,7 +169,7 @@ function defaultParams()
 
 class Ethash
 {
-	constructor(params,cache,dagArray,startIndex,endIndex)
+	constructor(params,cache,dagArray)
 	{
 		this.params = params;
 		// this.seed = convertSeed(seed);
@@ -184,7 +186,7 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
-		changeDataStructure(dagArray,startIndex,endIndex);
+		changeDataStructure(dagArray);
 	}
 	// precompute cache and related values
 	

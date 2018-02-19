@@ -6,18 +6,22 @@
 "use strict";
 
 // we save some values of in this dag object
-var dag = {};
+var dag;
+var startIndex;
+var endIndex;
+
 var NUM_DAG_SLICES = 1; // 512000000; // change value to get hash rate
 var hashWords = 16;
 var cacheHits = 0;
 var cacheMisses = 0;
 
-function changeDataStructure(dagArray,startIndex,endIndex)
+
+function DAGLookup(index)
 {
-		for (var i = startIndex; i < endIndex; i++)
-		{
-			dag[i] = dagArray.slice(i,i+16)
-		}
+	if (index - startIndex < 0 || index - startIndex > endIndex) {
+		return null;
+	}
+	return dag[index - startIndex];
 }
 
 // 32-bit unsigned modulo
@@ -92,12 +96,6 @@ function computeDagNode(o_node, params, cache, keccak, nodeIndex)
 	}
 	
 	keccak.digestWords(mix, 0, 16, mix, 0, 16);
-
-	// saving the computed dag slice if less than storage limit
-	if (Object.keys(dag).length < NUM_DAG_SLICES)
-	{
-		dag[nodeIndex] = o_node;
-	}
 }
 
 function computeHashInner(mix, params, cache, keccak, tempNode)
@@ -124,10 +122,10 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 		for (var n = 0, w = 0; n < mixNodeCount; ++n, w += 16)
 		{
 			// modded to check for already present value of dag node
-			if (dag[(d + n)|0] != null)
+			tempNode = DAGLookup((d + n)|0);
+			if (tempNode != null)
 			{
 				cacheHits = cacheHits + 1;
-				tempNode = dag[(d + n)|0];
 			}
 			else 
 			{
@@ -167,7 +165,7 @@ function defaultParams()
 
 class Ethash
 {
-	constructor(params,cache,dagArray,startIndex,endIndex)
+	constructor(params,cache)
 	{
 		this.params = params;
 		// this.seed = convertSeed(seed);

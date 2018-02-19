@@ -59,13 +59,13 @@ function start_mine(response)
 	var cache = response["cache"];
 	// console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
 
-	var dag = response["dag"];
+	var dagArray = response["dag"];
 
-	var startIndex = response["startIndex"];
+	startIndex = response["startIndex"];
 
-	var endIndex = response["endIndex"];
+	endIndex = response["endIndex"];
 
-	hasher = new Ethash(ethashParams,cache,dag,startIndex,endIndex);
+	hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
 
 	header = Util.hexStringToBytes(header);
 	// get the mined block (could be null if solution was not found in the given time limit)
