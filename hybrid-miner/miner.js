@@ -65,7 +65,7 @@ function start_mine(response)
 
 	var endIndex = response["endIndex"];
 
-	hasher = new Ethash(ethashParams,cache,dag);
+	hasher = new Ethash(ethashParams,cache,dag,startIndex,endIndex);
 
 	header = Util.hexStringToBytes(header);
 	// get the mined block (could be null if solution was not found in the given time limit)

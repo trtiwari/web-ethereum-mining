@@ -5,21 +5,6 @@
 
 "use strict";
 
-// we save some values of in this dag object
-var dag = {};
-var NUM_DAG_SLICES = 1; // 512000000; // change value to get hash rate
-var hashWords = 16;
-var cacheHits = 0;
-var cacheMisses = 0;
-
-function changeDataStructure(dagArray,startIndex,endIndex)
-{
-		for (var i = startIndex; i < endIndex; i++)
-		{
-			dag[i] = dagArray.slice(i,i+16)
-		}
-}
-
 // 32-bit unsigned modulo
 function mod32(x, n)
 {
@@ -92,12 +77,6 @@ function computeDagNode(o_node, params, cache, keccak, nodeIndex)
 	}
 	
 	keccak.digestWords(mix, 0, 16, mix, 0, 16);
-
-	// saving the computed dag slice if less than storage limit
-	if (Object.keys(dag).length < NUM_DAG_SLICES)
-	{
-		dag[nodeIndex] = o_node;
-	}
 }
 
 function computeHashInner(mix, params, cache, keccak, tempNode)
@@ -123,17 +102,8 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 		
 		for (var n = 0, w = 0; n < mixNodeCount; ++n, w += 16)
 		{
-			// modded to check for already present value of dag node
-			if (dag[(d + n)|0] != null)
-			{
-				cacheHits = cacheHits + 1;
-				tempNode = dag[(d + n)|0];
-			}
-			else 
-			{
-				cacheMisses = cacheMisses + 1;
-				computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
-			}
+			
+			computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
 			
 			for (var v = 0; v < 16; ++v)
 			{
@@ -167,7 +137,7 @@ function defaultParams()
 
 class Ethash
 {
-	constructor(params,cache,dagArray,startIndex,endIndex)
+	constructor(params,cache)
 	{
 		this.params = params;
 		// this.seed = convertSeed(seed);
@@ -184,7 +154,6 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
-		changeDataStructure(dagArray,startIndex,endIndex);
 	}
 	// precompute cache and related values
 	

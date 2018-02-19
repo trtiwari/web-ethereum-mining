@@ -59,7 +59,8 @@ function start_mine(response)
 	var cache = response["cache"];
 	// console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
 
-	var dag = response["dag"];
+	// setting the dag variable in ethash.js
+	dag = response["dag"];
 
 	var startIndex = response["startIndex"];
 
