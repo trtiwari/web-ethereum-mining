@@ -7,7 +7,7 @@
 
 // we save some values of in this dag object
 var dag = {};
-var NUM_DAG_SLICES = 1; // 512000000; // change value to get hash rate
+var NUM_DAG_SLICES = 1;  // change value to get hash rate
 var hashWords = 16;
 var cacheHits = 0;
 var cacheMisses = 0;
