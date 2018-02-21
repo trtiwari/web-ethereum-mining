@@ -10,7 +10,6 @@ var dag;
 var startIndex;
 var endIndex;
 
-var NUM_DAG_SLICES = 1; // 512000000; // change value to get hash rate
 var hashWords = 16;
 var cacheHits = 0;
 var cacheMisses = 0;
@@ -122,9 +121,10 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 		for (var n = 0, w = 0; n < mixNodeCount; ++n, w += 16)
 		{
 			// modded to check for already present value of dag node
-			tempNode = DAGLookup((d + n)|0);
-			if (tempNode != null)
+			var t = DAGLookup((d + n)|0);
+			if (t != null)
 			{
+				tempNode = t;
 				cacheHits = cacheHits + 1;
 			}
 			else 
@@ -182,7 +182,6 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
-		changeDataStructure(dagArray,startIndex,endIndex);
 	}
 	// precompute cache and related values
 	
