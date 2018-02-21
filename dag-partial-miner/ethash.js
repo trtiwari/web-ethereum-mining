@@ -13,14 +13,18 @@ var endIndex;
 var hashWords = 16;
 var cacheHits = 0;
 var cacheMisses = 0;
+var numAccesses = 0;
 
 
 function DAGLookup(index)
 {
+	var i = (index - startIndex)*hashWords;
+	var j = i + hashWords;
+
 	if (index - startIndex < 0 || index - startIndex > endIndex) {
 		return null;
 	}
-	return dag[index - startIndex];
+	return dag.slice(i,j);
 }
 
 // 32-bit unsigned modulo
@@ -75,6 +79,7 @@ function computeDagNode(o_node, params, cache, keccak, nodeIndex)
 	var dagParents = params.dagParents;
 	
 	var c = (nodeIndex % cacheNodeCount) << 4;
+	// console.log(o_node);
 	var mix = o_node;
 	for (var w = 0; w < 16; ++w)
 	{
@@ -121,10 +126,10 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 		for (var n = 0, w = 0; n < mixNodeCount; ++n, w += 16)
 		{
 			// modded to check for already present value of dag node
-			var t = DAGLookup((d + n)|0);
-			if (t != null)
+			numAccesses = numAccesses + 1;
+			if (DAGLookup((d + n)|0) != null)
 			{
-				tempNode = t;
+				tempNode = DAGLookup((d + n)|0);
 				cacheHits = cacheHits + 1;
 			}
 			else 
