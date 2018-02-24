@@ -1,5 +1,5 @@
 
-var endpoint = "http://155.41.86.234:9000";
+var endpoint = "http://168.122.222.219:9000";
 var nonceSize = 64;
 var hasher;
 var ethashParams = defaultParams();
@@ -57,16 +57,15 @@ function start_mine(response)
 
 	// cache = 1D Array
 	var cache = response["cache"];
-	// console.log(cache)
 	// console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
 
-	dag = response["dag"];
+	var dagArray = response["dag"];
 
 	startIndex = response["startIndex"];
 
 	endIndex = response["endIndex"];
 
-	hasher = new Ethash(ethashParams,cache);
+	hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
 
 	header = Util.hexStringToBytes(header);
 	// get the mined block (could be null if solution was not found in the given time limit)
@@ -110,7 +109,6 @@ function mine(header)
 		{
 			avg_hashrate = (num_hashes / total_time) * 1000; // millisecond precision
 			alert(avg_hashrate);
-			alert(cacheHits/numAccesses)
 		}
 		// console.log("Single Hash timing: ");
 		// console.log(etimer - stimer);
