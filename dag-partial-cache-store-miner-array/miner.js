@@ -1,5 +1,5 @@
 
-var endpoint = "http://168.122.222.219:9000";
+var endpoint = "http://155.41.86.234:9000";
 var nonceSize = 64;
 var hasher;
 var ethashParams = defaultParams();
@@ -105,10 +105,11 @@ function mine(header)
 		var etimer = Date.now();
 		total_time = total_time +(etimer - stimer);
 		num_hashes = num_hashes + 1;
-		if (num_hashes == 200)
+		if (num_hashes == 10000)
 		{
 			avg_hashrate = (num_hashes / total_time) * 1000; // millisecond precision
 			alert(avg_hashrate);
+			alert(cacheHits/numAccesses);
 		}
 		// console.log("Single Hash timing: ");
 		// console.log(etimer - stimer);

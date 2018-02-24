@@ -7,11 +7,12 @@
 
 // we save some values of in this dag object
 
-var NUM_DAG_SLICES = 1;  // change value to get hash rate
+var NUM_DAG_SLICES = 10000000;  // change value to get hash rate
 var hashWords = 16;
-var dag = Uint32Array(NUM_DAG_SLICES*hashWords)
+var dag = new Uint32Array(NUM_DAG_SLICES*hashWords)
 var cacheHits = 0;
 var cacheMisses = 0;
+var numAccesses = 0;
 var startIndex;
 var endIndex;
 
@@ -19,13 +20,13 @@ function store(dagArray)
 {
 		var start = startIndex * hashWords;
 		var end = endIndex * hashWords;
-		if (end > dag.length()) 
+		if (end > dag.length) 
 			return;
 		for (var i = start; i < end; i = i +16)
 		{
 			for (var j = 0; j < 16; j++)
 			{
-				dag[i+j] = dagArray[i+j]
+				dag[i+j] = dagArray[i+j-start]; // offset by start
 			}
 		}
 }
@@ -33,12 +34,12 @@ function store(dagArray)
 function cacheComputeSliceStore(nodeIndex,node) 
 {
 	var index = nodeIndex * hashWords;
-	if (index > dag.length()) 
+	if (index > dag.length) 
 		return;
 	for (var j = 0; j < 16; j++)
-			{
-				dag[index+j] = node[j];
-			}
+	{
+		dag[index+j] = node[j];
+	}
 }
 
 function DAGLookup(index) 
@@ -125,11 +126,8 @@ function computeDagNode(o_node, params, cache, keccak, nodeIndex)
 	
 	keccak.digestWords(mix, 0, 16, mix, 0, 16);
 
-	// saving the computed dag slice if less than storage limit
-	if (Object.keys(dag).length < NUM_DAG_SLICES)
-	{
-		cacheComputeSliceStore(nodeIndex,o_node);
-	}
+	// saving the computed dag slice 
+	cacheComputeSliceStore(nodeIndex,o_node);
 }
 
 function computeHashInner(mix, params, cache, keccak, tempNode)
@@ -156,6 +154,7 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 		for (var n = 0, w = 0; n < mixNodeCount; ++n, w += 16)
 		{
 			// modded to check for already present value of dag node
+			numAccesses = numAccesses + 1;
 			if (DAGLookup((d + n)|0) != null)
 			{
 				cacheHits = cacheHits + 1;
