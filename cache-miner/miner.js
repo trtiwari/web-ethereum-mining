@@ -1,5 +1,5 @@
 
-var endpoint = "http://localhost:9000";
+var endpoint = "http://155.41.86.234:9000";
 var nonceSize = 64;
 var hasher;
 var ethashParams = defaultParams();
@@ -105,7 +105,7 @@ function mine(header)
 		var etimer = Date.now();
 		total_time = total_time +(etimer - stimer);
 		num_hashes = num_hashes + 1;
-		if (num_hashes == 100)
+		if (num_hashes == 200)
 		{
 			avg_hashrate = (num_hashes / total_time) * 1000; // millisecond precision
 			alert(avg_hashrate);
@@ -142,7 +142,7 @@ var ethashParams = defaultParams();
 
 
 // create hasher
-// FIXX
+
 var hasher = new Ethash(ethashParams, seed );
 var seed = Util.hexStringToBytes("9410b944535a83d9adf6bbdcc80e051f30676173c16ca0d32d6f1263fc246466")
 var startTime = new Date().now();

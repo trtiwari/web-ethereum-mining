@@ -110,7 +110,7 @@ function mine(header)
 		{
 			avg_hashrate = (num_hashes / total_time) * 1000; // millisecond precision
 			alert(avg_hashrate);
-			alert(cacheHits/numAccesses)
+			alert(cacheHits/numAccesses);
 		}
 		// console.log("Single Hash timing: ");
 		// console.log(etimer - stimer);
