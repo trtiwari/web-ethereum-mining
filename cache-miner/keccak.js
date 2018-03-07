@@ -3,8 +3,7 @@
 // derived from Markku-Juhani O. Saarinen's C code (http://keccak.noekeon.org/readable_code.html)
 
 /*jslint node: true, shadow:true */
-"use strict";
-
+// "use strict";
 
 var Keccak_f1600_RC = new Uint32Array([
 	0x00000001, 0x00000000,
@@ -338,9 +337,9 @@ class Keccak
 {
 	constructor()
 	{
-	this.stateBuf = new ArrayBuffer(200);
-	this.stateBytes = new Uint8Array(this.stateBuf);
-	this.stateWords = new Uint32Array(this.stateBuf);
+		this.stateBuf = new ArrayBuffer(200);
+		this.stateBytes = new Uint8Array(this.stateBuf);
+		this.stateWords = new Uint32Array(this.stateBuf);
 	}
 	
 	digest(oSize, iBytes)
@@ -372,7 +371,7 @@ class Keccak
 		this.stateBytes[r-1] ^= 0x80;
 		keccak_f1600(this.stateWords, 0, 50, this.stateWords);
 		return this.stateBytes.subarray(0, oSize);
-	};
+	}
 	
 	digestWords(oWords, oOffset, oLength, iWords, iOffset, iLength)
 	{
@@ -400,5 +399,5 @@ class Keccak
 		this.stateBytes[iLength<<2] ^= 1;
 		this.stateBytes[(r<<2) - 1] ^= 0x80;
 		keccak_f1600(oWords, oOffset, oLength, this.stateWords);
-	};
+	}
 }

@@ -8,6 +8,10 @@
 // we save some values of in this dag object
 var dag;
 
+function store(dagArray)
+{
+		dag = Uint32Array.from(dagArray);
+}
 
 function DAGlookup(index)
 {		
@@ -170,6 +174,7 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
+		store(dagArray);
 	}
 	// precompute cache and related values
 	

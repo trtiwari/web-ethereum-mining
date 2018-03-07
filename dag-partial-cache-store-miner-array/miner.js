@@ -1,32 +1,20 @@
-
 var endpoint = "http://155.41.109.95:9000";
-// var nonceSize = 64;
-// var hasher;
-// var ethashParams = defaultParams();
-// // if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
-// // units = ms
-// var timeToGetCurrentBlock = 10000000;
-// // the hash must be less than the following for the nonce to be a valid solutions
-// var solutionThreshold = 10**72;
-// http_get(endpoint);
-
 
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", theUrl+"/get", true ); // true for asynchronous request, false for synchronous
+    // true for asynchronous request, false for synchronous
+    xmlHttp.open("GET", theUrl+"/get", true );
     xmlHttp.onload = function callback() 
     {
     	if (xmlHttp.readyState === 4) 
     	{
     		if (xmlHttp.status === 200) 
     		{
-    			// console.log("HTTP/1.1 200: " + xmlHttp.responseText);
     			start_mine(xmlHttp.responseText);
     		} 
     		else 
     		{
-      			// console.log(xmlHttp.statusText);
       			return null;
     		}
   		}
@@ -34,32 +22,31 @@ function http_get(theUrl)
     xmlHttp.send(null);
 }
 
-/*
 function http_post(theUrl,data) 
 {
 	var xmlHttp = new XMLHttpRequest();
     xmlHttp.open("POST", theUrl+"/post", false );
     xmlHttp.setRequestHeader("Content-type", "application/json");
-    cacheHits = 0;
-    cacheMisses = 0;
-    // console.log(data);
     xmlHttp.send(data);
     return;	
 }
 
+http_get(endpoint);
 
-// the main while loop
-function start_mine(response) 
-{
-	// get the block the node is currently mining
-	var response = JSON.parse(response);
-	// console.log(response);
-	// header = Array
-	var header = Uint32Array.from(response["header"]);
+function start_mine(response){
 
-	// cache = 1D Array
-	var cache = Uint32Array.from(response["cache"]);
-	// console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
+	// the hash must be less than the following for the nonce to be a valid solutions
+	var solutionThreshold = 10**72;
+	// if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
+	var timeToGetCurrentBlock = 10000000; // ms
+
+	var ethashParams = defaultParams();
+	var parsedResponse = JSON.parse(response);
+	// header = 1D Array of 32 bit ints
+	var header = Uint32Array.from(parsedResponse["header"]);
+
+	// cache = 1D Array of 32 bit ints
+	var cache = Uint32Array.from(parsedResponse["cache"]);
 
 	var dagArray = response["dag"];
 
@@ -67,122 +54,38 @@ function start_mine(response)
 
 	endIndex = response["endIndex"];
 
-	hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
+	var hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
 
-	// get the mined block (could be null if solution was not found in the given time limit)
+	var nonce = Util.hexStringToBytes("0000000000000000");
+	var hash;
 
-	// console.log("Got response, beginning to Mine");
-	var solution = mine(header);
-	// if an actual solution was found, ship it over to the node
-	if (solution != null)
+	startTime = new Date().getTime();
+	var trials = 100000;
+	for (var i = 0; i < trials; ++i)
 	{
-		var resp = http_post(endpoint,solution);
-		// console.log(resp);
+		[hash,result] = hasher.hash(header, nonce);
 
-	}
-	http_get(endpoint);
-	return;
-}
+		nonce[0]=nonce[0]+1;
 
-function mine(header)
-{
-	// console.log("Inside miner function");
-	var solution = null;
-	var nonce = null;
-	var result = null;
-	var digest = null;
-	var total_time = 0;
-	var num_hashes = 0;
-	var avg_hashrate = 0;
-	startTime = Date.now();
-	while(true)
-	{
-		// get a random nonce
-		nonce = Math.floor(Math.random() * 2**nonceSize);
-		nonceAsArray = Util.longToByteArray(nonce);
-		// get the hash for the current nonce and block
-		var stimer = Date.now();
-		[digest,result] = hasher.hash(header,nonceAsArray);
-		var etimer = Date.now();
-		total_time = total_time +(etimer - stimer);
-		num_hashes = num_hashes + 1;
-		if (num_hashes == 200)
+		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
 		{
-			avg_hashrate = (num_hashes / total_time) * 1000; // millisecond precision
-			alert(avg_hashrate);
-			alert(cacheHits/numAccesses);
+			console.log("VALID NONCE FOR RESULT: " + Util.bytesToHexString(hash));
+			var solution = JSON.stringify({WorkerDigest:Util.serializeIterableObject(hash),WorkerNonce:nonce,WorkerResult:Util.serializeIterableObject(result)});
+			http_post(endpoint,solution);
+			http_get(endpoint);
+			return;
 		}
-		// console.log("Single Hash timing: ");
-		// console.log(etimer - stimer);
-		// console.log("Cache hit : Cache miss ratio");
-  //   	console.log(cacheHits);
-  //   	console.log(cacheMisses);
-
-
-		
-		// if hash is less than the threshold, prepare the solution and return
-		var hash = Util.bytesToHexString(result);
-		if (parseInt(hash,16) < solutionThreshold)
+		else if (new Date().getTime() - startTime > timeToGetCurrentBlock)
 		{
-			console.log("VALID NONCE FOR RESULT: " + hash);
-			var solution = JSON.stringify({WorkerDigest:Util.serializeIterableObject(digest),WorkerNonce:nonce,WorkerResult:Util.serializeIterableObject(result)});
-			return solution;
+			console.log("TIME UP!");
+			http_get(endpoint);
+			return;
 		}
-		// else if you surpass a given time window while running the mining function,
-		// you simply return null
-	    now = Date.now();
-	    if ( (now - startTime) > timeToGetCurrentBlock) 
-	    {
-	        return solution;
-	    } 
 	}
-}
-*/
-
-http_get(endpoint);
-
-function start_mine(response){
-	// init params
-//ethashParams.cacheRounds = 0;
-var ethashParams = defaultParams();
-var parsedResponse = JSON.parse(response);
-// header = Array
-var header = Uint32Array.from(parsedResponse["header"]);
-
-// 	// cache = 1D Array
-var cache = Uint32Array.from(parsedResponse["cache"]);
-// var seed = Util.hexStringToBytes("9410b944535a83d9adf6bbdcc80e051f30676173c16ca0d32d6f1263fc246466");
-// var seedWords = convertSeed(seed);
-// var cache = computeCache(ethashParams,seedWords);
-
-var dagArray = response["dag"];
-
-var startIndex = response["startIndex"];
-
-var endIndex = response["endIndex"];
-
-var startTime = new Date().getTime();
-var hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
-console.log('Ethash startup took: '+(new Date().getTime() - startTime) + "ms");
-console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
-
-		
-var header = Util.hexStringToBytes("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
-
-var nonce = Util.hexStringToBytes("0000000000000000");
-var hash;
-
-startTime = new Date().getTime();
-var trials = 100000;
-for (var i = 0; i < trials; ++i)
-{
-	[hash,result] = hasher.hash(header, nonce);
-	// nonce[0]=nonce[0]+1;
-}
-var average_time = (new Date().getTime() - startTime)/trials;
-console.log("Light client hashes average hashrate: " + average_time);
-alert(1000/average_time);
-console.log("Hash = " + Util.bytesToHexString(hash));
+	var average_time = (new Date().getTime() - startTime)/trials;
+	console.log("Average time per hash: " + average_time);
+	// display hashrate
+	alert(1000/average_time);
 
 }
 

@@ -3,7 +3,7 @@
 // Tim Hughes <tim@twistedfury.com>
 
 /*jslint node: true, shadow:true */
-"use strict";
+// "use strict";
 
 var Keccak_f1600_Rho = [
 	1,  3,  6,  10, 15, 21, 28, 36, 45, 55, 2,  14, 

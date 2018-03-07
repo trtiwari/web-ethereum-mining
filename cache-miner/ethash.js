@@ -2,8 +2,11 @@
 // Tim Hughes <tim@twistedfury.com>
 // Revision 19
 
+/*jslint node: true, shadow:true */
+// "use strict";
 
-"use strict";
+// var Keccak = require('./keccak');
+// var util = require('./util');
 
 // 32-bit unsigned modulo
 function mod32(x, n)
@@ -47,7 +50,7 @@ function computeCache(params, seedWords)
 			
 			keccak.digestWords(cache, n<<4, 16, tmp, 0, tmp.length);
 		}
-	}
+	}	
 	return cache;
 }
 
@@ -102,7 +105,6 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 		
 		for (var n = 0, w = 0; n < mixNodeCount; ++n, w += 16)
 		{
-			
 			computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
 			
 			for (var v = 0; v < 16; ++v)
@@ -126,9 +128,9 @@ function convertSeed(seed)
 function defaultParams()
 {
 	return {
-		cacheSize: 19529408, // new size 19529408 old size 1048384
+		cacheSize: 1048384,
 		cacheRounds: 3,
-		dagSize: 2466247808, // new size 2466247808 old size 1073739904
+		dagSize: 1073739904,
 		dagParents: 256,
 		mixSize: 128,
 		mixParents: 64,
@@ -137,16 +139,16 @@ function defaultParams()
 
 class Ethash
 {
-	constructor(params,cache)
+	constructor(params, cache)
 	{
 		this.params = params;
+		// precompute cache and related values
 		// this.seed = convertSeed(seed);
 		this.cache = cache;//computeCache(params, seed);
-	
+		
 		// preallocate buffers/etc
 		this.initBuf = new ArrayBuffer(96);
 		this.initBytes = new Uint8Array(this.initBuf);
-		// this.initBytes = new Array(this.initBuf);
 		this.initWords = new Uint32Array(this.initBuf);
 		this.mixWords = new Uint32Array(this.params.mixSize / 4);
 		this.tempNode = new Uint32Array(16);
@@ -155,10 +157,9 @@ class Ethash
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
 	}
-	// precompute cache and related values
 	
 	
-	hash(header, nonce)
+	hash (header, nonce)
 	{
 		// compute initial hash
 		this.initBytes.set(header, 0);
@@ -166,29 +167,25 @@ class Ethash
 		this.keccak.digestWords(this.initWords, 0, 16, this.initWords, 0, 8 + nonce.length/4);
 		
 		// compute mix
-		for (let i = 0; i != 16; ++i)
+		for (var i = 0; i != 16; ++i)
 		{
 			this.mixWords[i] = this.initWords[i];
 		}
 		computeHashInner(this.mixWords, this.params, this.cache, this.keccak, this.tempNode);
 		
 		// compress mix and append to initWords
-		for (let i = 0; i != this.mixWords.length; i += 4)
+		for (var i = 0; i != this.mixWords.length; i += 4)
 		{
 			this.initWords[16 + i/4] = fnv(fnv(fnv(this.mixWords[i], this.mixWords[i+1]), this.mixWords[i+2]), this.mixWords[i+3]);
 		}
 			
-		// final keccak hashes
-		this.keccak.digestWords(this.retWords, 0, 8, this.initWords, 0, 24); // keccak-256(s + cmix)
-		return [this.initBytes,this.retBytes];
-	};
+		// final Keccak hashes
+		this.keccak.digestWords(this.retWords, 0, 8, this.initWords, 0, 24); // Keccak-256(s + cmix)
+		return this.retBytes;
+	}
 	
 	cacheDigest()
 	{
 		return this.keccak.digest(32, new Uint8Array(this.cache.buffer));
-	};
-};
-
-
-
-
+	}
+}

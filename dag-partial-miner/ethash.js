@@ -6,15 +6,30 @@
 "use strict";
 
 // we save some values of in this dag object
-var dag;
+var NUM_DAG_SLICES = 10000;
 var startIndex;
 var endIndex;
 
 var hashWords = 16;
+var dag = new Uint32Array(NUM_DAG_SLICES*hashWords);
 var cacheHits = 0;
 var cacheMisses = 0;
 var numAccesses = 0;
 
+function store(dagArray)
+{
+		var start = startIndex * hashWords;
+		var end = endIndex * hashWords;
+		if (end > dag.length) 
+			return;
+		for (var i = start; i < end; i = i +16)
+		{
+			for (var j = 0; j < 16; j++)
+			{
+				dag[i+j] = dagArray[i+j-start]; // offset by start
+			}
+		}
+}
 
 function DAGLookup(index)
 {
@@ -170,16 +185,14 @@ function defaultParams()
 
 class Ethash
 {
-	constructor(params,cache)
+	constructor(params,cache,dagArray)
 	{
 		this.params = params;
-		// this.seed = convertSeed(seed);
-		this.cache = cache;//computeCache(params, seed);
+		this.cache = cache;
 	
 		// preallocate buffers/etc
 		this.initBuf = new ArrayBuffer(96);
 		this.initBytes = new Uint8Array(this.initBuf);
-		// this.initBytes = new Array(this.initBuf);
 		this.initWords = new Uint32Array(this.initBuf);
 		this.mixWords = new Uint32Array(this.params.mixSize / 4);
 		this.tempNode = new Uint32Array(16);
@@ -187,6 +200,7 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
+		store(dagArray);
 	}
 	// precompute cache and related values
 	

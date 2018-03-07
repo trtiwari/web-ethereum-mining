@@ -1,4 +1,5 @@
 /cache-miner/~/*
 /dag-miner/~/*
-/dag-partial-cache-store-miner/~/*
+/dag-partial-cache-store-miner-array/~/*
+/dag-partial-cache-store-miner-hashmap/~/*
 /dag-partial-miner/~/*
