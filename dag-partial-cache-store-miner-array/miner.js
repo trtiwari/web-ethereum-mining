@@ -1,5 +1,5 @@
 
-var endpoint = "http://155.41.86.234:9000";
+var endpoint = "http://155.41.109.95:9000";
 var nonceSize = 64;
 var hasher;
 var ethashParams = defaultParams();
@@ -53,10 +53,10 @@ function start_mine(response)
 	var response = JSON.parse(response);
 	// console.log(response);
 	// header = Array
-	var header = response["header"];
+	var header = Uint32Array.from(response["header"]);
 
 	// cache = 1D Array
-	var cache = response["cache"];
+	var cache = Uint32Array.from(response["cache"]);
 	// console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
 
 	var dagArray = response["dag"];
@@ -67,7 +67,6 @@ function start_mine(response)
 
 	hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
 
-	header = Util.hexStringToBytes(header);
 	// get the mined block (could be null if solution was not found in the given time limit)
 
 	// console.log("Got response, beginning to Mine");
@@ -105,7 +104,7 @@ function mine(header)
 		var etimer = Date.now();
 		total_time = total_time +(etimer - stimer);
 		num_hashes = num_hashes + 1;
-		if (num_hashes == 10000)
+		if (num_hashes == 200)
 		{
 			avg_hashrate = (num_hashes / total_time) * 1000; // millisecond precision
 			alert(avg_hashrate);

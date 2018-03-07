@@ -1,6 +1,5 @@
 
 var endpoint = "http://155.41.86.234:9000";
-var nonceSize = 64;
 var hasher;
 var ethashParams = defaultParams();
 // if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
