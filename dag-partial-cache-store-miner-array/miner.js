@@ -1,14 +1,14 @@
 
 var endpoint = "http://155.41.109.95:9000";
-var nonceSize = 64;
-var hasher;
-var ethashParams = defaultParams();
-// if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
-// units = ms
-var timeToGetCurrentBlock = 10000000;
-// the hash must be less than the following for the nonce to be a valid solutions
-var solutionThreshold = 10**72;
-http_get(endpoint);
+// var nonceSize = 64;
+// var hasher;
+// var ethashParams = defaultParams();
+// // if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
+// // units = ms
+// var timeToGetCurrentBlock = 10000000;
+// // the hash must be less than the following for the nonce to be a valid solutions
+// var solutionThreshold = 10**72;
+// http_get(endpoint);
 
 
 function http_get(theUrl)
@@ -34,6 +34,7 @@ function http_get(theUrl)
     xmlHttp.send(null);
 }
 
+/*
 function http_post(theUrl,data) 
 {
 	var xmlHttp = new XMLHttpRequest();
@@ -45,6 +46,7 @@ function http_post(theUrl,data)
     xmlHttp.send(data);
     return;	
 }
+
 
 // the main while loop
 function start_mine(response) 
@@ -135,35 +137,54 @@ function mine(header)
 	    } 
 	}
 }
-/*
+*/
 
-// init params
+http_get(endpoint);
+
+function start_mine(response){
+	// init params
+//ethashParams.cacheRounds = 0;
 var ethashParams = defaultParams();
+var parsedResponse = JSON.parse(response);
+// header = Array
+var header = Uint32Array.from(parsedResponse["header"]);
 
+// 	// cache = 1D Array
+var cache = Uint32Array.from(parsedResponse["cache"]);
+// var seed = Util.hexStringToBytes("9410b944535a83d9adf6bbdcc80e051f30676173c16ca0d32d6f1263fc246466");
+// var seedWords = convertSeed(seed);
+// var cache = computeCache(ethashParams,seedWords);
 
-// create hasher
-// FIXX
-var hasher = new Ethash(ethashParams, seed );
-var seed = Util.hexStringToBytes("9410b944535a83d9adf6bbdcc80e051f30676173c16ca0d32d6f1263fc246466")
-var startTime = new Date().now();
+var dagArray = response["dag"];
 
-console.log('Ethash startup took: '+(new Date().now() - startTime) + "ms");
+var startIndex = response["startIndex"];
 
-var header = util.hexStringToBytes("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
+var endIndex = response["endIndex"];
 
-console.log("Nonce Length",header.length)
+var startTime = new Date().getTime();
+var hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
+console.log('Ethash startup took: '+(new Date().getTime() - startTime) + "ms");
+console.log('Ethash cache hash: ' + Util.bytesToHexString(hasher.cacheDigest()));
+
+		
+var header = Util.hexStringToBytes("c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470");
+
+var nonce = Util.hexStringToBytes("0000000000000000");
 var hash;
 
-startTime = new Date().now();
-var trials = 10;
+startTime = new Date().getTime();
+var trials = 100000;
 for (var i = 0; i < trials; ++i)
 {
-	hash = hasher.hash(header, nonce);
+	[hash,result] = hasher.hash(header, nonce);
+	// nonce[0]=nonce[0]+1;
 }
-console.log("Light client hashes averaged: " + (new Date().now() - startTime)/trials + "ms");
+var average_time = (new Date().getTime() - startTime)/trials;
+console.log("Light client hashes average hashrate: " + average_time);
+alert(1000/average_time);
 console.log("Hash = " + Util.bytesToHexString(hash));
 
-*/
+}
 
 /*
 decrease mining difficulty

@@ -1,6 +1,6 @@
-/*
+
 var endpoint = "http://155.41.109.95:9000";
-var hasher;
+/*var hasher;
 var nonceSize = 64;
 var ethashParams = defaultParams();
 // if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
@@ -11,7 +11,7 @@ var solutionThreshold = 10**72;
 
 http_get(endpoint);
 
-
+*/
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -34,7 +34,7 @@ function http_get(theUrl)
     xmlHttp.send(null);
 }
 
-
+/*
 function http_post(theUrl,data) 
 {
 	var xmlHttp = new XMLHttpRequest();
@@ -124,7 +124,6 @@ function mine(header)
 }
 */
 
-/*
 http_get(endpoint);
 
 function start_mine(response){
@@ -137,7 +136,6 @@ var header = Uint32Array.from(parsedResponse["header"]);
 // 	// cache = 1D Array
 var cache = Uint32Array.from(parsedResponse["cache"]);
 
-*/
 var ethashParams = defaultParams();
 var seed = Util.hexStringToBytes("9410b944535a83d9adf6bbdcc80e051f30676173c16ca0d32d6f1263fc246466");
 var seedWords = convertSeed(seed);
@@ -169,4 +167,4 @@ console.log("Light client hashes average hashrate: " + hashrate);
 alert(hashrate);
 console.log("Hash = " + Util.bytesToHexString(hash));
 
-// }
+}
