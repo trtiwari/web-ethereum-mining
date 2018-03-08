@@ -7,11 +7,10 @@
 
 // we save some values of in this dag object
 
-var NUM_DAG_SLICES = 10000000;  // change value to get hash rate
+var NUM_DAG_SLICES = 10000000;
 var hashWords = 16;
 var dag = new Uint32Array(NUM_DAG_SLICES*hashWords);
 var cacheHits = 0;
-var cacheMisses = 0;
 var numAccesses = 0;
 var startIndex;
 var endIndex;
@@ -162,7 +161,6 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 			}
 			else 
 			{
-				cacheMisses = cacheMisses + 1;
 				computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
 			}
 			

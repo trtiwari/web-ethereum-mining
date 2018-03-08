@@ -48,11 +48,11 @@ function start_mine(response){
 	// cache = 1D Array of 32 bit ints
 	var cache = Uint32Array.from(parsedResponse["cache"]);
 
-	var dagArray = response["dag"];
+	var dagArray = parsedResponse["dag"];
 
-	var startIndex = response["startIndex"];
+	var startIndex = parsedResponse["startIndex"];
 
-	var endIndex = response["endIndex"];
+	var endIndex = parsedResponse["endIndex"];
 
 	var hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
 

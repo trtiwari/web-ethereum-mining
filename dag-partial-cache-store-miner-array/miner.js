@@ -11,7 +11,7 @@ function http_get(theUrl)
     	{
     		if (xmlHttp.status === 200) 
     		{
-    			start_mine(xmlHttp.responseText);
+    			mine(xmlHttp.responseText);
     		} 
     		else 
     		{
@@ -33,7 +33,7 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
-function start_mine(response){
+function mine(response){
 
 	// the hash must be less than the following for the nonce to be a valid solutions
 	var solutionThreshold = 10**72;
@@ -48,11 +48,11 @@ function start_mine(response){
 	// cache = 1D Array of 32 bit ints
 	var cache = Uint32Array.from(parsedResponse["cache"]);
 
-	var dagArray = response["dag"];
+	var dagArray = parsedResponse["dag"];
 
-	startIndex = response["startIndex"];
+	startIndex = parsedResponse["startIndex"];
 
-	endIndex = response["endIndex"];
+	endIndex = parsedResponse["endIndex"];
 
 	var hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
 
@@ -60,7 +60,7 @@ function start_mine(response){
 	var hash;
 
 	startTime = new Date().getTime();
-	var trials = 100000;
+	var trials = 100;
 	for (var i = 0; i < trials; ++i)
 	{
 		[hash,result] = hasher.hash(header, nonce);
@@ -86,7 +86,7 @@ function start_mine(response){
 	console.log("Average time per hash: " + average_time);
 	// display hashrate
 	alert(1000/average_time);
-
+	alert(cacheHits/numAccesses);
 }
 
 /*
