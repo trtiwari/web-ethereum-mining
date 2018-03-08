@@ -11,13 +11,7 @@ function http_get(theUrl)
     	{
     		if (xmlHttp.status === 200) 
     		{
-    			var parsedResponse = JSON.parse(xmlHttp.responseText);
-    			// header = Array
-				var header = Uint32Array.from(parsedResponse["header"]);
-				// 	// cache = 1D Array
-				var cache = Uint32Array.from(parsedResponse["cache"]);
-    			_mine(header,cache);
-
+    			start_mine(xmlHttp.responseText);
     		} 
     		else 
     		{
@@ -40,18 +34,24 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
-function mine(header,cache){
+function start_mine(response){
 	// the hash must be less than the following for the nonce to be a valid solutions
 	var solutionThreshold = 10**72;
 	// if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
 	var timeToGetCurrentBlock = 10000000; // ms
 
-	// Accessing cpp bindings)
-	var ethashParams = new Module.Params();
+	var parsedResponse = JSON.parse(response);
+	// header = Array
+	var header = Uint32Array.from(parsedResponse["header"]);
 
-	var hasher = new Module.Ethash(ethashParams, cache);
+	// 	// cache = 1D Array
+	var cache = Uint32Array.from(parsedResponse["cache"]);
+
+	var ethashParams = defaultParams();
+
+	var hasher = new Ethash(ethashParams, cache);
 	
-	var nonce = Uint8Array([0,0,0,0,0,0,0,0]);
+	var nonce = Util.hexStringToBytes("0000000000000000");
 	var hash;
 
 	startTime = new Date().getTime();
@@ -79,5 +79,4 @@ function mine(header,cache){
 	console.log("Light client hashes average hashrate: " + hashrate);
 	alert(hashrate);
 	console.log("Hash = " + Util.bytesToHexString(hash));
-
 }

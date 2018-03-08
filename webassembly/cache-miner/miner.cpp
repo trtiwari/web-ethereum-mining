@@ -1,5 +1,6 @@
 #include <string>
-#include <cstring>
+// #include <emscripten/emscripten.h>
+#include<iostream>
 using namespace std;
 
 class Params
@@ -366,7 +367,8 @@ class Keccak
 	public:
 		unsigned char stateBuf[200];
 		unsigned char * stateBytes;
-		unsigned int * stateWords;
+		// FIXX
+		unsigned int stateWords[200];
 		Keccak()
 		{
 			// figure this out
@@ -375,38 +377,12 @@ class Keccak
 			this->stateWords = new Uint32Array(this->stateBuf);
 			*/
 			this->stateBytes = this->stateBuf;
-			this->stateWords = this->stateBuf;
-		}
-		
-		unsigned char * digest(int oSize, unsigned int * iBytes)
-		{
-			for (int i = 0; i < 50; ++i)
+			// this->stateWords = (unsigned int *) this->stateBuf;
+			// intiialize to something
+			for (int i = 0; i < 200; i++)
 			{
-				this->stateWords[i] = 0;
+				this->stateWords[i] = 5;
 			}
-			
-			int r = 200 - oSize*2;
-			int iLength = sizeof(iBytes)/sizeof(*iBytes);
-			int iOffset = 0;	
-			for ( ; ;)
-			{
-				int len = iLength < r ? iLength : r;
-				for (int i = 0; i < len; ++i, ++iOffset)
-				{
-					this->stateBytes[i] ^= iBytes[iOffset];
-				}
-				
-				if (iLength < r)
-					break;
-				iLength -= len;
-				
-				keccak_f1600(this->stateWords, 0, 50, this->stateWords);
-			}
-			
-			this->stateBytes[iLength] = this->stateBytes[iLength] ^ 1;
-			this->stateBytes[r-1] = 0x80 ^ this->stateBytes[r-1];
-			keccak_f1600(this->stateWords, 0, 50, this->stateWords);
-			return this->stateBytes.subarray(0, oSize);
 		}
 		
 		void digestWords(unsigned int * oWords, int oOffset, int oLength, unsigned int * iWords, int iOffset, int iLength)
@@ -438,56 +414,39 @@ class Keccak
 		}
 };
 
-class Util 
+// FIX -- only works for ascii, not for the entire range of utf-16
+char nibbleToChar(char nibble)
 {
-	// FIX -- only works for ascii, not for the entire range of utf-16
-	static char nibbleToChar(char nibble)
-	{
-		return (nibble < 10 ? 48 : 87) + nibble + '0';
-	}
+	return (nibble < 10 ? 48 : 87) + nibble + '0';
+}
 
-	static int charToNibble(int chr)
+int charToNibble(int chr)
+{
+	if (chr >= 48 && chr <= 57)
 	{
-		if (chr >= 48 && chr <= 57)
-		{
-			return chr - 48;
-		}
-		if (chr >= 65 && chr <= 70)
-		{
-			return chr - 65 + 10;
-		}
-		if (chr >= 97 && chr <= 102)
-		{
-			return chr - 97 + 10;
-		}
-		return 0;
+		return chr - 48;
 	}
-
-	static char * hexStringToBytes(string str)
+	if (chr >= 65 && chr <= 70)
 	{
-		// intialize array of half the length
-		char bytes[str.length()>>1];
-		for (int i = 0; i != str.length()>>1; ++i)
-		{
-			// FIX -- ASSUMING charCodeAt returns ascii instead of utf-16
-			bytes[i] = charToNibble(str[i<<1 | 0]) << 4;
-			bytes[i] = bytes[i] | charToNibble(str[i<<1 | 1]);
-		}
-		return bytes;
+		return chr - 65 + 10;
 	}
-
-	static string bytesToHexString(char * bytes)
+	if (chr >= 97 && chr <= 102)
 	{
-		string str = "";
-		for (int i = 0; i != sizeof(bytes)/sizeof(*bytes); ++i)
-		{
-			str = str + nibbleToChar(bytes[i] >> 4);
-			str = str + nibbleToChar(bytes[i] & 0xf);
-		}
-		return str;
+		return chr - 97 + 10;
 	}
+	return 0;
+}
 
-};
+string bytesToHexString(char * bytes)
+{
+	string str = "";
+	for (int i = 0; i != sizeof(bytes)/sizeof(*bytes); ++i)
+	{
+		str = str + nibbleToChar(bytes[i] >> 4);
+		str = str + nibbleToChar(bytes[i] & 0xf);
+	}
+	return str;
+}
 
 int mod32(int x, int n)
 {
@@ -574,15 +533,15 @@ class Ethash
 	unsigned int tempNode[16];
 	Keccak * keccak;
 	unsigned int retWords[8];
+	unsigned char * initBytes;
 	// FIXX
-	unsigned char initBytes[96];
 	unsigned int initWords[96];
-	unsigned char retBytes[8];
+	unsigned char * retBytes;
 
 	public: 
-	Ethash(Params * params,unsigned int * cache)
+	Ethash(Params params,unsigned int cache[])
 	{
-		this->params = params;
+		this->params = &params;
 		this->cache = cache;
 		
 		// preallocate buffers/etc
@@ -592,6 +551,14 @@ class Ethash
 		this->initBytes = new Uint8Array(this->initBuf);
 		this->initWords = new Uint32Array(this->initBuf);
 		*/
+		this->initBytes = this->initBuf;
+		// this->initWords = (unsigned int *) this->initBuf;
+		for (int i = 0; i < 96; i++)
+		{
+				this->initWords[i] = 4;
+				cout << "Done " << i << '\n';
+		}
+		cout << "Done ";
 
 		this->mixWords = new unsigned int[this->params->mixSize / 4];
 		
@@ -601,15 +568,24 @@ class Ethash
 		/*
 		this->retBytes = new Uint8Array(this->retWords.buffer); // supposedly read-only
 		*/
+		this->retBytes = (unsigned char *) this->retWords;
 	}
 	
 	
-	char * hash (unsigned int * header,unsigned char * nonce)
+	unsigned char * hash (unsigned int * header,unsigned char * nonce)
 	{
 		// compute initial hash
 		// FIX THIS
-		this->initBytes.set(header, 0);
-		this->initBytes.set(nonce, 32);
+		// this->initBytes.set(header, 0);
+		for (int i = 0; i < sizeof(header)/sizeof(*header); i++)
+		{
+			this->initBytes[i] = header[i];
+		}
+		for (int i = 32; i < sizeof(nonce)/sizeof(*nonce) + 32; i++)
+		{
+			this->initBytes[i] = nonce[i-32];
+		}
+		// this->initBytes.set(nonce, 32);
 
 		this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 8 + sizeof(nonce)/(sizeof(*nonce)*4));
 		
@@ -632,9 +608,29 @@ class Ethash
 		this->keccak->digestWords(this->retWords, 0, 8, this->initWords, 0, 24); // Keccak-256(s + cmix)
 		return this->retBytes;
 	}
-	
-	unsigned int * cacheDigest()
-	{
-		return this->keccak->digest(32, new Uint8Array(this->cache.buffer));
-	}
 };
+
+/*
+
+EMSCRIPTEN_BINDINGS(params) {
+  class_<Params>("Params")
+    .constructor();
+}
+
+EMSCRIPTEN_BINDINGS(ethash) {
+  class_<Ethash>("Ethash")
+    .constructor<Params,unsigned int[]>()
+    .function("hash", &Ethash::hash,allow_raw_pointers());
+}
+*/
+
+int main()
+{
+	Params params = Params();
+	unsigned int cache[] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
+	unsigned int header[] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
+	Ethash ethash = Ethash(params,cache);
+	unsigned char nonce[] = {1,2,3,4,5,6,7,8};
+	cout << ethash.hash(header,nonce);
+	return 0;
+}
