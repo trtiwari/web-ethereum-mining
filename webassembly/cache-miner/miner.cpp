@@ -60,7 +60,7 @@ unsigned int Keccak_f1600_RC[] = {
 	0x80008008, 0x80000000,
 };
 
-void keccak_f1600(int * outState, int outOffset, int outSize, int * inState)
+void keccak_f1600(unsigned int * outState, int outOffset, int outSize, unsigned int * inState)
 {
 	// todo, handle big endian loads
 	int a00l = inState[0]|0;
@@ -378,7 +378,7 @@ class Keccak
 			this->stateWords = this->stateBuf;
 		}
 		
-		unsigned char * digest(int oSize, int * iBytes)
+		unsigned char * digest(int oSize, unsigned int * iBytes)
 		{
 			for (int i = 0; i < 50; ++i)
 			{
@@ -409,7 +409,7 @@ class Keccak
 			return this->stateBytes.subarray(0, oSize);
 		}
 		
-		void digestWords(int * oWords, int oOffset, int oLength, int * iWords, int iOffset, int iLength)
+		void digestWords(unsigned int * oWords, int oOffset, int oLength, unsigned int * iWords, int iOffset, int iLength)
 		{
 			for (int i = 0; i < 50; ++i)
 			{
@@ -507,7 +507,7 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 	int dagParents = params->dagParents;
 	
 	int c = (nodeIndex % cacheNodeCount) << 4;
-	int * mix = o_node;
+	unsigned int * mix = o_node;
 
 	for (int w = 0; w < 16; ++w)
 	{
@@ -568,19 +568,19 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 class Ethash
 {
 	Params * params;
-	int * cache;
-	char initBuf[96];
-	int * mixWords;
-	int tempNode[16];
+	unsigned int * cache;
+	unsigned char initBuf[96];
+	unsigned int * mixWords;
+	unsigned int tempNode[16];
 	Keccak * keccak;
-	int retWords[8];
+	unsigned int retWords[8];
 	// FIXX
-	char initBytes[96];
-	int initWords[96];
-	char retBytes[8];
+	unsigned char initBytes[96];
+	unsigned int initWords[96];
+	unsigned char retBytes[8];
 
 	public: 
-	Ethash(Params * params, int * cache)
+	Ethash(Params * params,unsigned int * cache)
 	{
 		this->params = params;
 		this->cache = cache;
@@ -593,7 +593,7 @@ class Ethash
 		this->initWords = new Uint32Array(this->initBuf);
 		*/
 
-		this->mixWords = new int[this->params->mixSize / 4];
+		this->mixWords = new unsigned int[this->params->mixSize / 4];
 		
 		this->keccak = new Keccak();
 		
@@ -604,7 +604,7 @@ class Ethash
 	}
 	
 	
-	char * hash (int * header, char * nonce)
+	char * hash (unsigned int * header,unsigned char * nonce)
 	{
 		// compute initial hash
 		// FIX THIS
@@ -633,7 +633,7 @@ class Ethash
 		return this->retBytes;
 	}
 	
-	int * cacheDigest()
+	unsigned int * cacheDigest()
 	{
 		return this->keccak->digest(32, new Uint8Array(this->cache.buffer));
 	}
