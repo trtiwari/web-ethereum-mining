@@ -365,24 +365,14 @@ void keccak_f1600(unsigned int * outState, int outOffset, int outSize, unsigned 
 class Keccak
 {
 	public:
-		unsigned char stateBuf[200];
-		unsigned char * stateBytes;
-		// FIXX
-		unsigned int stateWords[200];
+		// changed stateBuf from uchar to uint
+		unsigned int stateBuf[200];
+		unsigned int  * stateWords;
 		Keccak()
 		{
-			// figure this out
-			/*
-			this->stateBytes = new Uint8Array(this->stateBuf);
-			this->stateWords = new Uint32Array(this->stateBuf);
-			*/
-			this->stateBytes = this->stateBuf;
-			// this->stateWords = (unsigned int *) this->stateBuf;
-			// intiialize to something
-			for (int i = 0; i < 200; i++)
-			{
-				this->stateWords[i] = 5;
-			}
+			// got rid of stateBytes
+			// don't need 2 datastructures pointing to the same object
+			this->stateWords = this->stateBuf;
 		}
 		
 		void digestWords(unsigned int * oWords, int oOffset, int oLength, unsigned int * iWords, int iOffset, int iLength)
@@ -393,12 +383,12 @@ class Keccak
 			}
 			
 			int r = 50 - oLength*2;
-			for (; ; )
+			for (;;)
 			{
 				int len = iLength < r ? iLength : r;
 				for (int i = 0; i < len; ++i, ++iOffset)
 				{
-					this->stateWords[i] = iWords[iOffset] ^ this->stateWords[i];
+					this->stateWords[i] ^= iWords[iOffset];
 				}
 				
 				if (iLength < r)
@@ -408,8 +398,10 @@ class Keccak
 				keccak_f1600(this->stateWords, 0, 50, this->stateWords);
 			}
 			
-			this->stateBytes[iLength<<2] ^= 1;
-			this->stateBytes[(r<<2) - 1] ^= 0x80;
+			// these both were stateBytes instead of stateWords, but type inconsistency
+			// is not allowed is c++, so changed
+			this->stateWords[iLength<<2] ^= 1;
+			this->stateWords[(r<<2) - 1] ^= 0x80;
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
 		}
 };
@@ -460,7 +452,7 @@ int fnv(int x, int y)
 }
 
 
-void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache, Keccak * keccak,unsigned int nodeIndex)
+void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache, Keccak * keccak, unsigned int nodeIndex)
 {
 	int cacheNodeCount = params->cacheSize >> 6;
 	int dagParents = params->dagParents;
@@ -471,20 +463,20 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 	for (int w = 0; w < 16; ++w)
 	{
 		mix[w] = cache[c|w];
-	}
+	}	
 
-	mix[0] = mix[0] ^ nodeIndex;
+	mix[0] ^= nodeIndex;
 
 	keccak->digestWords(mix, 0, 16, mix, 0, 16);
-	
+
 	for (int p = 0; p < dagParents; ++p)
 	{
 		// compute cache node (word) index
 		c = mod32(fnv(nodeIndex ^ p, mix[p&15]), cacheNodeCount) << 4;
-		
 		for (int w = 0; w < 16; ++w)
 		{
-			mix[w] = fnv(mix[w], cache[c|w]);
+			// FIX THIS -- c|w is too big -- how big is the cache?
+			mix[w] = fnv(mix[w], cache[(unsigned char)c|w]);
 		}
 	}
 	
@@ -493,10 +485,10 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 
 void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, Keccak * keccak,unsigned int * tempNode)
 {
-	int mixParents = params->mixParents|0;
-	int mixWordCount = params->mixSize >> 2;
-	int mixNodeCount = mixWordCount >> 4;
-	int dagPageCount = (params->dagSize / params->mixSize) >> 0;
+	unsigned int mixParents = params->mixParents;
+	unsigned int mixWordCount = params->mixSize >> 2;
+	unsigned int mixNodeCount = mixWordCount >> 4;
+	unsigned int dagPageCount = (params->dagSize / params->mixSize) >> 0;
 	
 	// grab initial first word
 	int s0 = mix[0];
@@ -506,16 +498,14 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 	{
 		mix[w] = mix[w & 15];
 	}
-	
+
 	for (int a = 0; a < mixParents; ++a)
 	{
 		int p = mod32(fnv(s0 ^ a, mix[a & (mixWordCount-1)]), dagPageCount);
-		int d = (p * mixNodeCount)|0;
-		
+		int d = p * mixNodeCount;
 		for (int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
 		{
-			computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
-			
+			computeDagNode(tempNode, params, cache, keccak, d + n);
 			for (int v = 0; v < 16; ++v)
 			{
 				mix[w|v] = fnv(mix[w|v], tempNode[v]);
@@ -526,88 +516,70 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 
 class Ethash
 {
-	Params * params;
-	unsigned int * cache;
-	unsigned char initBuf[96];
-	unsigned int * mixWords;
-	unsigned int tempNode[16];
-	Keccak * keccak;
-	unsigned int retWords[8];
-	unsigned char * initBytes;
-	// FIXX
-	unsigned int initWords[96];
-	unsigned char * retBytes;
+	public:
+		Params * params;
+		unsigned int * cache;
+		// changed unsigned char to uint
+		unsigned int initBuf[96];
+		unsigned int * mixWords;
+		unsigned int tempNode[16];
+		Keccak * keccak;
+		unsigned int retWords[8];
+		unsigned int * initWords;
 
-	public: 
-	Ethash(Params params,unsigned int cache[])
-	{
-		this->params = &params;
-		this->cache = cache;
-		
-		// preallocate buffers/etc
-		
-		// figure out whether these two share memory or not through initBuf
-		/*
-		this->initBytes = new Uint8Array(this->initBuf);
-		this->initWords = new Uint32Array(this->initBuf);
-		*/
-		this->initBytes = this->initBuf;
-		// this->initWords = (unsigned int *) this->initBuf;
-		for (int i = 0; i < 96; i++)
+		Ethash(Params * params,unsigned int cache[])
 		{
-				this->initWords[i] = 4;
-				cout << "Done " << i << '\n';
-		}
-		cout << "Done ";
-
-		this->mixWords = new unsigned int[this->params->mixSize / 4];
-		
-		this->keccak = new Keccak();
-		
-		// figure out whether this shares memory with retWords
-		/*
-		this->retBytes = new Uint8Array(this->retWords.buffer); // supposedly read-only
-		*/
-		this->retBytes = (unsigned char *) this->retWords;
-	}
-	
-	
-	unsigned char * hash (unsigned int * header,unsigned char * nonce)
-	{
-		// compute initial hash
-		// FIX THIS
-		// this->initBytes.set(header, 0);
-		for (int i = 0; i < sizeof(header)/sizeof(*header); i++)
-		{
-			this->initBytes[i] = header[i];
-		}
-		for (int i = 32; i < sizeof(nonce)/sizeof(*nonce) + 32; i++)
-		{
-			this->initBytes[i] = nonce[i-32];
-		}
-		// this->initBytes.set(nonce, 32);
-
-		this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 8 + sizeof(nonce)/(sizeof(*nonce)*4));
-		
-		// compute mix
-		for (int i = 0; i != 16; ++i)
-		{
-			this->mixWords[i] = this->initWords[i];
-		}
-		computeHashInner(this->mixWords, this->params, this->cache, this->keccak, this->tempNode);
-		
-		// compress mix and append to initWords
-
-		// note: this->params->mixSize / 4 = mixwords.length
-		for (int i = 0; i != this->params->mixSize / 4; i = i + 4)
-		{
-			this->initWords[16 + i/4] = fnv(fnv(fnv(this->mixWords[i], this->mixWords[i+1]), this->mixWords[i+2]), this->mixWords[i+3]);
-		}
+			this->params = params;
+			this->cache = cache;
+			// preallocate buffers/etc
 			
-		// final Keccak hashes
-		this->keccak->digestWords(this->retWords, 0, 8, this->initWords, 0, 24); // Keccak-256(s + cmix)
-		return this->retBytes;
-	}
+			// got rid of initBytes and retBytes 
+			// don't need 2 datastructures pointing to the same buffer.
+
+			this->initWords = this->initBuf;
+			this->mixWords = new unsigned int[this->params->mixSize / 4];
+			this->keccak = new Keccak();
+			
+		}
+		
+		
+		unsigned int * hash (unsigned int * header,unsigned char * nonce)
+		{
+			// compute initial hash
+			
+			for (int i = 0; i < sizeof(header)/sizeof(*header); i++)
+			{
+				// changed initBytes to initWords
+				this->initWords[i] = header[i];
+			}
+			// we know nonce is always 8 uint8_t elements (64 bit nonce)
+			for (int i = 32; i < 40; i++)
+			{
+				// changed initBytes to initWords
+				this->initWords[i] = (unsigned int)nonce[i-32];
+			}
+			this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 10);
+
+
+			// compute mix
+			for (int i = 0; i != 16; ++i)
+			{
+				this->mixWords[i] = this->initWords[i];
+			}
+			computeHashInner(this->mixWords, this->params, this->cache, this->keccak, this->tempNode);
+
+			// compress mix and append to initWords
+
+			// note: this->params->mixSize / 4 = mixwords.length
+			for (int i = 0; i != this->params->mixSize / 4; i = i + 4)
+			{
+				this->initWords[16 + i/4] = fnv(fnv(fnv(this->mixWords[i], this->mixWords[i+1]), this->mixWords[i+2]), this->mixWords[i+3]);
+			}
+				
+			// final Keccak hashes
+			this->keccak->digestWords(this->retWords, 0, 8, this->initWords, 0, 24); // Keccak-256(s + cmix)
+			return this->retWords;
+		}
 };
 
 /*
@@ -626,11 +598,13 @@ EMSCRIPTEN_BINDINGS(ethash) {
 
 int main()
 {
-	Params params = Params();
-	unsigned int cache[] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
+	Params params;
+	unsigned int cache[1000000];
+	for (int i = 0; i < 1000000; i++)
+		cache[i] = 42;
 	unsigned int header[] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
-	Ethash ethash = Ethash(params,cache);
+	Ethash ethash(&params,cache);
 	unsigned char nonce[] = {1,2,3,4,5,6,7,8};
-	cout << ethash.hash(header,nonce);
+	ethash.hash(header,nonce);
 	return 0;
 }
