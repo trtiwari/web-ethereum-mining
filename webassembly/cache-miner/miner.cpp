@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include <sstream>
+#include <chrono>
 // #include<iostream>
 using namespace emscripten;
 
@@ -17,12 +18,22 @@ class Params
 
 		Params()
 		{
-			cacheSize = 1048384;
-			cacheRounds = 3;
-			dagSize = 1073739904;
-			dagParents = 256;
-			mixSize = 128;
-			mixParents = 64;
+			this->cacheSize = 1048384;
+			this->cacheRounds = 3;
+			this->dagSize = 1073739904;
+			this->dagParents = 256;
+			this->mixSize = 128;
+			this->mixParents = 64;
+		}
+
+		Params(int cacheSize,int dagSize)
+		{
+			this->cacheSize = cacheSize;
+			this->cacheRounds = 3;
+			this->dagSize = dagSize;
+			this->dagParents = 256;
+			this->mixSize = 128;
+			this->mixParents = 64;
 		}
 };
 
@@ -590,53 +601,49 @@ class Ethash
 		}
 };
 
-void deserializeCache(std::string cacheStr, unsigned int * cache, int cacheSize)
+void deserialize(std::string str, unsigned int * outArr, int size)
 {
-	std::stringstream ss(cacheStr);
+	std::stringstream ss(str);
 	int i = 0;
-    while (ss.good() && i < cacheSize)
+    while (ss.good() && i < size)
     {
-        ss >> cache[i];
+        ss >> outArr[i];
         ++i;
     }
 }
 
-void deserializeHeader(std::string headerStr, unsigned int * header)
-{
-	std::stringstream ss(headerStr);
-	int i = 0;
-    while (ss.good() && i < 44)
-    {
-        ss >> header[i];
-        ++i;
-    }
-
-}
-
-double mine(std::string headerStr,std::string cacheStr,int cacheSize)
+double mine(std::string headerStr,std::string cacheStr,int cacheSize,int dagSize)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
 
-	Params params;
+	Params params(cacheSize,dagSize);
 
 	unsigned int header[44];
 	unsigned int * cache = new unsigned int[cacheSize];
 
-	deserializeHeader(headerStr,header);
-	deserializeCache(cacheStr,cache,cacheSize);
+	deserialize(headerStr,header,44);
+	deserialize(cacheStr,cache,cacheSize);
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
 	unsigned int trials = 10000;
 	unsigned int * hash;
 
+	// timing the hashes
+	std::chrono::high_resolution_clock::time_point start;
+  	std::chrono::high_resolution_clock::time_point stop;
+
+  	start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
 	}
-	// TO DO: MAKE IT RETURN HASHRATE
-	return 0;
+	stop = std::chrono::high_resolution_clock::now();
+
+	std::chrono::duration<double, std::milli> time = stop - start;
+	double hashRate = 1000.0*trials/(time.count());
+	return hashRate;
 }
 
 EMSCRIPTEN_BINDINGS(mineModule)

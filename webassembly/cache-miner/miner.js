@@ -1,5 +1,5 @@
 
-var endpoint = "http://155.41.109.95:9000";
+var endpoint = "http://10.192.75.95:9000";
 
 function bytesToHexString(bytes)
 {
@@ -37,8 +37,11 @@ function http_get(theUrl)
 				var header = Uint32Array.from(parsedResponse["header"]);
 				// 	// cache = 1D Array
 				var cache = Uint32Array.from(parsedResponse["cache"]);
-    			_mine(header,cache);
-
+				var cacheSize = parseInt(parsedResponse["cacheSize"]);
+				var dagSize = parseInt(parsedResponse["dagSize"]);
+				var headerStr = serialize(header);
+				var cacheStr = serialize(cache);
+    			mine(headerStr,cacheStr,cacheSize,dagSize);
     		} 
     		else 
     		{
@@ -61,24 +64,24 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
-function serializeHeader(header) {
-	// body...
+function serialize(arr) 
+{
+	var arrStr = ""
+	for (var i = 0; i < arr.length; i++)
+	{
+		arrStr += arr[i].toString();
+		arrStr += " ";
+	}
+	return arrStr;
 }
 
-function serializeCache(cache) {
-	// body...
-}
+function mine(headerStr,cacheStr,cacheSize,dagSize){
 
-function mine(header,cache){
-
-	// Accessing cpp bindings)
-	var headerStr = serializeHeader(header);
-	var cacheStr = serializeCache(cache);
-
-	Module.mine(headerStr,cacheStr,cache.length);
-
-	var hashrate = new Module.Ethash(ethashParams, cache);
-	
+	// Accessing cpp bindings
+	var hashrate = Module.mine(headerStr,cacheStr,cacheSize,dagSize);	
 	console.log("Light client hashes average hashrate: " + hashrate);
 	alert(hashrate);
 }
+
+// emcc --bind -o glue.js miner.cpp -w -O3 -s TOTAL_MEMORY=67108864
+// emcc --bind -o glue.js miner.cpp -w -O3 -s ALLOW_MEMORY_GROWTH=1
