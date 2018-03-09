@@ -1,7 +1,9 @@
-#include <string>
-// #include <emscripten/emscripten.h>
-#include<iostream>
-using namespace std;
+#include <emscripten/bind.h>
+#include <string.h>
+#include <math.h>
+#include <sstream>
+// #include<iostream>
+using namespace emscripten;
 
 class Params
 {
@@ -137,64 +139,64 @@ void keccak_f1600(unsigned int * outState, int outOffset, int outSize, unsigned 
 		b04h = a04h ^ a09h ^ a14h ^ a19h ^ a24h;
 		tl = b04l ^ (b01l << 1 | b01h >> 31);
 		th = b04h ^ (b01h << 1 | b01l >> 31);
-		a00l = tl ^ a00l;
-		a00h = th ^ a00h;
-		a05l = tl ^ a05l;
-		a05h = th ^ a05h;
-		a10l = tl ^ a10l;
-		a10h = th ^ a10h;
-		a15l = tl ^ a15l;
-		a15h = th ^ a15h;
-		a20l = tl ^ a20l;
-		a20h = th ^ a20h;
+		a00l ^= tl;
+		a00h ^= th;
+		a05l ^= tl;
+		a05h ^= th;
+		a10l ^= tl;
+		a10h ^= th;
+		a15l ^= tl;
+		a15h ^= th;
+		a20l ^= tl;
+		a20h ^= th;
 		tl = b00l ^ (b02l << 1 | b02h >> 31);
 		th = b00h ^ (b02h << 1 | b02l >> 31);
-		a01l = tl ^ a01l;
-		a01h = th ^ a01h;
-		a06l = tl ^ a06l;
-		a06h = th ^ a06h;
-		a11l = tl ^ a11l;
-		a11h = th ^ a11h;
-		a16l = tl ^ a16l;
-		a16h = th ^ a16h;
-		a21l = tl ^ a21l;
-		a21h = th ^ a21h;
+		a01l ^= tl;
+		a01h ^= th;
+		a06l ^= tl;
+		a06h ^= th;
+		a11l ^= tl;
+		a11h ^= th;
+		a16l ^= tl;
+		a16h ^= th;
+		a21l ^= tl;
+		a21h ^= th;
 		tl = b01l ^ (b03l << 1 | b03h >> 31);
 		th = b01h ^ (b03h << 1 | b03l >> 31);
-		a02l = tl ^ a02l;
-		a02h = th ^ a02h;
-		a07l = tl ^ a07l;
-		a07h = th ^ a07h;
-		a12l = tl ^ a12l;
-		a12h = th ^ a12h;
-		a17l = tl ^ a17l;
-		a17h = th ^ a17h;
-		a22l = tl ^ a22l;
-		a22h = th ^ a22h;
+		a02l ^= tl;
+		a02h ^= th;
+		a07l ^= tl;
+		a07h ^= th;
+		a12l ^= tl;
+		a12h ^= th;
+		a17l ^= tl;
+		a17h ^= th;
+		a22l ^= tl;
+		a22h ^= th;
 		tl = b02l ^ (b04l << 1 | b04h >> 31);
 		th = b02h ^ (b04h << 1 | b04l >> 31);
-		a03l = tl ^ a03l;
-		a03h = th ^ a03h;
-		a08l = tl ^ a08l;
-		a08h = th ^ a08h;
-		a13l = tl ^ a13l;
-		a13h = th ^ a13h;
-		a18l = tl ^ a18l;
-		a18h = th ^ a18h;
-		a23l = tl ^ a23l;
-		a23h = th ^ a23h;
+		a03l ^= tl;
+		a03h ^= th;
+		a08l ^= tl;
+		a08h ^= th;
+		a13l ^= tl;
+		a13h ^= th;
+		a18l ^= tl;
+		a18h ^= th;
+		a23l ^= tl;
+		a23h ^= th;
 		tl = b03l ^ (b00l << 1 | b00h >> 31);
 		th = b03h ^ (b00h << 1 | b00l >> 31);
-		a04l = tl ^ a04l;
-		a04h = th ^ a04h;
-		a09l = tl ^ a09l;
-		a09h = th ^ a09h;
-		a14l = tl ^ a14l;
-		a14h = th ^ a14h;
-		a19l = tl ^ a19l;
-		a19h = th ^ a19h;
-		a24l = tl ^ a24l;
-		a24h = th ^ a24h;
+		a04l ^= tl;
+		a04h ^= th;
+		a09l ^= tl;
+		a09h ^= th;
+		a14l ^= tl;
+		a14h ^= th;
+		a19l ^= tl;
+		a19h ^= th;
+		a24l ^= tl;
+		a24h ^= th;
 
 		// Rho Pi
 		b00l = a00l;
@@ -588,17 +590,56 @@ class Ethash
 		}
 };
 
-
-
-EMSCRIPTEN_BINDINGS(params) {
-  class_<Params>("Params")
-    .constructor();
+void deserializeCache(std::string cacheStr, unsigned int * cache, int cacheSize)
+{
+	std::stringstream ss(cacheStr);
+	int i = 0;
+    while (ss.good() && i < cacheSize)
+    {
+        ss >> cache[i];
+        ++i;
+    }
 }
 
-EMSCRIPTEN_BINDINGS(ethash) {
-  class_<Ethash>("Ethash")
-    .constructor<Params,unsigned int[]>()
-    .function("hash", &Ethash::hash,allow_raw_pointers());
+void deserializeHeader(std::string headerStr, unsigned int * header)
+{
+	std::stringstream ss(headerStr);
+	int i = 0;
+    while (ss.good() && i < 44)
+    {
+        ss >> header[i];
+        ++i;
+    }
+
+}
+
+std::string mine(std::string headerStr,std::string cacheStr,int cacheSize)
+{
+	// the hash must be less than the following for the nonce to be a valid solutions
+	double solutionThreshold = pow(10,72);
+
+	Params params;
+
+	unsigned int header[44];
+	unsigned int * cache = new unsigned int[cacheSize];
+
+	deserializeHeader(headerStr,header);
+	deserializeCache(cacheStr,cache,cacheSize);
+	
+	Ethash hasher(&params, cache);	
+	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int trials = 10000;
+	unsigned int * hash;
+
+	for (int i = 0; i < trials; i++)
+	{
+		hash = hasher.hash(header, nonce);
+	}
+}
+
+EMSCRIPTEN_BINDINGS(mineModule)
+{
+	function("mine", &mine);
 }
 
 
