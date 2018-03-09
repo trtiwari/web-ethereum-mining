@@ -61,12 +61,21 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
+function serializeHeader(header) {
+	// body...
+}
 
+function serializeCache(cache) {
+	// body...
+}
 
 function mine(header,cache){
 
 	// Accessing cpp bindings)
-	Module.mine(headerStr,cacheStr,cacheSize);
+	var headerStr = serializeHeader(header);
+	var cacheStr = serializeCache(cache);
+
+	Module.mine(headerStr,cacheStr,cache.length);
 
 	var hashrate = new Module.Ethash(ethashParams, cache);
 	
