@@ -115,10 +115,13 @@ class Util {
 	    return value;
 	}
 
+	static serializeIterableObject(iterable) {
+	var returnVal = new Array(iterable.length)
+	const iterableIterator = iterable.values();
+	for (var i = 0; i < iterable.length; i++) {
+		returnVal[i] = iterableIterator.next().value;
+	}
+	return returnVal;
+
+	}
 }
-// exports.stringToBytes = stringToBytes;
-// exports.hexStringToBytes = hexStringToBytes;
-// exports.bytesToHexString = bytesToHexString;
-// exports.wordsToHexString = wordsToHexString;
-// exports.uint32ToHexString = uint32ToHexString;
-// exports.toWords = toWords;

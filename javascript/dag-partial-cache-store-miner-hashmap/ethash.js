@@ -155,17 +155,17 @@ function convertSeed(seed)
 	return newSeed;
 }
 
-function defaultParams()
+function defaultParams(cacheLen=1048384,dagLen=1073739904)
 {
 	return {
-		cacheSize: 19529408, // new size 19529408 old size 1048384
+		cacheSize: cacheLen,
 		cacheRounds: 3,
-		dagSize: 2466247808, // new size 2466247808 old size 1073739904
+		dagSize: dagLen,
 		dagParents: 256,
 		mixSize: 128,
 		mixParents: 64,
 	};
-};
+}
 
 class Ethash
 {

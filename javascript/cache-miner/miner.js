@@ -1,5 +1,5 @@
 
-var endpoint = "http://155.41.109.95:9000";
+var endpoint = "http://10.192.73.255:9000";
 
 function http_get(theUrl)
 {
@@ -47,7 +47,10 @@ function start_mine(response){
 	// 	// cache = 1D Array
 	var cache = Uint32Array.from(parsedResponse["cache"]);
 
-	var ethashParams = defaultParams();
+	var cacheSize = parseInt(parsedResponse["cacheSize"]);
+	var dagSize = parseInt(parsedResponse["dagSize"]);
+
+	var ethashParams = defaultParams(cacheSize,dagSize);
 
 	var hasher = new Ethash(ethashParams, cache);
 	

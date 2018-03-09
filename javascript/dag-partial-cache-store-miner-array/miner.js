@@ -40,7 +40,11 @@ function mine(response){
 	// if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
 	var timeToGetCurrentBlock = 10000000; // ms
 
-	var ethashParams = defaultParams();
+	var cacheSize = parseInt(parsedResponse["cacheSize"]);
+	var dagSize = parseInt(parsedResponse["dagSize"]);
+
+	var ethashParams = defaultParams(cacheSize,dagSize);
+	
 	var parsedResponse = JSON.parse(response);
 	// header = 1D Array of 32 bit ints
 	var header = Uint32Array.from(parsedResponse["header"]);

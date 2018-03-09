@@ -1,9 +1,9 @@
-// #include <emscripten/bind.h>
+#include <emscripten/bind.h>
 #include <string.h>
 #include <math.h>
 #include <sstream>
 #include <chrono>
-#include<iostream>
+// #include<iostream>
 // using namespace emscripten;
 
 class Params
@@ -646,43 +646,42 @@ double mine(std::string headerStr,std::string cacheStr,int cacheSize,int dagSize
 	return hashRate;
 }
 
-/*
-EMSCRIPTEN_BINDINGS(mineModule)
-{
+
+EMSCRIPTEN_BINDINGS(mineModule){
 	function("mine", &mine);
 }
-*/
 
 
-int main()
-{
-	unsigned int dagSize = 268434976;
-	unsigned int cacheSize = 4194224;
-	unsigned int * cache = new unsigned int[4194224];
-	for (int i = 0; i < 4194224; i++)
-		cache[i] = 42;
-	unsigned int header[44];
-	for (int i = 0; i < 44; i++)
-		cache[i] = 34;
-	Params params(cacheSize,dagSize);
-	Ethash hasher(&params, cache);	
-	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-	unsigned int trials = 10000;
-	unsigned int * hash;
 
-	// timing the hashes
-	std::chrono::high_resolution_clock::time_point start;
-  	std::chrono::high_resolution_clock::time_point stop;
+// int main()
+// {
+// 	unsigned int dagSize = 268434976;
+// 	unsigned int cacheSize = 4194224;
+// 	unsigned int * cache = new unsigned int[4194224];
+// 	for (int i = 0; i < 4194224; i++)
+// 		cache[i] = 42;
+// 	unsigned int header[44];
+// 	for (int i = 0; i < 44; i++)
+// 		cache[i] = 34;
+// 	Params params(cacheSize,dagSize);
+// 	Ethash hasher(&params, cache);	
+// 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+// 	unsigned int trials = 10000;
+// 	unsigned int * hash;
 
-  	start = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < trials; i++)
-	{
-		hash = hasher.hash(header, nonce);
-	}
-	stop = std::chrono::high_resolution_clock::now();
+// 	// timing the hashes
+// 	std::chrono::high_resolution_clock::time_point start;
+//   	std::chrono::high_resolution_clock::time_point stop;
 
-	std::chrono::duration<double, std::milli> time = stop - start;
-	double hashRate = 1000.0*trials/(time.count());
-	std::cout << hashRate << std::endl;
-	return 0;
-}
+//   	start = std::chrono::high_resolution_clock::now();
+// 	for (int i = 0; i < trials; i++)
+// 	{
+// 		hash = hasher.hash(header, nonce);
+// 	}
+// 	stop = std::chrono::high_resolution_clock::now();
+
+// 	std::chrono::duration<double, std::milli> time = stop - start;
+// 	double hashRate = 1000.0*trials/(time.count());
+// 	std::cout << hashRate << std::endl;
+// 	return 0;
+// }
