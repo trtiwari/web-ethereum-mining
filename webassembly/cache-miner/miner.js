@@ -83,5 +83,5 @@ function mine(headerStr,cacheStr,cacheSize,dagSize){
 	alert(hashrate);
 }
 
-// emcc --bind -o glue.js miner.cpp -w -O3 -s TOTAL_MEMORY=67108864
+// emcc --bind -o glue.js miner.cpp -w -O3 -s TOTAL_MEMORY=218103808
 // emcc --bind -o glue.js miner.cpp -w -O3 -s ALLOW_MEMORY_GROWTH=1

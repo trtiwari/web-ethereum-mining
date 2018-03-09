@@ -651,16 +651,37 @@ EMSCRIPTEN_BINDINGS(mineModule)
 	function("mine", &mine);
 }
 
+/*
+int main()
+{
+	unsigned int dagSize = 268434976;
+	unsigned int cacheSize = 4194224;
+	unsigned int * cache = new unsigned int[4194224];
+	for (int i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	unsigned int header[44];
+	for (int i = 0; i < 44; i++)
+		cache[i] = 34;
+	Params params(cacheSize,dagSize);
+	Ethash hasher(&params, cache);	
+	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int trials = 10000;
+	unsigned int * hash;
 
-// int main()
-// {
-// 	Params params;
-// 	unsigned int cache[1000000];
-// 	for (int i = 0; i < 1000000; i++)
-// 		cache[i] = 42;
-// 	unsigned int header[] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
-// 	Ethash ethash(&params,cache);
-// 	unsigned char nonce[] = {1,2,3,4,5,6,7,8};
-// 	ethash.hash(header,nonce);
-// 	return 0;
-// }
+	// timing the hashes
+	std::chrono::high_resolution_clock::time_point start;
+  	std::chrono::high_resolution_clock::time_point stop;
+
+  	start = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < trials; i++)
+	{
+		hash = hasher.hash(header, nonce);
+	}
+	stop = std::chrono::high_resolution_clock::now();
+
+	std::chrono::duration<double, std::milli> time = stop - start;
+	double hashRate = 1000.0*trials/(time.count());
+	std::cout << hashRate << std::endl;
+	return 0;
+}
+*/
