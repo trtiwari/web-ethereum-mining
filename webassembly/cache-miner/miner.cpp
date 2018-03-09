@@ -429,6 +429,10 @@ int charToNibble(int chr)
 	return 0;
 }
 
+// might want to implement this in js only
+// this method is invoked a lot, so there will be a lot of communication overhead
+// if the browser constantly has to contact the webasm module
+/*
 string bytesToHexString(char * bytes)
 {
 	string str = "";
@@ -439,6 +443,7 @@ string bytesToHexString(char * bytes)
 	}
 	return str;
 }
+*/
 
 int mod32(int x, int n)
 {
@@ -546,8 +551,9 @@ class Ethash
 		unsigned int * hash (unsigned int * header,unsigned char * nonce)
 		{
 			// compute initial hash
-			
-			for (int i = 0; i < sizeof(header)/sizeof(*header); i++)
+
+			//checked from the javascript version of the miner that the header size is always 44
+			for (int i = 0; i < 44; i++)
 			{
 				// changed initBytes to initWords
 				this->initWords[i] = header[i];
@@ -582,7 +588,7 @@ class Ethash
 		}
 };
 
-/*
+
 
 EMSCRIPTEN_BINDINGS(params) {
   class_<Params>("Params")
@@ -594,17 +600,17 @@ EMSCRIPTEN_BINDINGS(ethash) {
     .constructor<Params,unsigned int[]>()
     .function("hash", &Ethash::hash,allow_raw_pointers());
 }
-*/
 
-int main()
-{
-	Params params;
-	unsigned int cache[1000000];
-	for (int i = 0; i < 1000000; i++)
-		cache[i] = 42;
-	unsigned int header[] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
-	Ethash ethash(&params,cache);
-	unsigned char nonce[] = {1,2,3,4,5,6,7,8};
-	ethash.hash(header,nonce);
-	return 0;
-}
+
+// int main()
+// {
+// 	Params params;
+// 	unsigned int cache[1000000];
+// 	for (int i = 0; i < 1000000; i++)
+// 		cache[i] = 42;
+// 	unsigned int header[] = {1,2,3,4,5,6,7,8,1,2,3,4,5,6,7,8};
+// 	Ethash ethash(&params,cache);
+// 	unsigned char nonce[] = {1,2,3,4,5,6,7,8};
+// 	ethash.hash(header,nonce);
+// 	return 0;
+// }

@@ -1,6 +1,27 @@
 
 var endpoint = "http://155.41.109.95:9000";
 
+function bytesToHexString(bytes)
+{
+	var str = "";
+	for (var i = 0; i != bytes.length; ++i)
+	{
+		str += Util.nibbleToChar(bytes[i] >>> 4);
+		str += Util.nibbleToChar(bytes[i] & 0xf);
+	}
+	return str;
+}
+
+function serializeIterableObject(iterable) 
+{
+	var returnVal = new Array(iterable.length)
+	const iterableIterator = iterable.values();
+	for (var i = 0; i < iterable.length; i++) {
+		returnVal[i] = iterableIterator.next().value;
+	}
+	return returnVal;
+}
+
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
