@@ -1,10 +1,10 @@
-#include <emscripten/bind.h>
+// #include <emscripten/bind.h>
 #include <string.h>
 #include <math.h>
 #include <sstream>
 #include <chrono>
-// #include<iostream>
-using namespace emscripten;
+#include<iostream>
+// using namespace emscripten;
 
 class Params
 {
@@ -646,12 +646,14 @@ double mine(std::string headerStr,std::string cacheStr,int cacheSize,int dagSize
 	return hashRate;
 }
 
+/*
 EMSCRIPTEN_BINDINGS(mineModule)
 {
 	function("mine", &mine);
 }
+*/
 
-/*
+
 int main()
 {
 	unsigned int dagSize = 268434976;
@@ -684,4 +686,3 @@ int main()
 	std::cout << hashRate << std::endl;
 	return 0;
 }
-*/

@@ -1,13 +1,18 @@
 
 var endpoint = "http://10.192.75.95:9000";
 
+function nibbleToChar(nibble)
+{
+		return String.fromCharCode((nibble < 10 ? 48 : 87) + nibble);
+}
+
 function bytesToHexString(bytes)
 {
 	var str = "";
 	for (var i = 0; i != bytes.length; ++i)
 	{
-		str += Util.nibbleToChar(bytes[i] >>> 4);
-		str += Util.nibbleToChar(bytes[i] & 0xf);
+		str += nibbleToChar(bytes[i] >>> 4);
+		str += nibbleToChar(bytes[i] & 0xf);
 	}
 	return str;
 }
@@ -20,6 +25,17 @@ function serializeIterableObject(iterable)
 		returnVal[i] = iterableIterator.next().value;
 	}
 	return returnVal;
+}
+
+function serialize(arr) 
+{
+	var arrStr = ""
+	for (var i = 0; i < arr.length; i++)
+	{
+		arrStr += arr[i].toString();
+		arrStr += " ";
+	}
+	return arrStr;
 }
 
 function http_get(theUrl)
@@ -64,17 +80,6 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
-function serialize(arr) 
-{
-	var arrStr = ""
-	for (var i = 0; i < arr.length; i++)
-	{
-		arrStr += arr[i].toString();
-		arrStr += " ";
-	}
-	return arrStr;
-}
-
 function mine(headerStr,cacheStr,cacheSize,dagSize){
 
 	// Accessing cpp bindings
@@ -83,5 +88,6 @@ function mine(headerStr,cacheStr,cacheSize,dagSize){
 	alert(hashrate);
 }
 
+// allocate 208 MB memory
 // emcc --bind -o glue.js miner.cpp -w -O3 -s TOTAL_MEMORY=218103808
 // emcc --bind -o glue.js miner.cpp -w -O3 -s ALLOW_MEMORY_GROWTH=1
