@@ -613,10 +613,10 @@ void deserializeHeader(std::string headerStr, unsigned int * header)
 
 }
 
-std::string mine(std::string headerStr,std::string cacheStr,int cacheSize)
+double mine(std::string headerStr,std::string cacheStr,int cacheSize)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
-	double solutionThreshold = pow(10,72);
+	// double solutionThreshold = pow(10,72);
 
 	Params params;
 
@@ -635,6 +635,8 @@ std::string mine(std::string headerStr,std::string cacheStr,int cacheSize)
 	{
 		hash = hasher.hash(header, nonce);
 	}
+	// TO DO: MAKE IT RETURN HASHRATE
+	return 0;
 }
 
 EMSCRIPTEN_BINDINGS(mineModule)

@@ -61,44 +61,15 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
+
+
 function mine(header,cache){
-	// the hash must be less than the following for the nonce to be a valid solutions
-	var solutionThreshold = 10**72;
-	// if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
-	var timeToGetCurrentBlock = 10000000; // ms
 
 	// Accessing cpp bindings)
-	var ethashParams = new Module.Params();
+	Module.mine(headerStr,cacheStr,cacheSize);
 
-	var hasher = new Module.Ethash(ethashParams, cache);
+	var hashrate = new Module.Ethash(ethashParams, cache);
 	
-	var nonce = Uint8Array([0,0,0,0,0,0,0,0]);
-	var hash;
-
-	startTime = new Date().getTime();
-	var trials = 10000;
-	for (var i = 0; i < trials; ++i)
-	{
-		hash = hasher.hash(header, nonce);
-		// nonce[0]=nonce[0]+1;
-		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
-		{
-			console.log("VALID NONCE FOR RESULT: " + Util.bytesToHexString(hash));
-			var solution = JSON.stringify({WorkerDigest:Util.serializeIterableObject(hash),WorkerNonce:nonce,WorkerResult:Util.serializeIterableObject(result)});
-			http_post(endpoint,solution);
-			http_get(endpoint);
-			return;
-		}
-		else if (new Date().getTime() - startTime > timeToGetCurrentBlock)
-		{
-			console.log("TIME UP!");
-			http_get(endpoint);
-			return;
-		}
-	}
-	var hashrate = 1000/((new Date().getTime() - startTime)/trials)
 	console.log("Light client hashes average hashrate: " + hashrate);
 	alert(hashrate);
-	console.log("Hash = " + Util.bytesToHexString(hash));
-
 }
