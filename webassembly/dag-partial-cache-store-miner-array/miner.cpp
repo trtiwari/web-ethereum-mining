@@ -7,9 +7,9 @@
 // using namespace emscripten;
 
 unsigned int * dag;
+unsigned int dagSizeLocal;
 unsigned int startIndex;
 unsigned int endIndex;
-unsigned int dagSize;
 
 class Params
 {
@@ -447,39 +447,41 @@ int charToNibble(int chr)
 	return 0;
 }
 
-void store(std::string dagStr,unsigned int dagSize)
+void store(std::string dagStr)
 {
 		std::stringstream ss(dagStr);
 		int hashWords = 16;
 		int start = startIndex * hashWords;
 		int end = endIndex * hashWords;
-		if (end > dagSize) 
-			return;
-		for (int i = start; i < end; i++)
+		if (end > dagSizeLocal) 
+			end = dagSizeLocal;
+		for (int i = start; i < end; i = i+16)
 		{
-			ss >> dag[i];
+			for (int j = 0; j < 16; j++)
+			{
+				ss >> dag[i+j];
+			}
 		}
 }
 
 void cacheComputeSliceStore(unsigned int nodeIndex, unsigned int * node) 
 {
-	
 	int hashWords = 16;
 	int index = nodeIndex * hashWords;
-	if (index > dagSize) 
+	if (index+hashWords > dagSizeLocal) 
 		return;
-	for (int j = 0; j < 16; j++)
+	for (int j = 0; j < hashWords; j++)
 	{
 		dag[index+j] = node[j];
 	}
 }
 
-unsigned int * DAGLookup(int index) 
+unsigned int * DAGLookup(unsigned int index) 
 {
 	int hashWords = 16;
-	int i = (index - startIndex)*hashWords;
-
-	if (index - startIndex < 0 || index - startIndex > endIndex) {
+	int i = index*hashWords;
+	if (i > dagSizeLocal) 
+	{
 		return NULL;
 	}
 	return &dag[i];
@@ -649,20 +651,18 @@ void deserialize(std::string str, unsigned int * outArr, int size)
     }
 }
 
-double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int startIndex, int endIndex, int cacheSize, int dagSizeLoc)
+double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int startIndex, int endIndex, int cacheSize, int dagSize)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
-	dagSize = dagSizeLoc;
 	Params params(cacheSize,dagSize);
-
 	unsigned int header[44];
 	unsigned int * cache = new unsigned int[cacheSize];
-	dag = new unsigned int[dagSize];
+	dag = new unsigned int[dagSizeLocal];
 
 	deserialize(headerStr,header,44);
 	deserialize(cacheStr,cache,cacheSize);
-	store(dagStr,dagSize);
+	store(dagStr);
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
@@ -694,16 +694,24 @@ EMSCRIPTEN_BINDINGS(mineModule){
 
 int main()
 {
-	dagSize = 268434976;
+	unsigned int dagSize = 268434976;
+	startIndex = 0;
+	endIndex = 10000;
+	dagSizeLocal = 100000;
 	unsigned int cacheSize = 4194224;
+
 	unsigned int * cache = new unsigned int[4194224];
+	dag = new unsigned int[dagSizeLocal];
+	unsigned int header[44];
+
 	for (int i = 0; i < 4194224; i++)
 		cache[i] = 42;
-	unsigned int header[44];
 	for (int i = 0; i < 44; i++)
-		cache[i] = 34;
-	for (int i = 0; i < dagSize; i++)
-		cache[i] = 54;
+		header[i] = 34;
+	for (int i = 0; i < endIndex; i++)
+		dag[i] = 54;
+
+
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
