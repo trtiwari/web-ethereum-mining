@@ -54,14 +54,10 @@ function http_get(theUrl)
 				// 	// cache = 1D Array
 				var cache = Uint32Array.from(parsedResponse["cache"]);
 				var cacheSize = parseInt(parsedResponse["cacheSize"]);
-				var dag = Uint32Array.from(parsedResponse["dag"]);
 				var dagSize = parseInt(parsedResponse["dagSize"]);
-				var startIndex = parseInt(parsedResponse["startIndex"]);
-				var endIndex = parseInt(parsedResponse["endIndex"]);
 				var headerStr = serialize(header);
 				var cacheStr = serialize(cache);
-				var dagStr = serialize(dag)
-    			mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize);
+    			mine(headerStr,cacheStr,cacheSize,dagSize);
     		} 
     		else 
     		{
@@ -84,10 +80,10 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
-function mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize){
+function mine(headerStr,cacheStr,cacheSize,dagSize){
 
 	// Accessing cpp bindings
-	var hashrate = Module.mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize);	
+	var hashrate = Module.mine(headerStr,cacheStr,cacheSize,dagSize);	
 	console.log("Light client hashes average hashrate: " + hashrate);
 	alert(hashrate);
 }

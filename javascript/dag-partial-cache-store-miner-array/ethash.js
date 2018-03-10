@@ -12,15 +12,13 @@ var hashWords = 16;
 var dag = new Uint32Array(NUM_DAG_SLICES*hashWords);
 var cacheHits = 0;
 var numAccesses = 0;
-var startIndex;
-var endIndex;
 
-function store(dagArray)
+function store(dagArray,startIndex,endIndex)
 {
 		var start = startIndex * hashWords;
 		var end = endIndex * hashWords;
 		if (end > dag.length) 
-			return;
+			end = dag.length;
 		for (var i = start; i < end; i = i +16)
 		{
 			for (var j = 0; j < 16; j++)
@@ -33,7 +31,7 @@ function store(dagArray)
 function cacheComputeSliceStore(nodeIndex,node) 
 {
 	var index = nodeIndex * hashWords;
-	if (index > dag.length) 
+	if (index + 16 >= dag.length) 
 		return;
 	for (var j = 0; j < 16; j++)
 	{
@@ -43,10 +41,10 @@ function cacheComputeSliceStore(nodeIndex,node)
 
 function DAGLookup(index) 
 {
-	var i = (index - startIndex)*hashWords;
+	var i = index*hashWords;
 	var j = i + hashWords;
-
-	if (index - startIndex < 0 || index - startIndex > endIndex) {
+	// TODO: fix condition
+	if (j >= dag.length) {
 		return null;
 	}
 	return dag.slice(i,j);
@@ -196,7 +194,7 @@ function defaultParams(cacheLen=1048384,dagLen=1073739904)
 
 class Ethash
 {
-	constructor(params,cache,dagArray)
+	constructor(params,cache,dagArray,startIndex,endIndex)
 	{
 		this.params = params;
 		// this.seed = convertSeed(seed);
@@ -213,7 +211,7 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
-		store(dagArray);
+		store(dagArray,startIndex,endIndex);
 	}
 	// precompute cache and related values
 	

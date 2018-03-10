@@ -1,15 +1,14 @@
-// #include <emscripten/bind.h>
+#include <emscripten/bind.h>
 #include <string.h>
 #include <math.h>
 #include <sstream>
 #include <chrono>
-#include<iostream>
-// using namespace emscripten;
+// #include<iostream>
+using namespace emscripten;
 
 unsigned int * dag;
+unsigned int dagSizeLocal;
 unsigned int startIndex;
-unsigned int endIndex;
-unsigned int dagSize;
 
 class Params
 {
@@ -447,39 +446,21 @@ int charToNibble(int chr)
 	return 0;
 }
 
-void store(std::string dagStr,unsigned int dagSize)
+void store(std::string dagStr)
 {
 		std::stringstream ss(dagStr);
-		int hashWords = 16;
-		int start = startIndex * hashWords;
-		int end = endIndex * hashWords;
-		if (end > dagSize) 
-			return;
-		for (int i = start; i < end; i++)
+		for (int i = 0; i < dagSizeLocal; i = i++)
 		{
 			ss >> dag[i];
 		}
 }
 
-void cacheComputeSliceStore(unsigned int nodeIndex, unsigned int * node) 
-{
-	
-	int hashWords = 16;
-	int index = nodeIndex * hashWords;
-	if (index > dagSize) 
-		return;
-	for (int j = 0; j < 16; j++)
-	{
-		dag[index+j] = node[j];
-	}
-}
-
-unsigned int * DAGLookup(int index) 
+unsigned int * DAGLookup(unsigned int index) 
 {
 	int hashWords = 16;
 	int i = (index - startIndex)*hashWords;
-
-	if (index - startIndex < 0 || index - startIndex > endIndex) {
+	if (i+hashWords >= dagSizeLocal) 
+	{
 		return NULL;
 	}
 	return &dag[i];
@@ -527,7 +508,6 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 	}
 	
 	keccak->digestWords(mix, 0, 16, mix, 0, 16);
-	cacheComputeSliceStore(nodeIndex,o_node);
 }
 
 void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, Keccak * keccak,unsigned int * tempNode)
@@ -649,20 +629,18 @@ void deserialize(std::string str, unsigned int * outArr, int size)
     }
 }
 
-double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int startIndex, int endIndex, int cacheSize, int dagSizeLoc)
+double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int startIndex, int cacheSize, int dagSize)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
-	dagSize = dagSizeLoc;
 	Params params(cacheSize,dagSize);
-
 	unsigned int header[44];
 	unsigned int * cache = new unsigned int[cacheSize];
-	dag = new unsigned int[dagSize];
+	dag = new unsigned int[dagSizeLocal];
 
 	deserialize(headerStr,header,44);
 	deserialize(cacheStr,cache,cacheSize);
-	store(dagStr,dagSize);
+	store(dagStr);
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
@@ -685,44 +663,51 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int
 	return hashRate;
 }
 
-/*
+
 EMSCRIPTEN_BINDINGS(mineModule){
 	function("mine", &mine);
 }
-*/
 
 
-int main()
-{
-	dagSize = 268434976;
-	unsigned int cacheSize = 4194224;
-	unsigned int * cache = new unsigned int[4194224];
-	for (int i = 0; i < 4194224; i++)
-		cache[i] = 42;
-	unsigned int header[44];
-	for (int i = 0; i < 44; i++)
-		cache[i] = 34;
-	for (int i = 0; i < dagSize; i++)
-		cache[i] = 54;
-	Params params(cacheSize,dagSize);
-	Ethash hasher(&params, cache);	
-	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-	unsigned int trials = 10000;
-	unsigned int * hash;
 
-	// timing the hashes
-	std::chrono::high_resolution_clock::time_point start;
-  	std::chrono::high_resolution_clock::time_point stop;
+// int main()
+// {
+// 	unsigned int dagSize = 268434976;
+// 	startIndex = 0;
+// 	int dagSizeLocal = 10000;
+// 	unsigned int cacheSize = 4194224;
 
-  	start = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < trials; i++)
-	{
-		hash = hasher.hash(header, nonce);
-	}
-	stop = std::chrono::high_resolution_clock::now();
+// 	unsigned int * cache = new unsigned int[4194224];
+// 	dag = new unsigned int[dagSizeLocal];
+// 	unsigned int header[44];
 
-	std::chrono::duration<double, std::milli> time = stop - start;
-	double hashRate = 1000.0*trials/(time.count());
-	std::cout << hashRate << std::endl;
-	return 0;
-}
+// 	for (int i = 0; i < 4194224; i++)
+// 		cache[i] = 42;
+// 	for (int i = 0; i < 44; i++)
+// 		header[i] = 34;
+// 	for (int i = 0; i < dagSizeLocal; i++)
+// 		dag[i] = 54;
+
+
+// 	Params params(cacheSize,dagSize);
+// 	Ethash hasher(&params, cache);	
+// 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+// 	unsigned int trials = 10000;
+// 	unsigned int * hash;
+
+// 	// timing the hashes
+// 	std::chrono::high_resolution_clock::time_point start;
+//   	std::chrono::high_resolution_clock::time_point stop;
+
+//   	start = std::chrono::high_resolution_clock::now();
+// 	for (int i = 0; i < trials; i++)
+// 	{
+// 		hash = hasher.hash(header, nonce);
+// 	}
+// 	stop = std::chrono::high_resolution_clock::now();
+
+// 	std::chrono::duration<double, std::milli> time = stop - start;
+// 	double hashRate = 1000.0*trials/(time.count());
+// 	std::cout << hashRate << std::endl;
+// 	return 0;
+// }

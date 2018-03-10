@@ -1,15 +1,13 @@
-// #include <emscripten/bind.h>
+#include <emscripten/bind.h>
 #include <string.h>
 #include <math.h>
 #include <sstream>
 #include <chrono>
-#include<iostream>
-// using namespace emscripten;
+// #include<iostream>
+using namespace emscripten;
 
 unsigned int * dag;
 unsigned int dagSizeLocal;
-unsigned int startIndex;
-unsigned int endIndex;
 
 class Params
 {
@@ -447,7 +445,7 @@ int charToNibble(int chr)
 	return 0;
 }
 
-void store(std::string dagStr)
+void store(std::string dagStr, unsigned int startIndex,unsigned int endIndex)
 {
 		std::stringstream ss(dagStr);
 		int hashWords = 16;
@@ -480,7 +478,7 @@ unsigned int * DAGLookup(unsigned int index)
 {
 	int hashWords = 16;
 	int i = index*hashWords;
-	if (i > dagSizeLocal) 
+	if (i+hashWords >= dagSizeLocal) 
 	{
 		return NULL;
 	}
@@ -651,7 +649,7 @@ void deserialize(std::string str, unsigned int * outArr, int size)
     }
 }
 
-double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int startIndex, int endIndex, int cacheSize, int dagSize)
+double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsigned int startIndex, unsigned int endIndex, int cacheSize, int dagSize)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
@@ -662,7 +660,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int
 
 	deserialize(headerStr,header,44);
 	deserialize(cacheStr,cache,cacheSize);
-	store(dagStr);
+	store(dagStr,startIndex,endIndex);
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
@@ -685,52 +683,52 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int
 	return hashRate;
 }
 
-/*
+
 EMSCRIPTEN_BINDINGS(mineModule){
 	function("mine", &mine);
 }
-*/
 
 
-int main()
-{
-	unsigned int dagSize = 268434976;
-	startIndex = 0;
-	endIndex = 10000;
-	dagSizeLocal = 100000;
-	unsigned int cacheSize = 4194224;
 
-	unsigned int * cache = new unsigned int[4194224];
-	dag = new unsigned int[dagSizeLocal];
-	unsigned int header[44];
+// int main()
+// {
+// 	unsigned int dagSize = 268434976;
+// 	unsigned int startIndex = 0;
+// 	unsigned int endIndex = 10000;
+// 	dagSizeLocal = 100000;
+// 	unsigned int cacheSize = 4194224;
 
-	for (int i = 0; i < 4194224; i++)
-		cache[i] = 42;
-	for (int i = 0; i < 44; i++)
-		header[i] = 34;
-	for (int i = 0; i < endIndex; i++)
-		dag[i] = 54;
+// 	unsigned int * cache = new unsigned int[4194224];
+// 	dag = new unsigned int[dagSizeLocal];
+// 	unsigned int header[44];
+
+// 	for (int i = 0; i < 4194224; i++)
+// 		cache[i] = 42;
+// 	for (int i = 0; i < 44; i++)
+// 		header[i] = 34;
+// 	for (int i = 0; i < endIndex; i++)
+// 		dag[i] = 54;
 
 
-	Params params(cacheSize,dagSize);
-	Ethash hasher(&params, cache);	
-	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-	unsigned int trials = 10000;
-	unsigned int * hash;
+// 	Params params(cacheSize,dagSize);
+// 	Ethash hasher(&params, cache);	
+// 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+// 	unsigned int trials = 10000;
+// 	unsigned int * hash;
 
-	// timing the hashes
-	std::chrono::high_resolution_clock::time_point start;
-  	std::chrono::high_resolution_clock::time_point stop;
+// 	// timing the hashes
+// 	std::chrono::high_resolution_clock::time_point start;
+//   	std::chrono::high_resolution_clock::time_point stop;
 
-  	start = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < trials; i++)
-	{
-		hash = hasher.hash(header, nonce);
-	}
-	stop = std::chrono::high_resolution_clock::now();
+//   	start = std::chrono::high_resolution_clock::now();
+// 	for (int i = 0; i < trials; i++)
+// 	{
+// 		hash = hasher.hash(header, nonce);
+// 	}
+// 	stop = std::chrono::high_resolution_clock::now();
 
-	std::chrono::duration<double, std::milli> time = stop - start;
-	double hashRate = 1000.0*trials/(time.count());
-	std::cout << hashRate << std::endl;
-	return 0;
-}
+// 	std::chrono::duration<double, std::milli> time = stop - start;
+// 	double hashRate = 1000.0*trials/(time.count());
+// 	std::cout << hashRate << std::endl;
+// 	return 0;
+// }

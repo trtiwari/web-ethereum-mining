@@ -7,16 +7,15 @@
 
 // we save some values of in this dag object
 var NUM_DAG_SLICES = 10000;
-var startIndex;
-var endIndex;
 
 var hashWords = 16;
 var dag = new Uint32Array(NUM_DAG_SLICES*hashWords);
 var cacheHits = 0;
 var cacheMisses = 0;
 var numAccesses = 0;
+var startIndex;
 
-function store(dagArray)
+function store(dagArray,endIndex)
 {
 		var start = startIndex * hashWords;
 		var end = endIndex * hashWords;
@@ -36,7 +35,7 @@ function DAGLookup(index)
 	var i = (index - startIndex)*hashWords;
 	var j = i + hashWords;
 
-	if (index - startIndex < 0 || index - startIndex > endIndex) {
+	if (j >= dag.length) {
 		return null;
 	}
 	return dag.slice(i,j);
@@ -185,7 +184,7 @@ function defaultParams(cacheLen=1048384,dagLen=1073739904)
 
 class Ethash
 {
-	constructor(params,cache,dagArray)
+	constructor(params,cache,dagArray,startIndexLoc,endIndex)
 	{
 		this.params = params;
 		this.cache = cache;
@@ -200,7 +199,8 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
-		store(dagArray);
+		store(dagArray,endIndex);
+		startIndex = startIndexLoc;
 	}
 	// precompute cache and related values
 	

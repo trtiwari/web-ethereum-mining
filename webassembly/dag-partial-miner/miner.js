@@ -1,5 +1,5 @@
 
-var endpoint = "http://155.41.59.239:9000";
+var endpoint = "http://10.192.75.95:9000";
 
 function nibbleToChar(nibble)
 {
@@ -54,10 +54,14 @@ function http_get(theUrl)
 				// 	// cache = 1D Array
 				var cache = Uint32Array.from(parsedResponse["cache"]);
 				var cacheSize = parseInt(parsedResponse["cacheSize"]);
+
+				var dag = Uint32Array.from(parsedResponse["dag"]);
+				var startIndex = parseInt(parsedResponse["startIndex"]);
 				var dagSize = parseInt(parsedResponse["dagSize"]);
 				var headerStr = serialize(header);
 				var cacheStr = serialize(cache);
-    			mine(headerStr,cacheStr,cacheSize,dagSize);
+				var dagStr = serialize(dag);
+    			mine(headerStr,cacheStr,dagStr,startIndex,cacheSize,dagSize);
     		} 
     		else 
     		{
@@ -80,10 +84,10 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
-function mine(headerStr,cacheStr,cacheSize,dagSize){
+function mine(headerStr,cacheStr,dagStr,startIndex,cacheSize,dagSize){
 
 	// Accessing cpp bindings
-	var hashrate = Module.mine(headerStr,cacheStr,cacheSize,dagSize);	
+	var hashrate = Module.mine(headerStr,cacheStr,dagStr,startIndex,cacheSize,dagSize);	
 	console.log("Light client hashes average hashrate: " + hashrate);
 	alert(hashrate);
 }

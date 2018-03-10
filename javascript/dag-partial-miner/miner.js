@@ -1,4 +1,4 @@
-var endpoint = "http://155.41.109.95:9000";
+var endpoint = "http://10.192.75.95:9000";
 
 function http_get(theUrl)
 {
@@ -11,7 +11,17 @@ function http_get(theUrl)
     	{
     		if (xmlHttp.status === 200) 
     		{
-    			start_mine(xmlHttp.responseText);
+    			var parsedResponse = JSON.parse(xmlHttp.responseText);
+    			var cacheSize = parseInt(parsedResponse["cacheSize"]);
+				var dagSize = parseInt(parsedResponse["dagSize"]);
+				// header = 1D Array of 32 bit ints
+				var header = Uint32Array.from(parsedResponse["header"]);
+				// cache = 1D Array of 32 bit ints
+				var cache = Uint32Array.from(parsedResponse["cache"]);
+				var dagArray = parsedResponse["dag"];
+				var startIndex = parseInt(parsedResponse["startIndex"]);
+				var endIndex = parseInt(parsedResponse["endIndex"]);
+    			mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex);
     		} 
     		else 
     		{
@@ -33,37 +43,20 @@ function http_post(theUrl,data)
 
 http_get(endpoint);
 
-function start_mine(response){
-
+function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	// the hash must be less than the following for the nonce to be a valid solutions
 	var solutionThreshold = 10**72;
 	// if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
 	var timeToGetCurrentBlock = 10000000; // ms
 
-	var cacheSize = parseInt(parsedResponse["cacheSize"]);
-	var dagSize = parseInt(parsedResponse["dagSize"]);
-
 	var ethashParams = defaultParams(cacheSize,dagSize);
-	var parsedResponse = JSON.parse(response);
-	// header = 1D Array of 32 bit ints
-	var header = Uint32Array.from(parsedResponse["header"]);
-
-	// cache = 1D Array of 32 bit ints
-	var cache = Uint32Array.from(parsedResponse["cache"]);
-
-	var dagArray = parsedResponse["dag"];
-
-	var startIndex = parsedResponse["startIndex"];
-
-	var endIndex = parsedResponse["endIndex"];
-
 	var hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
 
 	var nonce = Util.hexStringToBytes("0000000000000000");
 	var hash;
 
 	startTime = new Date().getTime();
-	var trials = 100000;
+	var trials = 10;
 	for (var i = 0; i < trials; ++i)
 	{
 		[hash,result] = hasher.hash(header, nonce);
