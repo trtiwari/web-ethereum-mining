@@ -1,17 +1,66 @@
-var endpoint = "http://155.41.109.95:9000";
+var endpoint = "http://155.41.59.239:9000";
+
+function nibbleToChar(nibble)
+{
+		return String.fromCharCode((nibble < 10 ? 48 : 87) + nibble);
+}
+
+function bytesToHexString(bytes)
+{
+	var str = "";
+	for (var i = 0; i != bytes.length; ++i)
+	{
+		str += nibbleToChar(bytes[i] >>> 4);
+		str += nibbleToChar(bytes[i] & 0xf);
+	}
+	return str;
+}
+
+function serializeIterableObject(iterable) 
+{
+	var returnVal = new Array(iterable.length)
+	const iterableIterator = iterable.values();
+	for (var i = 0; i < iterable.length; i++) {
+		returnVal[i] = iterableIterator.next().value;
+	}
+	return returnVal;
+}
+
+function serialize(arr) 
+{
+	var arrStr = ""
+	for (var i = 0; i < arr.length; i++)
+	{
+		arrStr += arr[i].toString();
+		arrStr += " ";
+	}
+	return arrStr;
+}
 
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
-    // true for asynchronous request, false for synchronous
-    xmlHttp.open("GET", theUrl+"/get", true );
+    xmlHttp.open("GET", theUrl+"/get", true ); // true for asynchronous request, false for synchronous
     xmlHttp.onload = function callback() 
     {
     	if (xmlHttp.readyState === 4) 
     	{
     		if (xmlHttp.status === 200) 
     		{
-    			mine(xmlHttp.responseText);
+    			var parsedResponse = JSON.parse(xmlHttp.responseText);
+    			// header = Array
+				var header = Uint32Array.from(parsedResponse["header"]);
+				// 	// cache = 1D Array
+				var cache = Uint32Array.from(parsedResponse["cache"]);
+				var dag = parsedResponse["dag"];
+				var cacheSize = parseInt(parsedResponse["cacheSize"]);
+				var dagSize = parseInt(parsedResponse["dagSize"]);
+				var headerStr = serialize(header);
+				var cacheStr = serialize(cache);
+				var dagStr = serialize(dag);
+				var startIndex = parsedResponse["startIndex"];
+				var endIndex = parsedResponse["endIndex"];
+    			mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize);
     		} 
     		else 
     		{
@@ -31,69 +80,17 @@ function http_post(theUrl,data)
     return;	
 }
 
+
 http_get(endpoint);
 
-function mine(response){
+function mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize){
 
-	// the hash must be less than the following for the nonce to be a valid solutions
-	var solutionThreshold = 10**72;
-	// if the browser cannot find a solution within these many miliseconds, we give it a new block to mine
-	var timeToGetCurrentBlock = 10000000; // ms
-
-	var cacheSize = parseInt(parsedResponse["cacheSize"]);
-	var dagSize = parseInt(parsedResponse["dagSize"]);
-
-	var ethashParams = defaultParams(cacheSize,dagSize);
-	
-	var parsedResponse = JSON.parse(response);
-	// header = 1D Array of 32 bit ints
-	var header = Uint32Array.from(parsedResponse["header"]);
-
-	// cache = 1D Array of 32 bit ints
-	var cache = Uint32Array.from(parsedResponse["cache"]);
-
-	var dagArray = parsedResponse["dag"];
-
-	startIndex = parsedResponse["startIndex"];
-
-	endIndex = parsedResponse["endIndex"];
-
-	var hasher = new Ethash(ethashParams,cache,dagArray,startIndex,endIndex);
-
-	var nonce = Util.hexStringToBytes("0000000000000000");
-	var hash;
-
-	startTime = new Date().getTime();
-	var trials = 100;
-	for (var i = 0; i < trials; ++i)
-	{
-		[hash,result] = hasher.hash(header, nonce);
-
-		nonce[0]=nonce[0]+1;
-
-		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
-		{
-			console.log("VALID NONCE FOR RESULT: " + Util.bytesToHexString(hash));
-			var solution = JSON.stringify({WorkerDigest:Util.serializeIterableObject(hash),WorkerNonce:nonce,WorkerResult:Util.serializeIterableObject(result)});
-			http_post(endpoint,solution);
-			http_get(endpoint);
-			return;
-		}
-		else if (new Date().getTime() - startTime > timeToGetCurrentBlock)
-		{
-			console.log("TIME UP!");
-			http_get(endpoint);
-			return;
-		}
-	}
-	var average_time = (new Date().getTime() - startTime)/trials;
-	console.log("Average time per hash: " + average_time);
-	// display hashrate
-	alert(1000/average_time);
-	alert(cacheHits/numAccesses);
+	// Accessing cpp bindings
+	var hashrate = Module.mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize);	
+	console.log("Light client hashes average hashrate: " + hashrate);
+	alert(hashrate);
 }
 
-/*
-decrease mining difficulty
-https://ethereum.stackexchange.com/questions/2539/how-do-i-decrease-the-difficulty-on-a-private-testnet
-*/
+// allocate 208 MB memory
+// emcc --bind -o glue.js miner.cpp -w -O3 -s TOTAL_MEMORY=218103808
+// emcc --bind -o glue.js miner.cpp -w -O3 -s ALLOW_MEMORY_GROWTH=1

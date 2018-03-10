@@ -6,6 +6,11 @@
 #include<iostream>
 // using namespace emscripten;
 
+unsigned int * dag;
+unsigned int startIndex;
+unsigned int endIndex;
+unsigned int dagSize;
+
 class Params
 {
 	public:
@@ -442,21 +447,43 @@ int charToNibble(int chr)
 	return 0;
 }
 
-// might want to implement this in js only
-// this method is invoked a lot, so there will be a lot of communication overhead
-// if the browser constantly has to contact the webasm module
-/*
-string bytesToHexString(char * bytes)
+void store(std::string dagStr,unsigned int dagSize)
 {
-	string str = "";
-	for (int i = 0; i != sizeof(bytes)/sizeof(*bytes); ++i)
-	{
-		str = str + nibbleToChar(bytes[i] >> 4);
-		str = str + nibbleToChar(bytes[i] & 0xf);
-	}
-	return str;
+		std::stringstream ss(dagStr);
+		int hashWords = 16;
+		int start = startIndex * hashWords;
+		int end = endIndex * hashWords;
+		if (end > dagSize) 
+			return;
+		for (int i = start; i < end; i++)
+		{
+			ss >> dag[i];
+		}
 }
-*/
+
+void cacheComputeSliceStore(unsigned int nodeIndex, unsigned int * node) 
+{
+	
+	int hashWords = 16;
+	int index = nodeIndex * hashWords;
+	if (index > dagSize) 
+		return;
+	for (int j = 0; j < 16; j++)
+	{
+		dag[index+j] = node[j];
+	}
+}
+
+unsigned int * DAGLookup(int index) 
+{
+	int hashWords = 16;
+	int i = (index - startIndex)*hashWords;
+
+	if (index - startIndex < 0 || index - startIndex > endIndex) {
+		return NULL;
+	}
+	return &dag[i];
+}
 
 int mod32(int x, int n)
 {
@@ -500,6 +527,7 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 	}
 	
 	keccak->digestWords(mix, 0, 16, mix, 0, 16);
+	cacheComputeSliceStore(nodeIndex,o_node);
 }
 
 void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, Keccak * keccak,unsigned int * tempNode)
@@ -524,7 +552,15 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 		int d = p * mixNodeCount;
 		for (int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
 		{
-			computeDagNode(tempNode, params, cache, keccak, d + n);
+			if (DAGLookup(d + n) != NULL)
+			{
+				tempNode = DAGLookup(d + n);
+			}
+			else 
+			{
+				computeDagNode(tempNode, params, cache, keccak, d + n);
+			}
+			
 			for (int v = 0; v < 16; ++v)
 			{
 				mix[w|v] = fnv(mix[w|v], tempNode[v]);
@@ -613,18 +649,20 @@ void deserialize(std::string str, unsigned int * outArr, int size)
     }
 }
 
-double mine(std::string headerStr,std::string cacheStr,int cacheSize,int dagSize)
+double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int startIndex, int endIndex, int cacheSize, int dagSizeLoc)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
-
+	dagSize = dagSizeLoc;
 	Params params(cacheSize,dagSize);
 
 	unsigned int header[44];
 	unsigned int * cache = new unsigned int[cacheSize];
+	dag = new unsigned int[dagSize];
 
 	deserialize(headerStr,header,44);
 	deserialize(cacheStr,cache,cacheSize);
+	store(dagStr,dagSize);
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
@@ -656,7 +694,7 @@ EMSCRIPTEN_BINDINGS(mineModule){
 
 int main()
 {
-	unsigned int dagSize = 268434976;
+	dagSize = 268434976;
 	unsigned int cacheSize = 4194224;
 	unsigned int * cache = new unsigned int[4194224];
 	for (int i = 0; i < 4194224; i++)
@@ -664,6 +702,8 @@ int main()
 	unsigned int header[44];
 	for (int i = 0; i < 44; i++)
 		cache[i] = 34;
+	for (int i = 0; i < dagSize; i++)
+		cache[i] = 54;
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
