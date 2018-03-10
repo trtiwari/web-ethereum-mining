@@ -1,10 +1,10 @@
-#include <emscripten/bind.h>
+// #include <emscripten/bind.h>
 #include <string.h>
 #include <math.h>
 #include <sstream>
 #include <chrono>
-// #include<iostream>
-using namespace emscripten;
+#include<iostream>
+// using namespace emscripten;
 
 unsigned int * dag;
 unsigned int dagSizeLocal;
@@ -499,16 +499,18 @@ int fnv(int x, int y)
 
 void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache, Keccak * keccak, unsigned int nodeIndex)
 {
-	int cacheNodeCount = params->cacheSize >> 6;
-	int dagParents = params->dagParents;
+	unsigned int cacheNodeCount = params->cacheSize >> 6;
+	unsigned int dagParents = params->dagParents;
 	
-	int c = (nodeIndex % cacheNodeCount) << 4;
+	unsigned int c = (nodeIndex % cacheNodeCount) << 4;
 	unsigned int * mix = o_node;
 
 	for (int w = 0; w < 16; ++w)
 	{
-		// FIX THIS -- c|w is too big
-		mix[w] = cache[(unsigned char)c|w];
+		// FIX THIS -- c|w is too big -- cast to uchar as temp hack
+		// the original go implementation does it differently than this
+		// maybe this is a bug in the official ethash repo?
+		mix[w] = cache[c + w];
 	}	
 
 	mix[0] ^= nodeIndex;
@@ -521,8 +523,11 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 		c = mod32(fnv(nodeIndex ^ p, mix[p&15]), cacheNodeCount) << 4;
 		for (int w = 0; w < 16; ++w)
 		{
-			// FIX THIS -- c|w is too big
-			mix[w] = fnv(mix[w], cache[(unsigned char)c|w]);
+			// FIX THIS -- c|w is too big -- cast to uchar as temp hack
+			// the original go implementation does it differently than this
+			// maybe this is a bug in the official ethash repo?
+			std::cout << ((unsigned int) c+w) << std::endl;
+			mix[w] = fnv(mix[w], cache[(unsigned int)c + w]);
 		}
 	}
 	
@@ -683,52 +688,52 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	return hashRate;
 }
 
-
+/*
 EMSCRIPTEN_BINDINGS(mineModule){
 	function("mine", &mine);
 }
+*/
 
 
+int main()
+{
+	unsigned int dagSize = 268434976;
+	unsigned int startIndex = 0;
+	unsigned int endIndex = 10000;
+	dagSizeLocal = 100000;
+	unsigned int cacheSize = 4194224;
 
-// int main()
-// {
-// 	unsigned int dagSize = 268434976;
-// 	unsigned int startIndex = 0;
-// 	unsigned int endIndex = 10000;
-// 	dagSizeLocal = 100000;
-// 	unsigned int cacheSize = 4194224;
+	unsigned int * cache = new unsigned int[4194224];
+	dag = new unsigned int[dagSizeLocal];
+	unsigned int header[44];
 
-// 	unsigned int * cache = new unsigned int[4194224];
-// 	dag = new unsigned int[dagSizeLocal];
-// 	unsigned int header[44];
-
-// 	for (int i = 0; i < 4194224; i++)
-// 		cache[i] = 42;
-// 	for (int i = 0; i < 44; i++)
-// 		header[i] = 34;
-// 	for (int i = 0; i < endIndex; i++)
-// 		dag[i] = 54;
+	for (int i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	for (int i = 0; i < 44; i++)
+		header[i] = 34;
+	for (int i = 0; i < endIndex; i++)
+		dag[i] = 54;
 
 
-// 	Params params(cacheSize,dagSize);
-// 	Ethash hasher(&params, cache);	
-// 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-// 	unsigned int trials = 10000;
-// 	unsigned int * hash;
+	Params params(cacheSize,dagSize);
+	Ethash hasher(&params, cache);	
+	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int trials = 10000;
+	unsigned int * hash;
 
-// 	// timing the hashes
-// 	std::chrono::high_resolution_clock::time_point start;
-//   	std::chrono::high_resolution_clock::time_point stop;
+	// timing the hashes
+	std::chrono::high_resolution_clock::time_point start;
+  	std::chrono::high_resolution_clock::time_point stop;
 
-//   	start = std::chrono::high_resolution_clock::now();
-// 	for (int i = 0; i < trials; i++)
-// 	{
-// 		hash = hasher.hash(header, nonce);
-// 	}
-// 	stop = std::chrono::high_resolution_clock::now();
+  	start = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < trials; i++)
+	{
+		hash = hasher.hash(header, nonce);
+	}
+	stop = std::chrono::high_resolution_clock::now();
 
-// 	std::chrono::duration<double, std::milli> time = stop - start;
-// 	double hashRate = 1000.0*trials/(time.count());
-// 	std::cout << hashRate << std::endl;
-// 	return 0;
-// }
+	std::chrono::duration<double, std::milli> time = stop - start;
+	double hashRate = 1000.0*trials/(time.count());
+	std::cout << hashRate << std::endl;
+	return 0;
+}

@@ -480,16 +480,18 @@ int fnv(int x, int y)
 
 void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache, Keccak * keccak, unsigned int nodeIndex)
 {
-	int cacheNodeCount = params->cacheSize >> 6;
-	int dagParents = params->dagParents;
+	unsigned int cacheNodeCount = params->cacheSize >> 6;
+	unsigned int dagParents = params->dagParents;
 	
-	int c = (nodeIndex % cacheNodeCount) << 4;
+	unsigned int c = (nodeIndex % cacheNodeCount) << 4;
 	unsigned int * mix = o_node;
 
 	for (int w = 0; w < 16; ++w)
 	{
-		// FIX THIS -- c|w is too big
-		mix[w] = cache[(unsigned char)c|w];
+		// FIX THIS -- c|w is too big -- cast to uchar as temp hack
+		// the original go implementation does it differently than this
+		// maybe this is a bug in the official ethash repo?
+		mix[w] = cache[c + w];
 	}	
 
 	mix[0] ^= nodeIndex;
@@ -502,8 +504,11 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 		c = mod32(fnv(nodeIndex ^ p, mix[p&15]), cacheNodeCount) << 4;
 		for (int w = 0; w < 16; ++w)
 		{
-			// FIX THIS -- c|w is too big
-			mix[w] = fnv(mix[w], cache[(unsigned char)c|w]);
+			// FIX THIS -- c|w is too big -- cast to uchar as temp hack
+			// the original go implementation does it differently than this
+			// maybe this is a bug in the official ethash repo?
+			std::cout << ((unsigned int) c+w) << std::endl;
+			mix[w] = fnv(mix[w], cache[(unsigned int)c + w]);
 		}
 	}
 	
@@ -711,3 +716,5 @@ EMSCRIPTEN_BINDINGS(mineModule){
 // 	std::cout << hashRate << std::endl;
 // 	return 0;
 // }
+
+// none of the cache indices are bigger than 7 digits (ex: 4103536)

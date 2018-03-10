@@ -1,5 +1,5 @@
 
-var endpoint = "http://155.41.59.239:9000";
+var endpoint = "http://155.41.31.20:9000";
 
 function http_get(theUrl)
 {

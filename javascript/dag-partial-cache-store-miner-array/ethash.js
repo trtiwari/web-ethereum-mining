@@ -43,8 +43,23 @@ function DAGLookup(index)
 {
 	var i = index*hashWords;
 	var j = i + hashWords;
-	// TODO: fix condition
-	if (j >= dag.length) {
+	var present = false;
+	// check if the slice is all 0s.
+
+	// javascript is cancerous in the sense that it will "return" a slice 
+	// even if it doesn't exist (no errors thrown -- an array of 0s returned).
+	// So we must explicitly check for all 0s in a slice, and return null if so.
+	// I hate this garbage language.
+	
+	for (var w = 0; w < 16; w++)
+	{
+		if (dag[i+w] !== 0)
+		{
+			present = true;
+		}
+	}
+	if (!present)
+	{
 		return null;
 	}
 	return dag.slice(i,j);
