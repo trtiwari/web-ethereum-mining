@@ -17,6 +17,8 @@ function store(dagArray,startIndex,endIndex)
 {
 		var start = startIndex * hashWords;
 		var end = endIndex * hashWords;
+		if (start > dag.length)
+			return;
 		if (end > dag.length) 
 			end = dag.length;
 		for (var i = start; i < end; i = i +16)

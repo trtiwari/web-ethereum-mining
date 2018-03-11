@@ -6,7 +6,7 @@
 "use strict";
 
 // we save some values of in this dag object
-var NUM_DAG_SLICES = 10000;
+var NUM_DAG_SLICES = 10000000;
 
 var hashWords = 16;
 var dag = new Uint32Array(NUM_DAG_SLICES*hashWords);
