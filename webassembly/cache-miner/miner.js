@@ -1,3 +1,4 @@
+importScripts("glue.js");
 
 var endpoint = "http://155.41.59.239:9000";
 
@@ -84,7 +85,7 @@ function mine(headerStr,cacheStr,cacheSize,dagSize){
 
 	// Accessing cpp bindings
 	var hashrate = Module.mine(headerStr,cacheStr,cacheSize,dagSize);	
-	console.log("Light client hashes average hashrate: " + hashrate);
+	console.log("Client hashes average hashrate: " + hashrate);
 	alert(hashrate);
 }
 

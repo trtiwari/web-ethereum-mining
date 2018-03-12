@@ -4,6 +4,7 @@
 #include <sstream>
 #include <chrono>
 #include<iostream>
+#include <cstdlib>
 // using namespace emscripten;
 
 class Params
@@ -480,8 +481,7 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 
 	for (int w = 0; w < 16; ++w)
 	{
-		// FIX THIS -- c|w is too big
-		mix[w] = cache[(unsigned char)c|w];
+		mix[w] = cache[c+w];
 	}	
 
 	mix[0] ^= nodeIndex;
@@ -494,8 +494,8 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 		c = mod32(fnv(nodeIndex ^ p, mix[p&15]), cacheNodeCount) << 4;
 		for (int w = 0; w < 16; ++w)
 		{
-			// FIX THIS -- c|w is too big
-			mix[w] = fnv(mix[w], cache[(unsigned char)c|w]);
+			// Bug in ethash.js
+			mix[w] = fnv(mix[w], cache[(unsigned short)c|w]);
 		}
 	}
 	
@@ -639,6 +639,7 @@ double mine(std::string headerStr,std::string cacheStr,int cacheSize,int dagSize
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
+		nonce[rand() % 8] = rand() % 256;
 	}
 	stop = std::chrono::high_resolution_clock::now();
 
@@ -678,6 +679,7 @@ int main()
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
+		nonce[rand() % 8] = rand() % 256;
 	}
 	stop = std::chrono::high_resolution_clock::now();
 

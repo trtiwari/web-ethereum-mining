@@ -3,12 +3,15 @@
 #include <math.h>
 #include <sstream>
 #include <chrono>
+#include <cstdlib>
 // #include<iostream>
 using namespace emscripten;
 
 unsigned int * dag;
-unsigned int dagSizeLocal;
+unsigned int numSlicesLocal = 100;
 unsigned int startIndex;
+unsigned int cacheHit = 0;
+unsigned int numAccesses = 0;
 
 class Params
 {
@@ -449,7 +452,7 @@ int charToNibble(int chr)
 void store(std::string dagStr)
 {
 		std::stringstream ss(dagStr);
-		for (int i = 0; i < dagSizeLocal; i = i++)
+		for (int i = 0; i < numSlicesLocal*16; i = i++)
 		{
 			ss >> dag[i];
 		}
@@ -457,9 +460,8 @@ void store(std::string dagStr)
 
 unsigned int * DAGLookup(unsigned int index) 
 {
-	int hashWords = 16;
-	int i = (index - startIndex)*hashWords;
-	if (i+hashWords >= dagSizeLocal) 
+	int i = (index - startIndex)*16;
+	if (i+16 >= numSlicesLocal*16) 
 	{
 		return NULL;
 	}
@@ -507,7 +509,7 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 			// FIX THIS -- c|w is too big -- cast to uchar as temp hack
 			// the original go implementation does it differently than this
 			// maybe this is a bug in the official ethash repo?
-			std::cout << ((unsigned int) c+w) << std::endl;
+			std::cout << ((unsigned short) c+w) << std::endl;
 			mix[w] = fnv(mix[w], cache[(unsigned int)c + w]);
 		}
 	}
@@ -537,8 +539,10 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 		int d = p * mixNodeCount;
 		for (int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
 		{
+			numAccesses++;
 			if (DAGLookup(d + n) != NULL)
 			{
+				cacheHit++;
 				tempNode = DAGLookup(d + n);
 			}
 			else 
@@ -641,7 +645,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int
 	Params params(cacheSize,dagSize);
 	unsigned int header[44];
 	unsigned int * cache = new unsigned int[cacheSize];
-	dag = new unsigned int[dagSizeLocal];
+	dag = new unsigned int[numSlicesLocal*16]();
 
 	deserialize(headerStr,header,44);
 	deserialize(cacheStr,cache,cacheSize);
@@ -660,10 +664,12 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
+		nonce[rand() % 8] = rand() % 256;
 	}
 	stop = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double, std::milli> time = stop - start;
+	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
 	double hashRate = 1000.0*trials/(time.count());
 	return hashRate;
 }
@@ -679,18 +685,18 @@ EMSCRIPTEN_BINDINGS(mineModule){
 // {
 // 	unsigned int dagSize = 268434976;
 // 	startIndex = 0;
-// 	int dagSizeLocal = 10000;
+// 	int numSlicesLocal = 10000;
 // 	unsigned int cacheSize = 4194224;
 
 // 	unsigned int * cache = new unsigned int[4194224];
-// 	dag = new unsigned int[dagSizeLocal];
+// 	dag = new unsigned int[numSlicesLocal*16]();
 // 	unsigned int header[44];
 
 // 	for (int i = 0; i < 4194224; i++)
 // 		cache[i] = 42;
 // 	for (int i = 0; i < 44; i++)
 // 		header[i] = 34;
-// 	for (int i = 0; i < dagSizeLocal; i++)
+// 	for (int i = 0; i < numSlicesLocal; i++)
 // 		dag[i] = 54;
 
 
@@ -708,12 +714,14 @@ EMSCRIPTEN_BINDINGS(mineModule){
 // 	for (int i = 0; i < trials; i++)
 // 	{
 // 		hash = hasher.hash(header, nonce);
+		// nonce[rand() % 8] = rand() % 256;
 // 	}
 // 	stop = std::chrono::high_resolution_clock::now();
 
 // 	std::chrono::duration<double, std::milli> time = stop - start;
 // 	double hashRate = 1000.0*trials/(time.count());
-// 	std::cout << hashRate << std::endl;
+// 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
+	// printf("hash rate:  %f\n",hashRate);
 // 	return 0;
 // }
 

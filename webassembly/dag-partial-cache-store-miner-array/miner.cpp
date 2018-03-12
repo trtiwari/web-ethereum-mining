@@ -3,11 +3,14 @@
 #include <math.h>
 #include <sstream>
 #include <chrono>
-#include<iostream>
+#include <cstdlib>
+// #include<iostream>
 // using namespace emscripten;
 
 unsigned int * dag;
-unsigned int dagSizeLocal;
+unsigned int numSlicesLocal = 10000000;
+unsigned int cacheHit = 0;
+unsigned int numAccesses = 0;
 
 class Params
 {
@@ -448,11 +451,10 @@ int charToNibble(int chr)
 void store(std::string dagStr, unsigned int startIndex,unsigned int endIndex)
 {
 		std::stringstream ss(dagStr);
-		int hashWords = 16;
-		int start = startIndex * hashWords;
-		int end = endIndex * hashWords;
-		if (end > dagSizeLocal) 
-			end = dagSizeLocal;
+		int start = startIndex * 16;
+		int end = endIndex * 16;
+		if (end > numSlicesLocal*16) 
+			end = numSlicesLocal*16;
 		for (int i = start; i < end; i = i+16)
 		{
 			for (int j = 0; j < 16; j++)
@@ -464,11 +466,10 @@ void store(std::string dagStr, unsigned int startIndex,unsigned int endIndex)
 
 void cacheComputeSliceStore(unsigned int nodeIndex, unsigned int * node) 
 {
-	int hashWords = 16;
-	int index = nodeIndex * hashWords;
-	if (index+hashWords > dagSizeLocal) 
+	int index = nodeIndex * 16;
+	if (index+16 >= numSlicesLocal*16) 
 		return;
-	for (int j = 0; j < hashWords; j++)
+	for (int j = 0; j < 16; j++)
 	{
 		dag[index+j] = node[j];
 	}
@@ -476,12 +477,19 @@ void cacheComputeSliceStore(unsigned int nodeIndex, unsigned int * node)
 
 unsigned int * DAGLookup(unsigned int index) 
 {
-	int hashWords = 16;
-	int i = index*hashWords;
-	if (i+hashWords >= dagSizeLocal) 
-	{
+	int i = index*16;
+	bool present = false;
+	if (i+16 >= numSlicesLocal*16)
 		return NULL;
+	for (int w = 0; w < 16; w++)
+	{
+		if (dag[i+w] != 0)
+		{
+			present = true;
+		}
 	}
+	if (!present)
+		return NULL;
 	return &dag[i];
 }
 
@@ -526,8 +534,8 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 			// FIX THIS -- c|w is too big -- cast to uchar as temp hack
 			// the original go implementation does it differently than this
 			// maybe this is a bug in the official ethash repo?
-			std::cout << ((unsigned int) c+w) << std::endl;
-			mix[w] = fnv(mix[w], cache[(unsigned int)c + w]);
+			// std::cout << ((unsigned short) c+w) << std::endl;
+			mix[w] = fnv(mix[w], cache[(unsigned short)c + w]);
 		}
 	}
 	
@@ -557,8 +565,10 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 		int d = p * mixNodeCount;
 		for (int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
 		{
+			numAccesses++;
 			if (DAGLookup(d + n) != NULL)
 			{
+				cacheHit++;
 				tempNode = DAGLookup(d + n);
 			}
 			else 
@@ -661,7 +671,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	Params params(cacheSize,dagSize);
 	unsigned int header[44];
 	unsigned int * cache = new unsigned int[cacheSize];
-	dag = new unsigned int[dagSizeLocal];
+	dag = new unsigned int[numSlicesLocal*16]();
 
 	deserialize(headerStr,header,44);
 	deserialize(cacheStr,cache,cacheSize);
@@ -669,7 +679,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-	unsigned int trials = 10000;
+	unsigned int trials = 500000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -680,11 +690,14 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
+		nonce[rand() % 8] = rand() % 256;
+		// if (i % 1000 == 0) printf("Done %d hashes\n",i);
 	}
 	stop = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double, std::milli> time = stop - start;
 	double hashRate = 1000.0*trials/(time.count());
+	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
 	return hashRate;
 }
 
@@ -694,17 +707,16 @@ EMSCRIPTEN_BINDINGS(mineModule){
 }
 */
 
-
 int main()
 {
 	unsigned int dagSize = 268434976;
 	unsigned int startIndex = 0;
 	unsigned int endIndex = 10000;
-	dagSizeLocal = 100000;
+	numSlicesLocal = 10000000;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
-	dag = new unsigned int[dagSizeLocal];
+	dag = new unsigned int[numSlicesLocal*16]();
 	unsigned int header[44];
 
 	for (int i = 0; i < 4194224; i++)
@@ -718,7 +730,7 @@ int main()
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-	unsigned int trials = 10000;
+	unsigned int trials = 100000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -729,11 +741,13 @@ int main()
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
+		nonce[rand() % 8] = rand() % 256;
 	}
 	stop = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double, std::milli> time = stop - start;
 	double hashRate = 1000.0*trials/(time.count());
-	std::cout << hashRate << std::endl;
+	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
+	printf("hash rate:  %f\n",hashRate);
 	return 0;
 }

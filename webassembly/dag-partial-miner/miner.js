@@ -1,5 +1,6 @@
+importScripts("glue.js");
 
-var endpoint = "http://10.192.75.95:9000";
+var endpoint = "http://155.41.59.239:9000";
 
 function nibbleToChar(nibble)
 {
@@ -88,8 +89,7 @@ function mine(headerStr,cacheStr,dagStr,startIndex,cacheSize,dagSize){
 
 	// Accessing cpp bindings
 	var hashrate = Module.mine(headerStr,cacheStr,dagStr,startIndex,cacheSize,dagSize);	
-	console.log("Light client hashes average hashrate: " + hashrate);
-	alert(hashrate);
+	console.log("Client hashes average hashrate: " + hashrate);
 }
 
 // allocate 208 MB memory

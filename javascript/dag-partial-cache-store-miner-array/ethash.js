@@ -48,11 +48,13 @@ function DAGLookup(index)
 	var present = false;
 	// check if the slice is all 0s.
 
-	// javascript is cancerous in the sense that it will "return" a slice 
-	// even if it doesn't exist (no errors thrown -- an array of 0s returned).
+	// since we allocated a huge array, arr.slice(i,j) will almost always return
+	// a slice -- even if the slice hasn't been filled up with a dag node yet
 	// So we must explicitly check for all 0s in a slice, and return null if so.
-	// I hate this garbage language.
-	
+	if (j >= dag.length)
+	{
+		return null;
+	}
 	for (var w = 0; w < 16; w++)
 	{
 		if (dag[i+w] !== 0)

@@ -58,7 +58,7 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	var hash;
 
 	startTime = new Date().getTime();
-	var trials = 10000;
+	var trials = 1000000;
 	for (var i = 0; i < trials; ++i)
 	{
 		[hash,result] = hasher.hash(header, nonce);
