@@ -9,7 +9,7 @@
 using namespace emscripten;
 
 unsigned int * dag;
-unsigned int numSlicesLocal = 10000000;
+unsigned int numSlicesLocal = 20000000;
 unsigned int cacheHit = 0;
 unsigned int numAccesses = 0;
 
@@ -511,9 +511,6 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 
 	for (unsigned int w = 0; w < 16; ++w)
 	{
-		// FIX THIS -- c|w is too big -- cast to uchar as temp hack
-		// the original go implementation does it differently than this
-		// maybe this is a bug in the official ethash repo?
 		mix[w] = cache[c|w];
 	}	
 
@@ -544,7 +541,12 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 	unsigned int mixParents = params->mixParents;
 	unsigned int mixWordCount = params->mixSize >> 2;
 	unsigned int mixNodeCount = mixWordCount >> 4;
-	unsigned int dagPageCount = (params->dagSize / params->mixSize) >> 0;
+	// BUG in ethash
+	// this number should be half the number of slices -- but it was not -- as a consequence,
+	// it simplified the PoW computation by making it less memory intensive
+
+	unsigned int dagPageCount = params->dagSize / 32; //params->mixSize;
+	// printf("dagPageCount: %x\n",dagPageCount);
 	
 	// grab initial first word
 	unsigned int s0 = mix[0];
@@ -571,7 +573,7 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 			}
 			else 
 			{
-				printf("index: %x\n",d+n);
+				// printf("index: %x\n",d+n);
 				// printf("dag val 0:%x\n", &dag[d+n]);
 				computeDagNode(tempNode, params, cache, keccak, d + n);
 			}
@@ -617,7 +619,9 @@ class Ethash
 		{
 			// compute initial hash
 
+			// TO DO: use header hash instead of header
 			//checked from the javascript version of the miner that the header size is always 44
+
 			for (unsigned int i = 0; i < 44; i++)
 			{
 				// changed initBytes to initWords
@@ -631,9 +635,9 @@ class Ethash
 			}
 			this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 10);
 
-
+			// ----------this might be incorrect-------------
 			// compute mix
-			for (unsigned int i = 0; i != 16; ++i)
+			for (unsigned int i = 0; i != 16; i++)
 			{
 				this->mixWords[i] = this->initWords[i];
 			}
@@ -680,7 +684,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-	unsigned int trials = 10;
+	unsigned int trials = 1000000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -701,7 +705,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 
 	std::chrono::duration<double, std::milli> time = stop - start;
 	double hashRate = 1000.0*trials/(time.count());
-	printf("cache hit: %d, num accesses: %d\n",cacheHit,numAccesses);
+	// printf("cache hit: %d, num accesses: %d\n",cacheHit,numAccesses);
 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
 	return hashRate;
 }
