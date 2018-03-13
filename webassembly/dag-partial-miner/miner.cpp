@@ -16,12 +16,12 @@ unsigned int numAccesses = 0;
 class Params
 {
 	public:
-		int cacheSize;
-		int cacheRounds;
-		int dagSize;
-		int dagParents;
-		int mixSize;
-		int mixParents;
+		unsigned int cacheSize;
+		unsigned int cacheRounds;
+		unsigned int dagSize;
+		unsigned int dagParents;
+		unsigned int mixSize;
+		unsigned int mixParents;
 
 		Params()
 		{
@@ -33,7 +33,7 @@ class Params
 			this->mixParents = 64;
 		}
 
-		Params(int cacheSize,int dagSize)
+		Params(unsigned int cacheSize,unsigned int dagSize)
 		{
 			this->cacheSize = cacheSize;
 			this->cacheRounds = 3;
@@ -44,12 +44,12 @@ class Params
 		}
 };
 
-int Keccak_f1600_Rho[] = {
+unsigned int Keccak_f1600_Rho[] = {
 	1,  3,  6,  10, 15, 21, 28, 36, 45, 55, 2,  14, 
 	27, 41, 56, 8,  25, 43, 62, 18, 39, 61, 20, 44
 };
 
-int Keccak_f1600_Pi[]= {
+unsigned int Keccak_f1600_Pi[]= {
 	10, 7,  11, 17, 18, 3, 5,  16, 8,  21, 24, 4, 
 	15, 23, 19, 13, 12, 2, 20, 14, 22, 9,  6,  1 
 };
@@ -81,68 +81,68 @@ unsigned int Keccak_f1600_RC[] = {
 	0x80008008, 0x80000000,
 };
 
-void keccak_f1600(unsigned int * outState, int outOffset, int outSize, unsigned int * inState)
+void keccak_f1600(unsigned int * outState, unsigned int outOffset, unsigned int outSize, unsigned int * inState)
 {
 	// todo, handle big endian loads
-	int a00l = inState[0]|0;
-	int a00h = inState[1]|0;
-	int a01l = inState[2]|0;
-	int a01h = inState[3]|0;
-	int a02l = inState[4]|0;
-	int a02h = inState[5]|0;
-	int a03l = inState[6]|0;
-	int a03h = inState[7]|0;
-	int a04l = inState[8]|0;
-	int a04h = inState[9]|0;
-	int a05l = inState[10]|0;
-	int a05h = inState[11]|0;
-	int a06l = inState[12]|0;
-	int a06h = inState[13]|0;
-	int a07l = inState[14]|0;
-	int a07h = inState[15]|0;
-	int a08l = inState[16]|0;
-	int a08h = inState[17]|0;
-	int a09l = inState[18]|0;
-	int a09h = inState[19]|0;
-	int a10l = inState[20]|0;
-	int a10h = inState[21]|0;
-	int a11l = inState[22]|0;
-	int a11h = inState[23]|0;
-	int a12l = inState[24]|0;
-	int a12h = inState[25]|0;
-	int a13l = inState[26]|0;
-	int a13h = inState[27]|0;
-	int a14l = inState[28]|0;
-	int a14h = inState[29]|0;
-	int a15l = inState[30]|0;
-	int a15h = inState[31]|0;
-	int a16l = inState[32]|0;
-	int a16h = inState[33]|0;
-	int a17l = inState[34]|0;
-	int a17h = inState[35]|0;
-	int a18l = inState[36]|0;
-	int a18h = inState[37]|0;
-	int a19l = inState[38]|0;
-	int a19h = inState[39]|0;
-	int a20l = inState[40]|0;
-	int a20h = inState[41]|0;
-	int a21l = inState[42]|0;
-	int a21h = inState[43]|0;
-	int a22l = inState[44]|0;
-	int a22h = inState[45]|0;
-	int a23l = inState[46]|0;
-	int a23h = inState[47]|0;
-	int a24l = inState[48]|0;
-	int a24h = inState[49]|0;
-	int b00l, b00h, b01l, b01h, b02l, b02h, b03l, b03h, b04l, b04h;
-	int b05l, b05h, b06l, b06h, b07l, b07h, b08l, b08h, b09l, b09h;
-	int b10l, b10h, b11l, b11h, b12l, b12h, b13l, b13h, b14l, b14h;
-	int b15l, b15h, b16l, b16h, b17l, b17h, b18l, b18h, b19l, b19h;
-	int b20l, b20h, b21l, b21h, b22l, b22h, b23l, b23h, b24l, b24h;
-	int tl, nl;
-	int th, nh;
+	unsigned int a00l = inState[0]|0;
+	unsigned int a00h = inState[1]|0;
+	unsigned int a01l = inState[2]|0;
+	unsigned int a01h = inState[3]|0;
+	unsigned int a02l = inState[4]|0;
+	unsigned int a02h = inState[5]|0;
+	unsigned int a03l = inState[6]|0;
+	unsigned int a03h = inState[7]|0;
+	unsigned int a04l = inState[8]|0;
+	unsigned int a04h = inState[9]|0;
+	unsigned int a05l = inState[10]|0;
+	unsigned int a05h = inState[11]|0;
+	unsigned int a06l = inState[12]|0;
+	unsigned int a06h = inState[13]|0;
+	unsigned int a07l = inState[14]|0;
+	unsigned int a07h = inState[15]|0;
+	unsigned int a08l = inState[16]|0;
+	unsigned int a08h = inState[17]|0;
+	unsigned int a09l = inState[18]|0;
+	unsigned int a09h = inState[19]|0;
+	unsigned int a10l = inState[20]|0;
+	unsigned int a10h = inState[21]|0;
+	unsigned int a11l = inState[22]|0;
+	unsigned int a11h = inState[23]|0;
+	unsigned int a12l = inState[24]|0;
+	unsigned int a12h = inState[25]|0;
+	unsigned int a13l = inState[26]|0;
+	unsigned int a13h = inState[27]|0;
+	unsigned int a14l = inState[28]|0;
+	unsigned int a14h = inState[29]|0;
+	unsigned int a15l = inState[30]|0;
+	unsigned int a15h = inState[31]|0;
+	unsigned int a16l = inState[32]|0;
+	unsigned int a16h = inState[33]|0;
+	unsigned int a17l = inState[34]|0;
+	unsigned int a17h = inState[35]|0;
+	unsigned int a18l = inState[36]|0;
+	unsigned int a18h = inState[37]|0;
+	unsigned int a19l = inState[38]|0;
+	unsigned int a19h = inState[39]|0;
+	unsigned int a20l = inState[40]|0;
+	unsigned int a20h = inState[41]|0;
+	unsigned int a21l = inState[42]|0;
+	unsigned int a21h = inState[43]|0;
+	unsigned int a22l = inState[44]|0;
+	unsigned int a22h = inState[45]|0;
+	unsigned int a23l = inState[46]|0;
+	unsigned int a23h = inState[47]|0;
+	unsigned int a24l = inState[48]|0;
+	unsigned int a24h = inState[49]|0;
+	unsigned int b00l, b00h, b01l, b01h, b02l, b02h, b03l, b03h, b04l, b04h;
+	unsigned int b05l, b05h, b06l, b06h, b07l, b07h, b08l, b08h, b09l, b09h;
+	unsigned int b10l, b10h, b11l, b11h, b12l, b12h, b13l, b13h, b14l, b14h;
+	unsigned int b15l, b15h, b16l, b16h, b17l, b17h, b18l, b18h, b19l, b19h;
+	unsigned int b20l, b20h, b21l, b21h, b22l, b22h, b23l, b23h, b24l, b24h;
+	unsigned int tl, nl;
+	unsigned int th, nh;
 
-	for (int r = 0; r < 48; r = (r+2)|0)
+	for (unsigned int r = 0; r < 48; r = (r+2)|0)
 	{
 		// Theta
 		b00l = a00l ^ a05l ^ a10l ^ a15l ^ a20l;
@@ -395,18 +395,18 @@ class Keccak
 			this->stateWords = this->stateBuf;
 		}
 		
-		void digestWords(unsigned int * oWords, int oOffset, int oLength, unsigned int * iWords, int iOffset, int iLength)
+		void digestWords(unsigned int * oWords, unsigned int oOffset, unsigned int oLength, unsigned int * iWords, unsigned int iOffset, unsigned int iLength)
 		{
-			for (int i = 0; i < 50; ++i)
+			for (unsigned int i = 0; i < 50; ++i)
 			{
 				this->stateWords[i] = 0;
 			}
 			
-			int r = 50 - oLength*2;
+			unsigned int r = 50 - oLength*2;
 			for (;;)
 			{
-				int len = iLength < r ? iLength : r;
-				for (int i = 0; i < len; ++i, ++iOffset)
+				unsigned int len = iLength < r ? iLength : r;
+				for (unsigned int i = 0; i < len; ++i, ++iOffset)
 				{
 					this->stateWords[i] ^= iWords[iOffset];
 				}
@@ -432,7 +432,7 @@ char nibbleToChar(char nibble)
 	return (nibble < 10 ? 48 : 87) + nibble + '0';
 }
 
-int charToNibble(int chr)
+unsigned int charToNibble(unsigned int chr)
 {
 	if (chr >= 48 && chr <= 57)
 	{
@@ -452,7 +452,7 @@ int charToNibble(int chr)
 void store(std::string dagStr)
 {
 		std::stringstream ss(dagStr);
-		for (int i = 0; i < numSlicesLocal*16; i = i++)
+		for (unsigned int i = 0; i < numSlicesLocal*16; i = i++)
 		{
 			ss >> dag[i];
 		}
@@ -460,7 +460,7 @@ void store(std::string dagStr)
 
 unsigned int * DAGLookup(unsigned int index) 
 {
-	int i = (index - startIndex)*16;
+	unsigned int i = (index - startIndex)*16;
 	if (i+16 >= numSlicesLocal*16) 
 	{
 		return NULL;
@@ -468,12 +468,7 @@ unsigned int * DAGLookup(unsigned int index)
 	return &dag[i];
 }
 
-int mod32(int x, int n)
-{
-	return (x>>0) % (n>>0);
-}
-
-int fnv(int x, int y)
+unsigned int fnv(unsigned int x, unsigned int y)
 {
 	// js integer multiply by 0x01000193 will lose precision
 	return ((x*0x01000000 | 0) + (x*0x193 | 0)) ^ y;	
@@ -488,29 +483,29 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 	unsigned int c = (nodeIndex % cacheNodeCount) << 4;
 	unsigned int * mix = o_node;
 
-	for (int w = 0; w < 16; ++w)
+	for (unsigned int w = 0; w < 16; ++w)
 	{
 		// FIX THIS -- c|w is too big -- cast to uchar as temp hack
 		// the original go implementation does it differently than this
 		// maybe this is a bug in the official ethash repo?
-		mix[w] = cache[c + w];
+		mix[w] = cache[c|w];
 	}	
 
 	mix[0] ^= nodeIndex;
 
 	keccak->digestWords(mix, 0, 16, mix, 0, 16);
 
-	for (int p = 0; p < dagParents; ++p)
+	for (unsigned int p = 0; p < dagParents; ++p)
 	{
 		// compute cache node (word) index
-		c = mod32(fnv(nodeIndex ^ p, mix[p&15]), cacheNodeCount) << 4;
-		for (int w = 0; w < 16; ++w)
+		c = (fnv(nodeIndex ^ p, mix[p&15]) % cacheNodeCount) << 4;
+		for (unsigned int w = 0; w < 16; ++w)
 		{
 			// FIX THIS -- c|w is too big -- cast to uchar as temp hack
 			// the original go implementation does it differently than this
 			// maybe this is a bug in the official ethash repo?
-			std::cout << ((unsigned short) c+w) << std::endl;
-			mix[w] = fnv(mix[w], cache[(unsigned int)c + w]);
+			// std::cout << ((unsigned short) c+w) << std::endl;
+			mix[w] = fnv(mix[w], cache[c|w]);
 		}
 	}
 	
@@ -525,19 +520,19 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 	unsigned int dagPageCount = (params->dagSize / params->mixSize) >> 0;
 	
 	// grab initial first word
-	int s0 = mix[0];
+	unsigned int s0 = mix[0];
 	
 	// initialise mix from initial 64 bytes
-	for (int w = 16; w < mixWordCount; ++w)
+	for (unsigned int w = 16; w < mixWordCount; ++w)
 	{
 		mix[w] = mix[w & 15];
 	}
 
-	for (int a = 0; a < mixParents; ++a)
+	for (unsigned int a = 0; a < mixParents; ++a)
 	{
-		int p = mod32(fnv(s0 ^ a, mix[a & (mixWordCount-1)]), dagPageCount);
-		int d = p * mixNodeCount;
-		for (int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
+		unsigned int p = mod32(fnv(s0 ^ a, mix[a & (mixWordCount-1)]), dagPageCount);
+		unsigned int d = p * mixNodeCount;
+		for (unsigned int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
 		{
 			numAccesses++;
 			if (DAGLookup(d + n) != NULL)
@@ -550,7 +545,7 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 				computeDagNode(tempNode, params, cache, keccak, d + n);
 			}
 			
-			for (int v = 0; v < 16; ++v)
+			for (unsigned int v = 0; v < 16; ++v)
 			{
 				mix[w|v] = fnv(mix[w|v], tempNode[v]);
 			}
@@ -592,13 +587,13 @@ class Ethash
 			// compute initial hash
 
 			//checked from the javascript version of the miner that the header size is always 44
-			for (int i = 0; i < 44; i++)
+			for (unsigned int i = 0; i < 44; i++)
 			{
 				// changed initBytes to initWords
 				this->initWords[i] = header[i];
 			}
 			// we know nonce is always 8 uint8_t elements (64 bit nonce)
-			for (int i = 32; i < 40; i++)
+			for (unsigned int i = 32; i < 40; i++)
 			{
 				// changed initBytes to initWords
 				this->initWords[i] = (unsigned int)nonce[i-32];
@@ -607,7 +602,7 @@ class Ethash
 
 
 			// compute mix
-			for (int i = 0; i != 16; ++i)
+			for (unsigned int i = 0; i != 16; ++i)
 			{
 				this->mixWords[i] = this->initWords[i];
 			}
@@ -616,7 +611,7 @@ class Ethash
 			// compress mix and append to initWords
 
 			// note: this->params->mixSize / 4 = mixwords.length
-			for (int i = 0; i != this->params->mixSize / 4; i = i + 4)
+			for (unsigned int i = 0; i != this->params->mixSize / 4; i = i + 4)
 			{
 				this->initWords[16 + i/4] = fnv(fnv(fnv(this->mixWords[i], this->mixWords[i+1]), this->mixWords[i+2]), this->mixWords[i+3]);
 			}
@@ -627,10 +622,10 @@ class Ethash
 		}
 };
 
-void deserialize(std::string str, unsigned int * outArr, int size)
+void deserialize(std::string str, unsigned int * outArr, unsigned int size)
 {
 	std::stringstream ss(str);
-	int i = 0;
+	unsigned int i = 0;
     while (ss.good() && i < size)
     {
         ss >> outArr[i];
@@ -638,7 +633,7 @@ void deserialize(std::string str, unsigned int * outArr, int size)
     }
 }
 
-double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int startIndex, int cacheSize, int dagSize)
+double mine(std::string headerStr, std::string cacheStr, std::string dagStr, unsigned int startIndex, unsigned int cacheSize, unsigned int dagSize)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
@@ -661,7 +656,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, int
   	std::chrono::high_resolution_clock::time_point stop;
 
   	start = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < trials; i++)
+	for (unsigned int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
 		nonce[rand() % 8] = rand() % 256;
