@@ -471,7 +471,7 @@ unsigned int * DAGLookup(unsigned int index)
 unsigned int fnv(unsigned int x, unsigned int y)
 {
 	// js integer multiply by 0x01000193 will lose precision
-	return ((x*0x01000000 | 0) + (x*0x193 | 0)) ^ y;	
+	return x*0x01000193 ^ y;
 }
 
 

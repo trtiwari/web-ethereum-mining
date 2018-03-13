@@ -497,7 +497,7 @@ unsigned int * DAGLookup(unsigned int index)
 unsigned int fnv(unsigned int x, unsigned int y)
 {
 	// js integer multiply by 0x01000193 will lose precision
-	return ((x*0x01000000 | 0) + (x*0x193 | 0)) ^ y;	
+	return x*0x01000193 ^ y;	
 }
 
 
@@ -571,7 +571,7 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 			}
 			else 
 			{
-				// printf("index: %x\n",d+n);
+				printf("index: %x\n",d+n);
 				// printf("dag val 0:%x\n", &dag[d+n]);
 				computeDagNode(tempNode, params, cache, keccak, d + n);
 			}
@@ -680,7 +680,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	
 	Ethash hasher(&params, cache);	
 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-	unsigned int trials = 1000000;
+	unsigned int trials = 10;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -691,13 +691,17 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	for (unsigned int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
-		nonce[rand() % 8] = rand() % 256;
+		for (int i = 0; i < 8; i++)
+			for (int j = 0; j < 256; j++)
+				nonce[i]++;
+		// nonce[rand() % 8] = rand() % 256;
 		// if (i % 1000 == 0) printf("Done %d hashes\n",i);
 	}
 	stop = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double, std::milli> time = stop - start;
 	double hashRate = 1000.0*trials/(time.count());
+	printf("cache hit: %d, num accesses: %d\n",cacheHit,numAccesses);
 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
 	return hashRate;
 }
