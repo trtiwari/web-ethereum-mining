@@ -151,7 +151,8 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 	var mixParents = params.mixParents|0;
 	var mixWordCount = params.mixSize >> 2;
 	var mixNodeCount = mixWordCount >> 4;
-	var dagPageCount = (params.dagSize / params.mixSize) >> 0;
+	// hardcoding to 32 (hashwords * 2)
+	var dagPageCount = (params.dagSize / 32)>>0;//params.mixSize) >> 0;
 	
 	// grab initial first word
 	var s0 = mix[0];
@@ -178,6 +179,7 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 			}
 			else 
 			{
+				console.log((d + n)|0);
 				computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
 			}
 			

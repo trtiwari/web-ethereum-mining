@@ -121,7 +121,7 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 	var mixParents = params.mixParents|0;
 	var mixWordCount = params.mixSize >> 2;
 	var mixNodeCount = mixWordCount >> 4;
-	var dagPageCount = (params.dagSize / params.mixSize) >> 0;
+	var dagPageCount = (params.dagSize /32)>>0; //params.mixSize) >> 0;
 	
 	// grab initial first word
 	var s0 = mix[0];

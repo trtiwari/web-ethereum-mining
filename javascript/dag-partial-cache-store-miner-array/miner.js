@@ -1,6 +1,6 @@
 importScripts("ethash.js","keccak.js","makekeccak.js","util.js");
 
-var endpoint = "http://155.41.59.239:9000";
+var endpoint = "http://155.41.39.73:9000";
 
 function http_get(theUrl)
 {
@@ -63,7 +63,7 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	{
 		[hash,result] = hasher.hash(header, nonce);
 
-		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*200));
+		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*256));
 
 		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
 		{

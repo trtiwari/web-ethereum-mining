@@ -517,7 +517,7 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 	unsigned int mixParents = params->mixParents;
 	unsigned int mixWordCount = params->mixSize >> 2;
 	unsigned int mixNodeCount = mixWordCount >> 4;
-	unsigned int dagPageCount = (params->dagSize / params->mixSize) >> 0;
+	unsigned int dagPageCount = params->dagSize /32;// params->mixSize) >> 0;
 	
 	// grab initial first word
 	unsigned int s0 = mix[0];
