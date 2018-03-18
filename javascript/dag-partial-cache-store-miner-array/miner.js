@@ -1,6 +1,6 @@
 importScripts("ethash.js","keccak.js","makekeccak.js","util.js");
 
-var endpoint = "http://155.41.39.73:9000";
+var endpoint = "http://155.41.12.43:9000";
 
 function http_get(theUrl)
 {
@@ -58,13 +58,15 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	var hash;
 
 	startTime = new Date().getTime();
-	var trials = 1000000;
+	var trials = 500000;
 	for (var i = 0; i < trials; ++i)
 	{
 		[hash,result] = hasher.hash(header, nonce);
 
 		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*256));
 
+		if (i % 1000 == 0) console.log("Cache hit rate for i = " + i + ": " + (cacheHits/numAccesses));
+		/*
 		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
 		{
 			console.log("VALID NONCE FOR RESULT: " + Util.bytesToHexString(hash));
@@ -79,6 +81,7 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 			http_get(endpoint);
 			return;
 		}
+		*/
 	}
 	var average_time = (new Date().getTime() - startTime)/trials;
 	console.log("Hashrate: " + (1000/average_time));
@@ -88,4 +91,19 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 /*
 decrease mining difficulty
 https://ethereum.stackexchange.com/questions/2539/how-do-i-decrease-the-difficulty-on-a-private-testnet
+*/
+
+/*
+// check with online keccak-256 and 512
+// keccack 256
+var src = Util.stringToBytes("abcd");
+console.log(Util.bytesToHexString(new Keccak().digest(32, src)));
+src = new Uint32Array(src.buffer);
+var dst1 = new Uint32Array(8);
+new Keccak().digestWords(dst1, 0, dst1.length, src, 0, src.length);
+console.log(Util.wordsToHexString(dst1));
+// keccack 512
+var dst = new Uint32Array(16);
+new Keccak().digestWords(dst, 0, dst.length, src, 0, src.length);
+console.log(Util.wordsToHexString(dst));
 */

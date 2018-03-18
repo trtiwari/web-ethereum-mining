@@ -419,7 +419,7 @@ class Keccak
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
 		}
 };
-
+/*
 // FIX -- only works for ascii, not for the entire range of utf-16
 char nibbleToChar(char nibble)
 {
@@ -442,7 +442,7 @@ int charToNibble(int chr)
 	}
 	return 0;
 }
-
+*/
 // might want to implement this in js only
 // this method is invoked a lot, so there will be a lot of communication overhead
 // if the browser constantly has to contact the webasm module

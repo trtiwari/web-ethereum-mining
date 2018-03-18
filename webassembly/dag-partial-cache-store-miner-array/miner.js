@@ -95,3 +95,13 @@ function mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize){
 // allocate 208 MB memory
 // emcc --bind -o glue.js miner.cpp -w -O3 -s TOTAL_MEMORY=218103808
 // emcc --bind -o glue.js miner.cpp -w -O3 -s ALLOW_MEMORY_GROWTH=1
+
+var src = Util.stringToBytes("abcd");
+console.log(Util.bytesToHexString(new Keccak().digest(32, src)));
+src = new Uint32Array(src.buffer);
+var dst1 = new Uint32Array(8);
+new Keccak().digestWords(dst1, 0, dst1.length, src, 0, src.length);
+console.log(Util.wordsToHexString(dst1));
+var dst = new Uint32Array(16);
+new Keccak().digestWords(dst, 0, dst.length, src, 0, src.length);
+console.log(Util.wordsToHexString(dst));

@@ -179,7 +179,7 @@ function computeHashInner(mix, params, cache, keccak, tempNode)
 			}
 			else 
 			{
-				console.log((d + n)|0);
+				// console.log((d + n)|0);
 				computeDagNode(tempNode, params, cache, keccak, (d + n)|0);
 			}
 			

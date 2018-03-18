@@ -1,12 +1,13 @@
-#include <emscripten/bind.h>
+// #include <emscripten/bind.h>
 #include <time.h>
 #include <string.h>
 #include <math.h>
 #include <sstream>
 #include <chrono>
 #include <cstdlib>
-// #include<iostream>
-using namespace emscripten;
+#include <iomanip>
+
+// using namespace emscripten;
 
 unsigned int * dag;
 unsigned int numSlicesLocal = 20000000;
@@ -427,6 +428,7 @@ class Keccak
 };
 
 // FIX -- only works for ascii, not for the entire range of utf-16
+/*
 char nibbleToChar(char nibble)
 {
 	return (nibble < 10 ? 48 : 87) + nibble + '0';
@@ -448,6 +450,7 @@ unsigned int charToNibble(unsigned int chr)
 	}
 	return 0;
 }
+*/
 
 void store(std::string dagStr, unsigned int startIndex,unsigned int endIndex)
 {
@@ -610,8 +613,7 @@ class Ethash
 
 			this->initWords = this->initBuf;
 			this->mixWords = new unsigned int[this->params->mixSize / 4];
-			this->keccak = new Keccak();
-			
+			this->keccak = new Keccak();	
 		}
 		
 		
@@ -711,52 +713,112 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 }
 
 
-EMSCRIPTEN_BINDINGS(mineModule){
-	function("mine", &mine);
+// EMSCRIPTEN_BINDINGS(mineModule){
+// 	function("mine", &mine);
+// }
+
+/*
+int main()
+{
+	unsigned int dagSize = 268434976;
+	unsigned int startIndex = 0;
+	unsigned int endIndex = 10000;
+	numSlicesLocal = 10000000;
+	unsigned int cacheSize = 4194224;
+
+	unsigned int * cache = new unsigned int[4194224];
+	dag = new unsigned int[numSlicesLocal*16]();
+	unsigned int header[44];
+
+	for (int i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	for (int i = 0; i < 44; i++)
+		header[i] = 34;
+	for (int i = 0; i < endIndex; i++)
+		dag[i] = 54;
+
+
+	Params params(cacheSize,dagSize);
+	Ethash hasher(&params, cache);	
+	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int trials = 500000;
+	unsigned int * hash;
+
+	// timing the hashes
+	std::chrono::high_resolution_clock::time_point start;
+  	std::chrono::high_resolution_clock::time_point stop;
+
+  	start = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < trials; i++)
+	{
+		hash = hasher.hash(header, nonce);
+		nonce[rand() % 8] = rand() % 256;
+		if (i % 1000 == 0)
+		printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));		
+	}
+	stop = std::chrono::high_resolution_clock::now();
+
+	std::chrono::duration<double, std::milli> time = stop - start;
+	double hashRate = 1000.0*trials/(time.count());
+	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
+	printf("hash rate:  %f\n",hashRate);
+	return 0;
+}
+*/
+
+// checker functions
+
+void stringToIntArr(std::string str,unsigned int *bytes)
+{
+	// unsigned char * bytes = new unsigned char[str.length()];
+	for (int i = 0; i != str.length(); ++i)
+	{
+		bytes[i] = (unsigned int)str[i];
+		// printf("%d\n",bytes[i]);
+	}
+	// return bytes;
 }
 
+std::string bytesToHexString(unsigned char * bytes, unsigned int len)
+{
+	std::stringstream ss;
+    ss << std::hex;
+    for(int i=0;i<len;++i)
+        ss << std::setw(2) << std::setfill('0') << (unsigned int)bytes[i];
+    return ss.str();
+}
 
-// int main()
-// {
-// 	unsigned int dagSize = 268434976;
-// 	unsigned int startIndex = 0;
-// 	unsigned int endIndex = 10000;
-// 	numSlicesLocal = 10000000;
-// 	unsigned int cacheSize = 4194224;
+std::string wordsToHexString(unsigned int * words, unsigned int len)
+{
+	unsigned char * bytes = new unsigned char[2*len];
+	for (unsigned int i = 0; i < len; i++)
+	{
+		bytes[i] = (unsigned char) words[i];
+		bytes[i+1] = (unsigned char) (words[i] >> 16);
+	}
+	return bytesToHexString(bytes,2*len);
+}
 
-// 	unsigned int * cache = new unsigned int[4194224];
-// 	dag = new unsigned int[numSlicesLocal*16]();
-// 	unsigned int header[44];
+int main()
+{
+	std::string str = "abcd";
+	
+	unsigned int keccack_src[str.length()]; 
+	
+	stringToIntArr(str,keccack_src);
 
-// 	for (int i = 0; i < 4194224; i++)
-// 		cache[i] = 42;
-// 	for (int i = 0; i < 44; i++)
-// 		header[i] = 34;
-// 	for (int i = 0; i < endIndex; i++)
-// 		dag[i] = 54;
+	unsigned int keccak_256_res[8];
+	unsigned int keccak_512_res[16];
 
+	Keccak keccack;
+	
+	keccack.digestWords(keccak_256_res, 0, 8, keccack_src, 0, str.length());
+	
+	printf("keccack 256: %s\n", wordsToHexString(keccak_256_res,8));
+	// keccack 512
 
-// 	Params params(cacheSize,dagSize);
-// 	Ethash hasher(&params, cache);	
-// 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-// 	unsigned int trials = 100000;
-// 	unsigned int * hash;
+	keccack.digestWords(keccak_512_res, 0, 16, keccack_src, 0, str.length());
+	printf("keccack 512: %s\n", wordsToHexString(keccak_512_res,16));
 
-// 	// timing the hashes
-// 	std::chrono::high_resolution_clock::time_point start;
-//   	std::chrono::high_resolution_clock::time_point stop;
-
-//   	start = std::chrono::high_resolution_clock::now();
-// 	for (int i = 0; i < trials; i++)
-// 	{
-// 		hash = hasher.hash(header, nonce);
-// 		nonce[rand() % 8] = rand() % 256;
-// 	}
-// 	stop = std::chrono::high_resolution_clock::now();
-
-// 	std::chrono::duration<double, std::milli> time = stop - start;
-// 	double hashRate = 1000.0*trials/(time.count());
-// 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
-// 	printf("hash rate:  %f\n",hashRate);
-// 	return 0;
-// }
+	return 0;
+}

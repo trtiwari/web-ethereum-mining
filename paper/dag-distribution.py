@@ -11,8 +11,8 @@ def main():
 		print sum(data[:len(data)/3])/float(len(data)/3)
 		print sum(data[len(data)/3:2*len(data)/3])/float(2*len(data)/3 - len(data)/3)
 		print sum(data[2*len(data)/3:])/float(len(data) - 2*len(data)/3)
-		# plt.plot(data,'r-')
-		# plt.show()
+		plt.plot(data,'ro')
+		plt.show()
 
 if __name__ == '__main__':
 	main()

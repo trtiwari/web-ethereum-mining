@@ -425,7 +425,7 @@ class Keccak
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
 		}
 };
-
+/*
 // FIX -- only works for ascii, not for the entire range of utf-16
 char nibbleToChar(char nibble)
 {
@@ -448,7 +448,7 @@ unsigned int charToNibble(unsigned int chr)
 	}
 	return 0;
 }
-
+*/
 void store(std::string dagStr)
 {
 		std::stringstream ss(dagStr);
