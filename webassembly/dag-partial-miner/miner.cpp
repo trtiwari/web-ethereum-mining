@@ -386,7 +386,8 @@ class Keccak
 {
 	public:
 		// changed stateBuf from uchar to uint
-		unsigned int stateBuf[200];
+		// buffer was 200 bytes long, so 50 ints
+		unsigned int stateBuf[50];
 		unsigned int  * stateWords;
 		Keccak()
 		{
@@ -420,9 +421,40 @@ class Keccak
 			
 			// these both were stateBytes instead of stateWords, but type inconsistency
 			// is not allowed is c++, so changed
-			this->stateWords[iLength<<2] ^= 1;
-			this->stateWords[(r<<2) - 1] ^= 0x80;
+
+			// checkpoint 1
+			/*
+			printf("checkpoint 1: ");
+			for (int i = 0; i < 50; i++)
+			{
+				printf("%u ", stateWords[i]);
+			}
+			printf("\n");
+			*/
+			
+			// converted byte level operations to word level operations
+			this->stateWords[iLength] ^= 1;
+			this->stateWords[r - 1] ^= 0x80000000;
+			// checkpoint 2
+			/*
+			printf("checkpoint 2: ");
+			for (int i = 0; i < 50; i++)
+			{
+				printf("%u ", stateWords[i]);
+			}
+			printf("\n");
+			*/
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
+
+			// checkpoint 3
+			/*
+			printf("checkpoint 3: ");
+			for (int i = 0; i < 50; i++)
+			{
+				printf("%u ", stateWords[i]);
+			}
+			printf("\n");
+			*/
 		}
 };
 /*
@@ -558,13 +590,13 @@ class Ethash
 	public:
 		Params * params;
 		unsigned int * cache;
-		// changed unsigned char to uint
-		unsigned int initBuf[96];
+		// changed unsigned char to uint, now size of initBuf is 96/4 = 24
+		// unsigned int initBuf[24];
 		unsigned int * mixWords;
 		unsigned int tempNode[16];
 		Keccak * keccak;
 		unsigned int retWords[8];
-		unsigned int * initWords;
+		unsigned int initWords[24];
 
 		Ethash(Params * params,unsigned int cache[])
 		{
@@ -574,38 +606,58 @@ class Ethash
 			
 			// got rid of initBytes and retBytes 
 			// don't need 2 datastructures pointing to the same buffer.
-
-			this->initWords = this->initBuf;
+			for (unsigned int i = 0; i < 24; i++)
+				this->initWords[i] = 0;
 			this->mixWords = new unsigned int[this->params->mixSize / 4];
-			this->keccak = new Keccak();
-			
+			this->keccak = new Keccak();	
 		}
 		
 		
-		unsigned int * hash (unsigned int * header,unsigned char * nonce)
+		unsigned int * hash (unsigned int * header,unsigned int * nonce)
 		{
 			// compute initial hash
 
-			//checked from the javascript version of the miner that the header size is always 44
-			for (unsigned int i = 0; i < 44; i++)
+			// TO DO: use header hash instead of header
+			//checked from the javascript version of the miner that the header size is always 32 bytes (8 ints)
+
+			// the header
+			for (unsigned int i = 0; i < 8; i++)
 			{
 				// changed initBytes to initWords
 				this->initWords[i] = header[i];
 			}
 			// we know nonce is always 8 uint8_t elements (64 bit nonce)
-			for (unsigned int i = 32; i < 40; i++)
+			for (unsigned int i = 8; i < 10; i++)
 			{
 				// changed initBytes to initWords
-				this->initWords[i] = (unsigned int)nonce[i-32];
+				this->initWords[i] = nonce[i-8];
 			}
+			
+			// printf("checkpoint 1: ");
+			// for (int i = 0; i < 24; i++)
+			// {
+			// 	printf("%u ", this->initWords[i]);
+			// }
+			// printf("\n");
+
 			this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 10);
 
-
+			// ----------this might be incorrect-------------
 			// compute mix
-			for (unsigned int i = 0; i != 16; ++i)
+			for (unsigned int i = 0; i != 16; i++)
 			{
 				this->mixWords[i] = this->initWords[i];
 			}
+
+			// printf("checkpoint 2: ");
+			// for (int i = 0; i < 32; i++)
+			// {
+			// 	printf("%u ", this->mixWords[i]);
+			// }
+
+			// printf("\n");
+			// printf("%d\n", this->params->mixSize / 4);
+
 			computeHashInner(this->mixWords, this->params, this->cache, this->keccak, this->tempNode);
 
 			// compress mix and append to initWords
@@ -638,16 +690,16 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, uns
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
 	Params params(cacheSize,dagSize);
-	unsigned int header[44];
+	unsigned int header[8];
 	unsigned int * cache = new unsigned int[cacheSize];
 	dag = new unsigned int[numSlicesLocal*16]();
 
-	deserialize(headerStr,header,44);
+	deserialize(headerStr,header,8);
 	deserialize(cacheStr,cache,cacheSize);
 	store(dagStr);
 	
 	Ethash hasher(&params, cache);	
-	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int nonce[] = {0,0};
 	unsigned int trials = 10000;
 	unsigned int * hash;
 
@@ -659,7 +711,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, uns
 	for (unsigned int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
-		nonce[rand() % 8] = rand() % 256;
+		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
 	}
 	stop = std::chrono::high_resolution_clock::now();
 

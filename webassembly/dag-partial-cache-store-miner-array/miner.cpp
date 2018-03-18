@@ -422,32 +422,40 @@ class Keccak
 			
 			// these both were stateBytes instead of stateWords, but type inconsistency
 			// is not allowed is c++, so changed
+
 			// checkpoint 1
+			/*
 			printf("checkpoint 1: ");
 			for (int i = 0; i < 50; i++)
 			{
 				printf("%u ", stateWords[i]);
 			}
 			printf("\n");
+			*/
 			
 			// converted byte level operations to word level operations
 			this->stateWords[iLength] ^= 1;
 			this->stateWords[r - 1] ^= 0x80000000;
 			// checkpoint 2
+			/*
 			printf("checkpoint 2: ");
 			for (int i = 0; i < 50; i++)
 			{
 				printf("%u ", stateWords[i]);
 			}
 			printf("\n");
+			*/
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
+
 			// checkpoint 3
+			/*
 			printf("checkpoint 3: ");
 			for (int i = 0; i < 50; i++)
 			{
 				printf("%u ", stateWords[i]);
 			}
 			printf("\n");
+			*/
 		}
 };
 
@@ -618,13 +626,13 @@ class Ethash
 	public:
 		Params * params;
 		unsigned int * cache;
-		// changed unsigned char to uint
-		unsigned int initBuf[96];
+		// changed unsigned char to uint, now size of initBuf is 96/4 = 24
+		// unsigned int initBuf[24];
 		unsigned int * mixWords;
 		unsigned int tempNode[16];
 		Keccak * keccak;
 		unsigned int retWords[8];
-		unsigned int * initWords;
+		unsigned int initWords[24];
 
 		Ethash(Params * params,unsigned int cache[])
 		{
@@ -634,31 +642,40 @@ class Ethash
 			
 			// got rid of initBytes and retBytes 
 			// don't need 2 datastructures pointing to the same buffer.
-
-			this->initWords = this->initBuf;
+			for (unsigned int i = 0; i < 24; i++)
+				this->initWords[i] = 0;
 			this->mixWords = new unsigned int[this->params->mixSize / 4];
 			this->keccak = new Keccak();	
 		}
 		
 		
-		unsigned int * hash (unsigned int * header,unsigned char * nonce)
+		unsigned int * hash (unsigned int * header,unsigned int * nonce)
 		{
 			// compute initial hash
 
 			// TO DO: use header hash instead of header
-			//checked from the javascript version of the miner that the header size is always 44
+			//checked from the javascript version of the miner that the header size is always 32 bytes (8 ints)
 
-			for (unsigned int i = 0; i < 44; i++)
+			// the header
+			for (unsigned int i = 0; i < 8; i++)
 			{
 				// changed initBytes to initWords
 				this->initWords[i] = header[i];
 			}
 			// we know nonce is always 8 uint8_t elements (64 bit nonce)
-			for (unsigned int i = 32; i < 40; i++)
+			for (unsigned int i = 8; i < 10; i++)
 			{
 				// changed initBytes to initWords
-				this->initWords[i] = (unsigned int)nonce[i-32];
+				this->initWords[i] = nonce[i-8];
 			}
+			
+			// printf("checkpoint 1: ");
+			// for (int i = 0; i < 24; i++)
+			// {
+			// 	printf("%u ", this->initWords[i]);
+			// }
+			// printf("\n");
+
 			this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 10);
 
 			// ----------this might be incorrect-------------
@@ -667,6 +684,16 @@ class Ethash
 			{
 				this->mixWords[i] = this->initWords[i];
 			}
+
+			// printf("checkpoint 2: ");
+			// for (int i = 0; i < 32; i++)
+			// {
+			// 	printf("%u ", this->mixWords[i]);
+			// }
+
+			// printf("\n");
+			// printf("%d\n", this->params->mixSize / 4);
+
 			computeHashInner(this->mixWords, this->params, this->cache, this->keccak, this->tempNode);
 
 			// compress mix and append to initWords
@@ -700,16 +727,16 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	// double solutionThreshold = pow(10,72);
 	srand(time(NULL));
 	Params params(cacheSize,dagSize);
-	unsigned int header[44];
+	unsigned int header[8];
 	unsigned int * cache = new unsigned int[cacheSize];
 	dag = new unsigned int[numSlicesLocal*16]();
 
-	deserialize(headerStr,header,44);
+	deserialize(headerStr,header,8);
 	deserialize(cacheStr,cache,cacheSize);
 	store(dagStr,startIndex,endIndex);
 	
 	Ethash hasher(&params, cache);	
-	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int nonce[] = {0,0};
 	unsigned int trials = 1000000;
 	unsigned int * hash;
 
@@ -720,9 +747,10 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
   	start = std::chrono::high_resolution_clock::now();
 	for (unsigned int i = 0; i < trials; i++)
 	{
+		// hash is an array of 8 ints (256 bits)
 		hash = hasher.hash(header, nonce);
-		for (int i = 0; i < 8; i++)
-			for (int j = 0; j < 256; j++)
+		for (unsigned int i = 0; i < 2; i++)
+			for (unsigned int j = 0; j < 0xffffffff; j++)
 				nonce[i]++;
 		// nonce[rand() % 8] = rand() % 256;
 		// if (i % 1000 == 0) printf("Done %d hashes\n",i);
@@ -741,30 +769,30 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 // 	function("mine", &mine);
 // }
 
-/*
+
 int main()
 {
 	unsigned int dagSize = 268434976;
-	unsigned int startIndex = 0;
-	unsigned int endIndex = 10000;
+	// unsigned int startIndex = 0;
+	// unsigned int endIndex = 10000;
 	numSlicesLocal = 10000000;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
 	dag = new unsigned int[numSlicesLocal*16]();
-	unsigned int header[44];
+	unsigned int header[8];
 
 	for (int i = 0; i < 4194224; i++)
 		cache[i] = 42;
-	for (int i = 0; i < 44; i++)
+	for (int i = 0; i < 8; i++)
 		header[i] = 34;
-	for (int i = 0; i < endIndex; i++)
-		dag[i] = 54;
+	// for (int i = 0; i < endIndex; i++)
+	// 	dag[i] = 54;
 
 
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
-	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int nonce[] = {0,0};
 	unsigned int trials = 500000;
 	unsigned int * hash;
 
@@ -776,9 +804,11 @@ int main()
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
-		nonce[rand() % 8] = rand() % 256;
-		if (i % 1000 == 0)
-		printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));		
+		for (unsigned int i = 0; i < 2; i++)
+			for (unsigned int j = 0; j < 0xffffffff; j++)
+				nonce[i]++;
+		if (i % 10000 == 0)
+			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));		
 	}
 	stop = std::chrono::high_resolution_clock::now();
 
@@ -788,10 +818,9 @@ int main()
 	printf("hash rate:  %f\n",hashRate);
 	return 0;
 }
-*/
 
 // checker functions
-// these don't work :(
+// these conversion functions don't work yet :(
 /*
 void stringToIntArr(std::string str,unsigned int *bytes)
 {
@@ -829,6 +858,9 @@ std::string wordsToHexString(unsigned int * words, unsigned int len)
 	return bytesToHexString(bytes,2*len);
 }
 */
+
+// unit test 1
+/*
 int main()
 {
 	// std::string str = "aaaa";
@@ -865,3 +897,38 @@ int main()
 	printf("\n");
 	return 0;
 }
+*/
+
+/*
+int main()
+{
+	unsigned int dagSize = 268434976;
+	numSlicesLocal = 10000000;
+	unsigned int cacheSize = 4194224;
+
+	unsigned int * cache = new unsigned int[4194224];
+	dag = new unsigned int[numSlicesLocal*16]();
+	unsigned int header[8];
+
+	for (int i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	for (int i = 0; i < 8; i++)
+		header[i] = 0x22222222;
+
+
+	Params params(cacheSize,dagSize);
+	Ethash hasher(&params, cache);	
+	unsigned int nonce[] = {0xffffffff,0xffffffff};
+	unsigned int * hash;
+	hash = hasher.hash(header, nonce);
+	printf("Hash result: ");
+	for (int i = 0; i < 8; i++)
+	{
+		printf("%u ", hash[i]);
+	}
+	printf("\n");	
+
+
+	return 0;
+}
+*/
