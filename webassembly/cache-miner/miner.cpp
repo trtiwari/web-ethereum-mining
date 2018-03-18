@@ -3,19 +3,19 @@
 #include <math.h>
 #include <sstream>
 #include <chrono>
-#include<iostream>
+// #include<iostream>
 #include <cstdlib>
 // using namespace emscripten;
 
 class Params
 {
 	public:
-		int cacheSize;
-		int cacheRounds;
-		int dagSize;
-		int dagParents;
-		int mixSize;
-		int mixParents;
+		unsigned int cacheSize;
+		unsigned int cacheRounds;
+		unsigned int dagSize;
+		unsigned int dagParents;
+		unsigned int mixSize;
+		unsigned int mixParents;
 
 		Params()
 		{
@@ -27,7 +27,7 @@ class Params
 			this->mixParents = 64;
 		}
 
-		Params(int cacheSize,int dagSize)
+		Params(unsigned int cacheSize,unsigned int dagSize)
 		{
 			this->cacheSize = cacheSize;
 			this->cacheRounds = 3;
@@ -38,12 +38,12 @@ class Params
 		}
 };
 
-int Keccak_f1600_Rho[] = {
+unsigned int Keccak_f1600_Rho[] = {
 	1,  3,  6,  10, 15, 21, 28, 36, 45, 55, 2,  14, 
 	27, 41, 56, 8,  25, 43, 62, 18, 39, 61, 20, 44
 };
 
-int Keccak_f1600_Pi[]= {
+unsigned int Keccak_f1600_Pi[]= {
 	10, 7,  11, 17, 18, 3, 5,  16, 8,  21, 24, 4, 
 	15, 23, 19, 13, 12, 2, 20, 14, 22, 9,  6,  1 
 };
@@ -75,68 +75,68 @@ unsigned int Keccak_f1600_RC[] = {
 	0x80008008, 0x80000000,
 };
 
-void keccak_f1600(unsigned int * outState, int outOffset, int outSize, unsigned int * inState)
+void keccak_f1600(unsigned int * outState, unsigned int outOffset, unsigned int outSize, unsigned int * inState)
 {
 	// todo, handle big endian loads
-	int a00l = inState[0]|0;
-	int a00h = inState[1]|0;
-	int a01l = inState[2]|0;
-	int a01h = inState[3]|0;
-	int a02l = inState[4]|0;
-	int a02h = inState[5]|0;
-	int a03l = inState[6]|0;
-	int a03h = inState[7]|0;
-	int a04l = inState[8]|0;
-	int a04h = inState[9]|0;
-	int a05l = inState[10]|0;
-	int a05h = inState[11]|0;
-	int a06l = inState[12]|0;
-	int a06h = inState[13]|0;
-	int a07l = inState[14]|0;
-	int a07h = inState[15]|0;
-	int a08l = inState[16]|0;
-	int a08h = inState[17]|0;
-	int a09l = inState[18]|0;
-	int a09h = inState[19]|0;
-	int a10l = inState[20]|0;
-	int a10h = inState[21]|0;
-	int a11l = inState[22]|0;
-	int a11h = inState[23]|0;
-	int a12l = inState[24]|0;
-	int a12h = inState[25]|0;
-	int a13l = inState[26]|0;
-	int a13h = inState[27]|0;
-	int a14l = inState[28]|0;
-	int a14h = inState[29]|0;
-	int a15l = inState[30]|0;
-	int a15h = inState[31]|0;
-	int a16l = inState[32]|0;
-	int a16h = inState[33]|0;
-	int a17l = inState[34]|0;
-	int a17h = inState[35]|0;
-	int a18l = inState[36]|0;
-	int a18h = inState[37]|0;
-	int a19l = inState[38]|0;
-	int a19h = inState[39]|0;
-	int a20l = inState[40]|0;
-	int a20h = inState[41]|0;
-	int a21l = inState[42]|0;
-	int a21h = inState[43]|0;
-	int a22l = inState[44]|0;
-	int a22h = inState[45]|0;
-	int a23l = inState[46]|0;
-	int a23h = inState[47]|0;
-	int a24l = inState[48]|0;
-	int a24h = inState[49]|0;
-	int b00l, b00h, b01l, b01h, b02l, b02h, b03l, b03h, b04l, b04h;
-	int b05l, b05h, b06l, b06h, b07l, b07h, b08l, b08h, b09l, b09h;
-	int b10l, b10h, b11l, b11h, b12l, b12h, b13l, b13h, b14l, b14h;
-	int b15l, b15h, b16l, b16h, b17l, b17h, b18l, b18h, b19l, b19h;
-	int b20l, b20h, b21l, b21h, b22l, b22h, b23l, b23h, b24l, b24h;
-	int tl, nl;
-	int th, nh;
+	unsigned int a00l = inState[0]|0;
+	unsigned int a00h = inState[1]|0;
+	unsigned int a01l = inState[2]|0;
+	unsigned int a01h = inState[3]|0;
+	unsigned int a02l = inState[4]|0;
+	unsigned int a02h = inState[5]|0;
+	unsigned int a03l = inState[6]|0;
+	unsigned int a03h = inState[7]|0;
+	unsigned int a04l = inState[8]|0;
+	unsigned int a04h = inState[9]|0;
+	unsigned int a05l = inState[10]|0;
+	unsigned int a05h = inState[11]|0;
+	unsigned int a06l = inState[12]|0;
+	unsigned int a06h = inState[13]|0;
+	unsigned int a07l = inState[14]|0;
+	unsigned int a07h = inState[15]|0;
+	unsigned int a08l = inState[16]|0;
+	unsigned int a08h = inState[17]|0;
+	unsigned int a09l = inState[18]|0;
+	unsigned int a09h = inState[19]|0;
+	unsigned int a10l = inState[20]|0;
+	unsigned int a10h = inState[21]|0;
+	unsigned int a11l = inState[22]|0;
+	unsigned int a11h = inState[23]|0;
+	unsigned int a12l = inState[24]|0;
+	unsigned int a12h = inState[25]|0;
+	unsigned int a13l = inState[26]|0;
+	unsigned int a13h = inState[27]|0;
+	unsigned int a14l = inState[28]|0;
+	unsigned int a14h = inState[29]|0;
+	unsigned int a15l = inState[30]|0;
+	unsigned int a15h = inState[31]|0;
+	unsigned int a16l = inState[32]|0;
+	unsigned int a16h = inState[33]|0;
+	unsigned int a17l = inState[34]|0;
+	unsigned int a17h = inState[35]|0;
+	unsigned int a18l = inState[36]|0;
+	unsigned int a18h = inState[37]|0;
+	unsigned int a19l = inState[38]|0;
+	unsigned int a19h = inState[39]|0;
+	unsigned int a20l = inState[40]|0;
+	unsigned int a20h = inState[41]|0;
+	unsigned int a21l = inState[42]|0;
+	unsigned int a21h = inState[43]|0;
+	unsigned int a22l = inState[44]|0;
+	unsigned int a22h = inState[45]|0;
+	unsigned int a23l = inState[46]|0;
+	unsigned int a23h = inState[47]|0;
+	unsigned int a24l = inState[48]|0;
+	unsigned int a24h = inState[49]|0;
+	unsigned int b00l, b00h, b01l, b01h, b02l, b02h, b03l, b03h, b04l, b04h;
+	unsigned int b05l, b05h, b06l, b06h, b07l, b07h, b08l, b08h, b09l, b09h;
+	unsigned int b10l, b10h, b11l, b11h, b12l, b12h, b13l, b13h, b14l, b14h;
+	unsigned int b15l, b15h, b16l, b16h, b17l, b17h, b18l, b18h, b19l, b19h;
+	unsigned int b20l, b20h, b21l, b21h, b22l, b22h, b23l, b23h, b24l, b24h;
+	unsigned int tl, nl;
+	unsigned int th, nh;
 
-	for (int r = 0; r < 48; r = (r+2)|0)
+	for (unsigned int r = 0; r < 48; r = (r+2)|0)
 	{
 		// Theta
 		b00l = a00l ^ a05l ^ a10l ^ a15l ^ a20l;
@@ -417,14 +417,14 @@ class Keccak
 			// is not allowed is c++, so changed
 
 			// checkpoint 1
-			/*
-			printf("checkpoint 1: ");
-			for (int i = 0; i < 50; i++)
-			{
-				printf("%u ", stateWords[i]);
-			}
-			printf("\n");
-			*/
+			
+			// printf("checkpoint 1: ");
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	printf("%u ", stateWords[i]);
+			// }
+			// printf("\n");
+			
 			
 			// converted byte level operations to word level operations
 			this->stateWords[iLength] ^= 1;
@@ -441,14 +441,19 @@ class Keccak
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
 
 			// checkpoint 3
-			/*
-			printf("checkpoint 3: ");
-			for (int i = 0; i < 50; i++)
-			{
-				printf("%u ", stateWords[i]);
-			}
-			printf("\n");
-			*/
+			
+			// printf("checkpoint 3: ");
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	printf("%u ", this->stateWords[i]);
+			// }
+			// printf("\n");
+			// for (int i = 0; i < 8; i++)
+			// {
+			// 	printf("%u ", oWords[i]);
+			// }
+			// printf("\n");
+			
 		}
 };
 
@@ -492,43 +497,38 @@ string bytesToHexString(char * bytes)
 }
 */
 
-int mod32(int x, int n)
-{
-	return (x>>0) % (n>>0);
-}
 
-int fnv(int x, int y)
+unsigned int fnv(unsigned int x, unsigned int y)
 {
-	// js integer multiply by 0x01000193 will lose precision
-	return ((x*0x01000000 | 0) + (x*0x193 | 0)) ^ y;	
+	return x*0x01000193 ^ y;
 }
 
 
 void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache, Keccak * keccak, unsigned int nodeIndex)
 {
-	int cacheNodeCount = params->cacheSize >> 6;
-	int dagParents = params->dagParents;
+	unsigned int cacheNodeCount = params->cacheSize >> 6;
+	unsigned int dagParents = params->dagParents;
 	
-	int c = (nodeIndex % cacheNodeCount) << 4;
+	unsigned int c = (nodeIndex % cacheNodeCount) << 4;
 	unsigned int * mix = o_node;
 
-	for (int w = 0; w < 16; ++w)
+	for (unsigned int w = 0; w < 16; ++w)
 	{
-		mix[w] = cache[c+w];
+		mix[w] = cache[c|w];
 	}	
 
 	mix[0] ^= nodeIndex;
 
 	keccak->digestWords(mix, 0, 16, mix, 0, 16);
 
-	for (int p = 0; p < dagParents; ++p)
+	for (unsigned int p = 0; p < dagParents; ++p)
 	{
 		// compute cache node (word) index
-		c = mod32(fnv(nodeIndex ^ p, mix[p&15]), cacheNodeCount) << 4;
-		for (int w = 0; w < 16; ++w)
+		c = (fnv(nodeIndex ^ p, mix[p&15]) % cacheNodeCount) << 4;
+		for (unsigned int w = 0; w < 16; ++w)
 		{
 			// Bug in ethash.js
-			mix[w] = fnv(mix[w], cache[(unsigned short)c|w]);
+			mix[w] = fnv(mix[w], cache[c|w]);
 		}
 	}
 	
@@ -540,25 +540,26 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 	unsigned int mixParents = params->mixParents;
 	unsigned int mixWordCount = params->mixSize >> 2;
 	unsigned int mixNodeCount = mixWordCount >> 4;
-	unsigned int dagPageCount = (params->dagSize / params->mixSize) >> 0;
+
+	unsigned int dagPageCount = params->dagSize / 32; //params->mixSize;;
 	
 	// grab initial first word
-	int s0 = mix[0];
+	unsigned int s0 = mix[0];
 	
 	// initialise mix from initial 64 bytes
-	for (int w = 16; w < mixWordCount; ++w)
+	for (unsigned int w = 16; w < mixWordCount; ++w)
 	{
 		mix[w] = mix[w & 15];
 	}
 
-	for (int a = 0; a < mixParents; ++a)
+	for (unsigned int a = 0; a < mixParents; ++a)
 	{
-		int p = mod32(fnv(s0 ^ a, mix[a & (mixWordCount-1)]), dagPageCount);
-		int d = p * mixNodeCount;
-		for (int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
+		unsigned int p = fnv(s0 ^ a, mix[a & (mixWordCount-1)]) % dagPageCount;
+		unsigned int d = p * mixNodeCount;
+		for (unsigned int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
 		{
 			computeDagNode(tempNode, params, cache, keccak, d + n);
-			for (int v = 0; v < 16; ++v)
+			for (unsigned int v = 0; v < 16; ++v)
 			{
 				mix[w|v] = fnv(mix[w|v], tempNode[v]);
 			}
@@ -655,10 +656,10 @@ class Ethash
 		}
 };
 
-void deserialize(std::string str, unsigned int * outArr, int size)
+void deserialize(std::string str, unsigned int * outArr, unsigned int size)
 {
 	std::stringstream ss(str);
-	int i = 0;
+	unsigned int i = 0;
     while (ss.good() && i < size)
     {
         ss >> outArr[i];
@@ -666,7 +667,8 @@ void deserialize(std::string str, unsigned int * outArr, int size)
     }
 }
 
-double mine(std::string headerStr,std::string cacheStr,int cacheSize,int dagSize)
+
+double mine(std::string headerStr,std::string cacheStr,unsigned int cacheSize,unsigned int dagSize)
 {
 	// the hash must be less than the following for the nonce to be a valid solutions
 	// double solutionThreshold = pow(10,72);
@@ -689,7 +691,7 @@ double mine(std::string headerStr,std::string cacheStr,int cacheSize,int dagSize
   	std::chrono::high_resolution_clock::time_point stop;
 
   	start = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < trials; i++)
+	for (unsigned int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
 		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
@@ -707,20 +709,20 @@ EMSCRIPTEN_BINDINGS(mineModule){
 }
 */
 
-
+/*
 int main()
 {
 	unsigned int dagSize = 268434976;
 	unsigned int cacheSize = 4194224;
+	unsigned int header[8];
 	unsigned int * cache = new unsigned int[4194224];
 	for (int i = 0; i < 4194224; i++)
 		cache[i] = 42;
-	unsigned int header[44];
-	for (int i = 0; i < 44; i++)
-		cache[i] = 34;
+	for (int i = 0; i < 8; i++)
+		header[i] = 34;
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
-	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
+	unsigned int nonce[] = {0,0};
 	unsigned int trials = 10000;
 	unsigned int * hash;
 
@@ -732,12 +734,89 @@ int main()
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
-		nonce[rand() % 8] = rand() % 256;
+		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
+		if (i % 1000 == 0)
+			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));		
 	}
 	stop = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double, std::milli> time = stop - start;
 	double hashRate = 1000.0*trials/(time.count());
 	std::cout << hashRate << std::endl;
+	return 0;
+}
+*/
+
+// unit test 1
+/*
+int main()
+{
+	// std::string str = "aaaa";
+	
+	unsigned int keccack_src[] = {1633771873}; 
+	
+	// stringToIntArr(str,keccack_src);
+
+	unsigned int keccak_256_res[8];
+	unsigned int keccak_512_res[16];
+
+	Keccak keccack;
+	// last input = lenght of int arr
+	keccack.digestWords(keccak_256_res, 0, 8, keccack_src, 0, 1);
+
+	printf("Hash result keccak 256: ");
+	for (int i = 0; i < 8; i++)
+	{
+		printf("%u ", keccak_256_res[i]);
+	}
+	printf("\n");
+	
+	// printf("keccack 256: %s\n", wordsToHexString(keccak_256_res,8));
+	// keccack 512
+	
+	keccack.digestWords(keccak_512_res, 0, 16, keccack_src, 0, 1);
+	// printf("keccack 512: %s\n", wordsToHexString(keccak_512_res,16));
+
+	printf("Hash result keccak 512: ");
+	for (int i = 0; i < 16; i++)
+	{
+		printf("%u ", keccak_512_res[i]);
+	}
+	printf("\n");
+
+	return 0;
+}
+*/
+
+// unit test 2
+
+int main()
+{
+	unsigned int dagSize = 268434976;
+	unsigned int cacheSize = 4194224;
+
+	unsigned int * cache = new unsigned int[4194224];
+	unsigned int header[8];
+
+	for (int i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	// header is array of bytes in js, but here it is an array of ints
+	for (int i = 0; i < 8; i++)
+		header[i] = 0x22222222;
+
+
+	Params params(cacheSize,dagSize);
+	Ethash hasher(&params, cache);	
+	unsigned int nonce[] = {0xffffffff,0xffffffff};
+	unsigned int * hash;
+	hash = hasher.hash(header, nonce);
+	printf("Hash result: ");
+	for (int i = 0; i < 8; i++)
+	{
+		printf("%u ", hash[i]);
+	}
+	printf("\n");	
+
+
 	return 0;
 }

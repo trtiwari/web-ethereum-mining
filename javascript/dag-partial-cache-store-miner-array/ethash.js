@@ -232,7 +232,10 @@ class Ethash
 		
 		this.retWords = new Uint32Array(8);
 		this.retBytes = new Uint8Array(this.retWords.buffer); // supposedly read-only
-		store(dagArray,startIndex,endIndex);
+		if (startIndex != endIndex)
+		{
+			store(dagArray,startIndex,endIndex);
+		}
 	}
 	// precompute cache and related values
 	
@@ -241,7 +244,13 @@ class Ethash
 	{
 		// compute initial hash
 		this.initBytes.set(header, 0);
+		// console.log("checkpoint 0: " + this.initWords);
 		this.initBytes.set(nonce, 32);
+
+		console.log("checkpoint 1: " + this.initWords);
+		// console.log(this.initWords.length);
+		// console.log("nonce.length/4: "+ nonce.length/4);
+
 		this.keccak.digestWords(this.initWords, 0, 16, this.initWords, 0, 8 + nonce.length/4);
 		
 		// compute mix
@@ -249,7 +258,12 @@ class Ethash
 		{
 			this.mixWords[i] = this.initWords[i];
 		}
+
+		console.log("checkpoint 2: " + this.mixWords);
+		// console.log(this.mixWords.length);
 		computeHashInner(this.mixWords, this.params, this.cache, this.keccak, this.tempNode);
+		console.log("checkpoint 3a: " + this.mixWords);
+		console.log("checkpoint 3b: " + this.tempNode);
 		
 		// compress mix and append to initWords
 		for (let i = 0; i != this.mixWords.length; i += 4)
@@ -259,7 +273,9 @@ class Ethash
 			
 		// final keccak hashes
 		this.keccak.digestWords(this.retWords, 0, 8, this.initWords, 0, 24); // keccak-256(s + cmix)
-		return [this.initBytes,this.retBytes];
+		// return [this.initBytes,this.retBytes];
+		// CHANGE BACK TO RETBYTES!!
+		return this.retWords;
 	};
 	
 	cacheDigest()

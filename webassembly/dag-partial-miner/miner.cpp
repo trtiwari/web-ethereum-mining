@@ -1,11 +1,11 @@
-#include <emscripten/bind.h>
+// #include <emscripten/bind.h>
 #include <string.h>
 #include <math.h>
 #include <sstream>
 #include <chrono>
 #include <cstdlib>
 // #include<iostream>
-using namespace emscripten;
+// using namespace emscripten;
 
 unsigned int * dag;
 unsigned int numSlicesLocal = 100;
@@ -447,14 +447,14 @@ class Keccak
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
 
 			// checkpoint 3
-			/*
-			printf("checkpoint 3: ");
-			for (int i = 0; i < 50; i++)
-			{
-				printf("%u ", stateWords[i]);
-			}
-			printf("\n");
-			*/
+			
+			// printf("checkpoint 3: ");
+			// for (int i = 0; i < 50; i++)
+			// {
+			// 	printf("%u ", stateWords[i]);
+			// }
+			// printf("\n");
+			
 		}
 };
 /*
@@ -502,7 +502,6 @@ unsigned int * DAGLookup(unsigned int index)
 
 unsigned int fnv(unsigned int x, unsigned int y)
 {
-	// js integer multiply by 0x01000193 will lose precision
 	return x*0x01000193 ^ y;
 }
 
@@ -517,9 +516,6 @@ void computeDagNode(unsigned int * o_node, Params * params, unsigned int * cache
 
 	for (unsigned int w = 0; w < 16; ++w)
 	{
-		// FIX THIS -- c|w is too big -- cast to uchar as temp hack
-		// the original go implementation does it differently than this
-		// maybe this is a bug in the official ethash repo?
 		mix[w] = cache[c|w];
 	}	
 
@@ -549,7 +545,12 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 	unsigned int mixParents = params->mixParents;
 	unsigned int mixWordCount = params->mixSize >> 2;
 	unsigned int mixNodeCount = mixWordCount >> 4;
-	unsigned int dagPageCount = params->dagSize /32;// params->mixSize) >> 0;
+	// BUG in ethash
+	// this number should be half the number of slices -- but it was not -- as a consequence,
+	// it simplified the PoW computation by making it less memory intensive
+
+	unsigned int dagPageCount = params->dagSize / 32; //params->mixSize;
+	// printf("dagPageCount: %x\n",dagPageCount);
 	
 	// grab initial first word
 	unsigned int s0 = mix[0];
@@ -562,9 +563,11 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 
 	for (unsigned int a = 0; a < mixParents; ++a)
 	{
-		unsigned int p = mod32(fnv(s0 ^ a, mix[a & (mixWordCount-1)]), dagPageCount);
+		unsigned int p = fnv(s0 ^ a, mix[a & (mixWordCount-1)]) % dagPageCount;
 		unsigned int d = p * mixNodeCount;
-		for (unsigned int n = 0, w = 0; n < mixNodeCount; ++n, w = w + 16)
+		// printf("%d\n", mixNodeCount);
+		// mixNodeCount = 2;
+		for (unsigned int n = 0, w = 0; n < mixNodeCount; n++, w = w + 16)
 		{
 			numAccesses++;
 			if (DAGLookup(d + n) != NULL)
@@ -574,6 +577,8 @@ void computeHashInner(unsigned int * mix, Params * params,unsigned int * cache, 
 			}
 			else 
 			{
+				// printf("index: %x\n",d+n);
+				// printf("dag val 0:%x\n", &dag[d+n]);
 				computeDagNode(tempNode, params, cache, keccak, d + n);
 			}
 			
@@ -633,12 +638,12 @@ class Ethash
 				this->initWords[i] = nonce[i-8];
 			}
 			
-			// printf("checkpoint 1: ");
-			// for (int i = 0; i < 24; i++)
-			// {
-			// 	printf("%u ", this->initWords[i]);
-			// }
-			// printf("\n");
+			printf("checkpoint 1: ");
+			for (int i = 0; i < 24; i++)
+			{
+				printf("%u ", this->initWords[i]);
+			}
+			printf("\n");
 
 			this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 10);
 
@@ -649,18 +654,32 @@ class Ethash
 				this->mixWords[i] = this->initWords[i];
 			}
 
-			// printf("checkpoint 2: ");
-			// for (int i = 0; i < 32; i++)
-			// {
-			// 	printf("%u ", this->mixWords[i]);
-			// }
+			printf("checkpoint 2: ");
+			for (int i = 0; i < 32; i++)
+			{
+				printf("%u ", this->mixWords[i]);
+			}
 
-			// printf("\n");
+			printf("\n");
 			// printf("%d\n", this->params->mixSize / 4);
 
 			computeHashInner(this->mixWords, this->params, this->cache, this->keccak, this->tempNode);
 
 			// compress mix and append to initWords
+
+			printf("checkpoint 3a: ");
+			for (int i = 0; i < 32; i++)
+			{
+				printf("%u ", this->mixWords[i]);
+			}
+			printf("\n");
+
+			printf("checkpoint 3b: ");
+			for (int i = 0; i < 32; i++)
+			{
+				printf("%u ", this->tempNode[i]);
+			}
+			printf("\n");
 
 			// note: this->params->mixSize / 4 = mixwords.length
 			for (unsigned int i = 0; i != this->params->mixSize / 4; i = i + 4)
@@ -722,54 +741,129 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, uns
 }
 
 
-EMSCRIPTEN_BINDINGS(mineModule){
-	function("mine", &mine);
-}
-
-
-
-// int main()
-// {
-// 	unsigned int dagSize = 268434976;
-// 	startIndex = 0;
-// 	int numSlicesLocal = 10000;
-// 	unsigned int cacheSize = 4194224;
-
-// 	unsigned int * cache = new unsigned int[4194224];
-// 	dag = new unsigned int[numSlicesLocal*16]();
-// 	unsigned int header[44];
-
-// 	for (int i = 0; i < 4194224; i++)
-// 		cache[i] = 42;
-// 	for (int i = 0; i < 44; i++)
-// 		header[i] = 34;
-// 	for (int i = 0; i < numSlicesLocal; i++)
-// 		dag[i] = 54;
-
-
-// 	Params params(cacheSize,dagSize);
-// 	Ethash hasher(&params, cache);	
-// 	unsigned char nonce[] = {0,0,0,0,0,0,0,0};
-// 	unsigned int trials = 10000;
-// 	unsigned int * hash;
-
-// 	// timing the hashes
-// 	std::chrono::high_resolution_clock::time_point start;
-//   	std::chrono::high_resolution_clock::time_point stop;
-
-//   	start = std::chrono::high_resolution_clock::now();
-// 	for (int i = 0; i < trials; i++)
-// 	{
-// 		hash = hasher.hash(header, nonce);
-		// nonce[rand() % 8] = rand() % 256;
-// 	}
-// 	stop = std::chrono::high_resolution_clock::now();
-
-// 	std::chrono::duration<double, std::milli> time = stop - start;
-// 	double hashRate = 1000.0*trials/(time.count());
-// 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
-	// printf("hash rate:  %f\n",hashRate);
-// 	return 0;
+// EMSCRIPTEN_BINDINGS(mineModule){
+// 	function("mine", &mine);
 // }
 
-// none of the cache indices are bigger than 7 digits (ex: 4103536)
+/*
+int main()
+{
+	unsigned int dagSize = 268434976;
+	startIndex = 0;
+	int numSlicesLocal = 10000;
+	unsigned int cacheSize = 4194224;
+
+	unsigned int * cache = new unsigned int[4194224];
+	dag = new unsigned int[numSlicesLocal*16]();
+	unsigned int header[8];
+
+	for (int i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	for (int i = 0; i < 8; i++)
+		header[i] = 34;
+	for (int i = 0; i < numSlicesLocal; i++)
+		dag[i] = 54;
+
+
+	Params params(cacheSize,dagSize);
+	Ethash hasher(&params, cache);	
+	unsigned int nonce[] = {0,0};
+	unsigned int trials = 10000;
+	unsigned int * hash;
+
+	// timing the hashes
+	std::chrono::high_resolution_clock::time_point start;
+  	std::chrono::high_resolution_clock::time_point stop;
+
+  	start = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < trials; i++)
+	{
+		hash = hasher.hash(header, nonce);
+		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
+		if (i % 1000 == 0)
+			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));		
+	}
+	stop = std::chrono::high_resolution_clock::now();
+
+	std::chrono::duration<double, std::milli> time = stop - start;
+	double hashRate = 1000.0*trials/(time.count());
+	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
+	printf("hash rate:  %f\n",hashRate);
+	return 0;
+}
+*/
+
+
+// unit test 1
+/*
+int main()
+{
+	// std::string str = "aaaa";
+	
+	unsigned int keccack_src[] = {1633771873}; 
+	
+	// stringToIntArr(str,keccack_src);
+
+	unsigned int keccak_256_res[8];
+	unsigned int keccak_512_res[16];
+
+	Keccak keccack;
+	// last input = lenght of int arr
+	keccack.digestWords(keccak_256_res, 0, 8, keccack_src, 0, 1);
+
+	printf("Hash result keccak 256: ");
+	for (int i = 0; i < 8; i++)
+	{
+		printf("%u ", keccak_256_res[i]);
+	}
+	printf("\n");
+	
+	// printf("keccack 256: %s\n", wordsToHexString(keccak_256_res,8));
+	// keccack 512
+
+	keccack.digestWords(keccak_512_res, 0, 16, keccack_src, 0, 1);
+	// printf("keccack 512: %s\n", wordsToHexString(keccak_512_res,16));
+
+	printf("Hash result keccak 512: ");
+	for (int i = 0; i < 16; i++)
+	{
+		printf("%u ", keccak_512_res[i]);
+	}
+	printf("\n");
+	return 0;
+}
+*/
+
+// unit test 2
+
+int main()
+{
+	unsigned int dagSize = 268434976;
+	numSlicesLocal = 10000000;
+	unsigned int cacheSize = 4194224;
+
+	unsigned int * cache = new unsigned int[4194224];
+	dag = new unsigned int[numSlicesLocal*16]();
+	unsigned int header[8];
+
+	for (int i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	for (int i = 0; i < 8; i++)
+		header[i] = 0x22222222;
+
+
+	Params params(cacheSize,dagSize);
+	Ethash hasher(&params, cache);	
+	unsigned int nonce[] = {0xffffffff,0xffffffff};
+	unsigned int * hash;
+	hash = hasher.hash(header, nonce);
+	printf("Hash result: ");
+	for (int i = 0; i < 8; i++)
+	{
+		printf("%u ", hash[i]);
+	}
+	printf("\n");	
+
+
+	return 0;
+}

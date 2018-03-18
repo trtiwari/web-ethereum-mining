@@ -43,7 +43,7 @@ function http_post(theUrl,data)
     return;	
 }
 
-http_get(endpoint);
+// http_get(endpoint);
 
 function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	// the hash must be less than the following for the nonce to be a valid solutions
@@ -66,7 +66,7 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*256));
 
 		if (i % 1000 == 0) console.log("Cache hit rate for i = " + i + ": " + (cacheHits/numAccesses));
-		/*
+		
 		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
 		{
 			console.log("VALID NONCE FOR RESULT: " + Util.bytesToHexString(hash));
@@ -81,7 +81,7 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 			http_get(endpoint);
 			return;
 		}
-		*/
+		
 	}
 	var average_time = (new Date().getTime() - startTime)/trials;
 	console.log("Hashrate: " + (1000/average_time));
@@ -93,17 +93,58 @@ decrease mining difficulty
 https://ethereum.stackexchange.com/questions/2539/how-do-i-decrease-the-difficulty-on-a-private-testnet
 */
 
-/*
+// unit test 1
+
+
 // check with online keccak-256 and 512
 // keccack 256
-var src = Util.stringToBytes("abcd");
-console.log(Util.bytesToHexString(new Keccak().digest(32, src)));
-src = new Uint32Array(src.buffer);
-var dst1 = new Uint32Array(8);
-new Keccak().digestWords(dst1, 0, dst1.length, src, 0, src.length);
-console.log(Util.wordsToHexString(dst1));
-// keccack 512
-var dst = new Uint32Array(16);
-new Keccak().digestWords(dst, 0, dst.length, src, 0, src.length);
-console.log(Util.wordsToHexString(dst));
+/*
+function test1()
+{
+	var src = Util.stringToBytes("aaaa");
+	// console.log(Util.bytesToHexString(new Keccak().digest(32, src)));
+	src = new Uint32Array(src.buffer);
+	// console.log("input: " + src);
+	// console.log("input len: " + src.length);
+	var dst_k256 = new Uint32Array(8);
+	// keccack 256 - fast
+	new Keccak().digestWords(dst_k256, 0, dst_k256.length, src, 0, src.length);
+	console.log("keccak_256_res: " + dst_k256);
+	console.log(Util.wordsToHexString(dst_k256));
+
+	// // keccack 512 - fast
+	var dst_k512 = new Uint32Array(16);
+	new Keccak().digestWords(dst_k512, 0, dst_k512.length, src, 0, src.length);
+	console.log("keccak_512_res: " + dst_k512)
+	console.log(Util.wordsToHexString(dst_k512));
+}
+test1();
 */
+
+// unit test 2
+function test2()
+{
+	var dagSize = 268434976;
+	var cacheSize = 4194224;
+	var ethashParams = defaultParams(cacheSize,dagSize);
+	var dagArray = new Array();	
+	// need header and nonce to be byte arrays in js, but int arrays in cpp
+	// change the size accordingly
+	var header= new Uint8Array(32);
+	var cache = new Uint32Array(4194224);
+
+	for (var i = 0; i < 4194224; i++)
+		cache[i] = 42;
+	for (var i = 0; i < 32; i++)
+		header[i] = 34;
+
+	var hasher = new Ethash(ethashParams,cache,dagArray,0,0);
+	var nonce = new Uint8Array(8);
+
+	for (var i = 0; i < 8; i++)
+		nonce[i] = 255;
+
+	var hash = hasher.hash(header, nonce);
+	console.log("Hash result: " + hash);
+}
+test2();

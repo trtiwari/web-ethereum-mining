@@ -532,7 +532,7 @@ unsigned int * DAGLookup(unsigned int index)
 unsigned int fnv(unsigned int x, unsigned int y)
 {
 	// js integer multiply by 0x01000193 will lose precision
-	return x*0x01000193 ^ y;	
+	return x*0x01000193 ^ y;
 }
 
 
@@ -769,7 +769,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 // 	function("mine", &mine);
 // }
 
-
+/*
 int main()
 {
 	unsigned int dagSize = 268434976;
@@ -804,10 +804,8 @@ int main()
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
-		for (unsigned int i = 0; i < 2; i++)
-			for (unsigned int j = 0; j < 0xffffffff; j++)
-				nonce[i]++;
-		if (i % 10000 == 0)
+		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
+		if (i % 1000 == 0)
 			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));		
 	}
 	stop = std::chrono::high_resolution_clock::now();
@@ -818,7 +816,7 @@ int main()
 	printf("hash rate:  %f\n",hashRate);
 	return 0;
 }
-
+*/
 // checker functions
 // these conversion functions don't work yet :(
 /*
@@ -899,7 +897,8 @@ int main()
 }
 */
 
-/*
+// unit test 2
+
 int main()
 {
 	unsigned int dagSize = 268434976;
@@ -931,4 +930,3 @@ int main()
 
 	return 0;
 }
-*/

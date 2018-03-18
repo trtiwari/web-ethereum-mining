@@ -353,7 +353,7 @@ class Keccak
 		var r = 200 - oSize*2;
 		var iLength = iBytes.length;
 		var iOffset = 0;	
-		for ( ; ;)
+		for (;;)
 		{
 			var len = iLength < r ? iLength : r;
 			for (i = 0; i < len; ++i, ++iOffset)
@@ -382,7 +382,7 @@ class Keccak
 		}
 		
 		var r = 50 - oLength*2;
-		for (; ; )
+		for (;;)
 		{
 			var len = iLength < r ? iLength : r;
 			for (i = 0; i < len; ++i, ++iOffset)
@@ -396,9 +396,13 @@ class Keccak
 			
 			keccak_f1600(this.stateWords, 0, 50, this.stateWords);
 		}
+
+		// console.log("checkpoint 1: " + this.stateWords);
 		
 		this.stateBytes[iLength<<2] ^= 1;
 		this.stateBytes[(r<<2) - 1] ^= 0x80;
 		keccak_f1600(oWords, oOffset, oLength, this.stateWords);
+		// console.log("checkpoint 2a: " + this.stateWords);
+		// console.log("checkpoint 2b: " + oWords);
 	};
 }
