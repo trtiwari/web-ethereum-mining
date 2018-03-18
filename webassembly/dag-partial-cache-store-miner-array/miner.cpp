@@ -387,7 +387,8 @@ class Keccak
 {
 	public:
 		// changed stateBuf from uchar to uint
-		unsigned int stateBuf[200];
+		// buffer was 200 bytes long, so 50 ints
+		unsigned int stateBuf[50];
 		unsigned int  * stateWords;
 		Keccak()
 		{
@@ -421,9 +422,32 @@ class Keccak
 			
 			// these both were stateBytes instead of stateWords, but type inconsistency
 			// is not allowed is c++, so changed
-			this->stateWords[iLength<<2] ^= 1;
-			this->stateWords[(r<<2) - 1] ^= 0x80;
+			// checkpoint 1
+			printf("checkpoint 1: ");
+			for (int i = 0; i < 50; i++)
+			{
+				printf("%u ", stateWords[i]);
+			}
+			printf("\n");
+			
+			// converted byte level operations to word level operations
+			this->stateWords[iLength] ^= 1;
+			this->stateWords[r - 1] ^= 0x80000000;
+			// checkpoint 2
+			printf("checkpoint 2: ");
+			for (int i = 0; i < 50; i++)
+			{
+				printf("%u ", stateWords[i]);
+			}
+			printf("\n");
 			keccak_f1600(oWords, oOffset, oLength, this->stateWords);
+			// checkpoint 3
+			printf("checkpoint 3: ");
+			for (int i = 0; i < 50; i++)
+			{
+				printf("%u ", stateWords[i]);
+			}
+			printf("\n");
 		}
 };
 
@@ -767,15 +791,21 @@ int main()
 */
 
 // checker functions
-
+// these don't work :(
+/*
 void stringToIntArr(std::string str,unsigned int *bytes)
 {
 	// unsigned char * bytes = new unsigned char[str.length()];
-	for (int i = 0; i != str.length(); ++i)
+	for (int i = 0, j = 0; i < str.length(); i=i+4,j++)
 	{
-		bytes[i] = (unsigned int)str[i];
-		// printf("%d\n",bytes[i]);
+		// std::string slice = std::string(1,str[i]) + std::string(1,str[i+1]) + std::string(1,str[i+2]) + std::string(1,str[i+3]);
+		std::stringstream stream;
+		stream << str[i] << str[i+1] << str[i+2] << str[i+3];
+		stream >> bytes[j];
+		// printf("%s\n",stream);
 	}
+	for (int i = 0; i != str.length() /4 ; i++)
+		printf("%x\n", bytes[i]);
 	// return bytes;
 }
 
@@ -798,27 +828,40 @@ std::string wordsToHexString(unsigned int * words, unsigned int len)
 	}
 	return bytesToHexString(bytes,2*len);
 }
-
+*/
 int main()
 {
-	std::string str = "abcd";
+	// std::string str = "aaaa";
 	
-	unsigned int keccack_src[str.length()]; 
+	unsigned int keccack_src[] = {1633771873}; 
 	
-	stringToIntArr(str,keccack_src);
+	// stringToIntArr(str,keccack_src);
 
 	unsigned int keccak_256_res[8];
 	unsigned int keccak_512_res[16];
 
 	Keccak keccack;
+	// last input = lenght of int arr
+	keccack.digestWords(keccak_256_res, 0, 8, keccack_src, 0, 1);
+
+	printf("Hash result keccak 256: ");
+	for (int i = 0; i < 8; i++)
+	{
+		printf("%u ", keccak_256_res[i]);
+	}
+	printf("\n");
 	
-	keccack.digestWords(keccak_256_res, 0, 8, keccack_src, 0, str.length());
-	
-	printf("keccack 256: %s\n", wordsToHexString(keccak_256_res,8));
+	// printf("keccack 256: %s\n", wordsToHexString(keccak_256_res,8));
 	// keccack 512
 
-	keccack.digestWords(keccak_512_res, 0, 16, keccack_src, 0, str.length());
-	printf("keccack 512: %s\n", wordsToHexString(keccak_512_res,16));
+	keccack.digestWords(keccak_512_res, 0, 16, keccack_src, 0, 1);
+	// printf("keccack 512: %s\n", wordsToHexString(keccak_512_res,16));
 
+	printf("Hash result keccak 512: ");
+	for (int i = 0; i < 16; i++)
+	{
+		printf("%u ", keccak_512_res[i]);
+	}
+	printf("\n");
 	return 0;
 }
