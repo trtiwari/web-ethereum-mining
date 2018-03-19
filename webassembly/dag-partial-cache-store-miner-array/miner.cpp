@@ -799,6 +799,8 @@ int main()
 	// timing the hashes
 	std::chrono::high_resolution_clock::time_point start;
   	std::chrono::high_resolution_clock::time_point stop;
+  	std::chrono::duration<double, std::milli> time;
+  	double hashRate;
 
   	start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < trials; i++)
@@ -806,14 +808,16 @@ int main()
 		hash = hasher.hash(header, nonce);
 		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
 		if (i % 1000 == 0)
-			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));		
+		{
+			stop = std::chrono::high_resolution_clock::now();
+			time = time + (stop - start);
+			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
+			printf("hash rate for %d:  %f\n",i,hashRate);
+			hashRate = 1000.0*i/(time.count());
+			start = std::chrono::high_resolution_clock::now();
+		}	
 	}
-	stop = std::chrono::high_resolution_clock::now();
-
-	std::chrono::duration<double, std::milli> time = stop - start;
-	double hashRate = 1000.0*trials/(time.count());
 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
-	printf("hash rate:  %f\n",hashRate);
 	return 0;
 }
 
