@@ -750,7 +750,7 @@ int main()
 {
 	unsigned int dagSize = 268434976;
 	startIndex = 0;
-	numSlicesLocal = 10066314;
+	numSlicesLocal = 15099471;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
