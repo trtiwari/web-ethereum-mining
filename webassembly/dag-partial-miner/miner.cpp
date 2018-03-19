@@ -8,7 +8,7 @@
 // using namespace emscripten;
 
 unsigned int * dag;
-unsigned int numSlicesLocal = 100;
+unsigned int numSlicesLocal;
 unsigned int startIndex;
 unsigned int cacheHit = 0;
 unsigned int numAccesses = 0;
@@ -638,12 +638,12 @@ class Ethash
 				this->initWords[i] = nonce[i-8];
 			}
 			
-			printf("checkpoint 1: ");
-			for (int i = 0; i < 24; i++)
-			{
-				printf("%u ", this->initWords[i]);
-			}
-			printf("\n");
+			// printf("checkpoint 1: ");
+			// for (int i = 0; i < 24; i++)
+			// {
+			// 	printf("%u ", this->initWords[i]);
+			// }
+			// printf("\n");
 
 			this->keccak->digestWords(this->initWords, 0, 16, this->initWords, 0, 10);
 
@@ -654,32 +654,32 @@ class Ethash
 				this->mixWords[i] = this->initWords[i];
 			}
 
-			printf("checkpoint 2: ");
-			for (int i = 0; i < 32; i++)
-			{
-				printf("%u ", this->mixWords[i]);
-			}
+			// printf("checkpoint 2: ");
+			// for (int i = 0; i < 32; i++)
+			// {
+			// 	printf("%u ", this->mixWords[i]);
+			// }
 
-			printf("\n");
+			// printf("\n");
 			// printf("%d\n", this->params->mixSize / 4);
 
 			computeHashInner(this->mixWords, this->params, this->cache, this->keccak, this->tempNode);
 
 			// compress mix and append to initWords
 
-			printf("checkpoint 3a: ");
-			for (int i = 0; i < 32; i++)
-			{
-				printf("%u ", this->mixWords[i]);
-			}
-			printf("\n");
+			// printf("checkpoint 3a: ");
+			// for (int i = 0; i < 32; i++)
+			// {
+			// 	printf("%u ", this->mixWords[i]);
+			// }
+			// printf("\n");
 
-			printf("checkpoint 3b: ");
-			for (int i = 0; i < 32; i++)
-			{
-				printf("%u ", this->tempNode[i]);
-			}
-			printf("\n");
+			// printf("checkpoint 3b: ");
+			// for (int i = 0; i < 32; i++)
+			// {
+			// 	printf("%u ", this->tempNode[i]);
+			// }
+			// printf("\n");
 
 			// note: this->params->mixSize / 4 = mixwords.length
 			for (unsigned int i = 0; i != this->params->mixSize / 4; i = i + 4)
@@ -719,7 +719,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, uns
 	
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 10000;
+	unsigned int trials = 100000000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -745,12 +745,12 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr, uns
 // 	function("mine", &mine);
 // }
 
-/*
+
 int main()
 {
 	unsigned int dagSize = 268434976;
 	startIndex = 0;
-	int numSlicesLocal = 10000;
+	numSlicesLocal = 1677719;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
@@ -761,14 +761,14 @@ int main()
 		cache[i] = 42;
 	for (int i = 0; i < 8; i++)
 		header[i] = 34;
-	for (int i = 0; i < numSlicesLocal; i++)
+	for (int i = 0; i < numSlicesLocal*16; i++)
 		dag[i] = 54;
 
 
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 10000;
+	unsigned int trials = 250000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -791,7 +791,7 @@ int main()
 	printf("hash rate:  %f\n",hashRate);
 	return 0;
 }
-*/
+
 
 
 // unit test 1
@@ -835,7 +835,7 @@ int main()
 */
 
 // unit test 2
-
+/*
 int main()
 {
 	unsigned int dagSize = 268434976;
@@ -867,3 +867,4 @@ int main()
 
 	return 0;
 }
+*/

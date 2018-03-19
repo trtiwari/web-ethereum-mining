@@ -737,7 +737,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 1000000;
+	unsigned int trials = 10000000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -769,13 +769,13 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 // 	function("mine", &mine);
 // }
 
-/*
+
 int main()
 {
 	unsigned int dagSize = 268434976;
 	// unsigned int startIndex = 0;
 	// unsigned int endIndex = 10000;
-	numSlicesLocal = 10000000;
+	numSlicesLocal = 1677719;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
@@ -793,7 +793,7 @@ int main()
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 500000;
+	unsigned int trials = 10000000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -816,7 +816,8 @@ int main()
 	printf("hash rate:  %f\n",hashRate);
 	return 0;
 }
-*/
+
+
 // checker functions
 // these conversion functions don't work yet :(
 /*
@@ -898,7 +899,7 @@ int main()
 */
 
 // unit test 2
-
+/*
 int main()
 {
 	unsigned int dagSize = 268434976;
@@ -930,3 +931,4 @@ int main()
 
 	return 0;
 }
+*/

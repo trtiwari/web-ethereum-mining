@@ -247,7 +247,7 @@ class Ethash
 		// console.log("checkpoint 0: " + this.initWords);
 		this.initBytes.set(nonce, 32);
 
-		console.log("checkpoint 1: " + this.initWords);
+		// console.log("checkpoint 1: " + this.initWords);
 		// console.log(this.initWords.length);
 		// console.log("nonce.length/4: "+ nonce.length/4);
 
@@ -259,11 +259,11 @@ class Ethash
 			this.mixWords[i] = this.initWords[i];
 		}
 
-		console.log("checkpoint 2: " + this.mixWords);
+		// console.log("checkpoint 2: " + this.mixWords);
 		// console.log(this.mixWords.length);
 		computeHashInner(this.mixWords, this.params, this.cache, this.keccak, this.tempNode);
-		console.log("checkpoint 3a: " + this.mixWords);
-		console.log("checkpoint 3b: " + this.tempNode);
+		// console.log("checkpoint 3a: " + this.mixWords);
+		// console.log("checkpoint 3b: " + this.tempNode);
 		
 		// compress mix and append to initWords
 		for (let i = 0; i != this.mixWords.length; i += 4)
