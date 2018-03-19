@@ -750,7 +750,7 @@ int main()
 {
 	unsigned int dagSize = 268434976;
 	startIndex = 0;
-	numSlicesLocal = 1677719;
+	numSlicesLocal = 10066314;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
@@ -768,7 +768,7 @@ int main()
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 250000;
+	unsigned int trials = 50000;
 	unsigned int * hash;
 
 	// timing the hashes
