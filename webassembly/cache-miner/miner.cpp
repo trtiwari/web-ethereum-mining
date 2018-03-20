@@ -683,7 +683,7 @@ double mine(std::string headerStr,std::string cacheStr,unsigned int cacheSize,un
 	
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 10000;
+	unsigned int trials = 100000000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -701,13 +701,11 @@ double mine(std::string headerStr,std::string cacheStr,unsigned int cacheSize,un
 		{
 			stop = std::chrono::high_resolution_clock::now();
 			time = time + (stop - start);
-			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
-			printf("hash rate for %d:  %f\n",i,hashRate);
 			hashRate = 1000.0*i/(time.count());
+			printf("hash rate for %d:  %f\n",i,hashRate);
 			start = std::chrono::high_resolution_clock::now();
 		}	
 	}
-	return hashRate;
 	return hashRate;
 }
 
@@ -731,7 +729,7 @@ int main()
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 10000;
+	unsigned int trials = 100000000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -749,13 +747,11 @@ int main()
 		{
 			stop = std::chrono::high_resolution_clock::now();
 			time = time + (stop - start);
-			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
-			printf("hash rate for %d:  %f\n",i,hashRate);
 			hashRate = 1000.0*i/(time.count());
+			printf("hash rate for %d:  %f\n",i,hashRate);
 			start = std::chrono::high_resolution_clock::now();
 		}	
 	}
-	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
 	return 0;
 }
 

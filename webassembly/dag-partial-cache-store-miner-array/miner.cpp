@@ -755,9 +755,9 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 		{
 			stop = std::chrono::high_resolution_clock::now();
 			time = time + (stop - start);
+			hashRate = 1000.0*i/(time.count());
 			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
 			printf("hash rate for %d:  %f\n",i,hashRate);
-			hashRate = 1000.0*i/(time.count());
 			start = std::chrono::high_resolution_clock::now();
 		}	
 	}
@@ -811,9 +811,9 @@ int main()
 		{
 			stop = std::chrono::high_resolution_clock::now();
 			time = time + (stop - start);
+			hashRate = 1000.0*i/(time.count());
 			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
 			printf("hash rate for %d:  %f\n",i,hashRate);
-			hashRate = 1000.0*i/(time.count());
 			start = std::chrono::high_resolution_clock::now();
 		}	
 	}
