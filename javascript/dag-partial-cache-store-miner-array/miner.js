@@ -43,7 +43,7 @@ function http_post(theUrl,data)
     return;	
 }
 
-// http_get(endpoint);
+http_get(endpoint);
 
 function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	// the hash must be less than the following for the nonce to be a valid solutions
@@ -57,16 +57,22 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	var nonce = Util.hexStringToBytes("0000000000000000");
 	var hash;
 
-	startTime = new Date().getTime();
-	var trials = 500000;
+	var trials = 10000000;
+	var stopTime;
+	var startTime = new Date().getTime();
 	for (var i = 0; i < trials; ++i)
 	{
-		[hash,result] = hasher.hash(header, nonce);
-
+		hash = hasher.hash(header, nonce);
 		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*256));
-
-		if (i % 1000 == 0) console.log("Cache hit rate for i = " + i + ": " + (cacheHits/numAccesses));
-		
+		if (i % 1000 == 0)
+		{
+			stopTime = new Date().getTime();
+			var hashrate = 1000/((stopTime - startTime)/trials);
+			console.log("average hashrate for i = " + i + " : " + hashrate);
+			console.log("Cache hit rate: " + (cacheHits/numAccesses));
+			startTime = new Date().getTime();
+		}
+		/*
 		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
 		{
 			console.log("VALID NONCE FOR RESULT: " + Util.bytesToHexString(hash));
@@ -81,11 +87,13 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 			http_get(endpoint);
 			return;
 		}
-		
+		*/
+
 	}
-	var average_time = (new Date().getTime() - startTime)/trials;
-	console.log("Hashrate: " + (1000/average_time));
-	console.log("Cache hit rate: " + (cacheHits/numAccesses));
+
+	// var average_time = (new Date().getTime() - startTime)/trials;
+	// console.log("Hashrate: " + (1000/average_time));
+	// console.log("Cache hit rate: " + (cacheHits/numAccesses));
 }
 
 /*
@@ -122,6 +130,7 @@ test1();
 */
 
 // unit test 2
+/*
 function test2()
 {
 	var dagSize = 268434976;
@@ -148,3 +157,4 @@ function test2()
 	console.log("Hash result: " + hash);
 }
 test2();
+*/

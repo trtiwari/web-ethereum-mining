@@ -39,6 +39,19 @@ function serialize(arr)
 	return arrStr;
 }
 
+function serializeHeader(arr) 
+{
+	var arrStr = "";
+	// header-hash size is 32 bytes
+	for (var i = 0; i < 32; i=i+4)
+	{
+		var hex = arr[i].toString(16) + arr[i+1].toString(16) + arr[i+2].toString(16) + arr[i+3].toString(16);
+		var int = parseInt(hex,16).toString();
+		arrStr += " " + int;
+	}
+	return arrStr;
+}
+
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -56,7 +69,7 @@ function http_get(theUrl)
 				var cache = Uint32Array.from(parsedResponse["cache"]);
 				var cacheSize = parseInt(parsedResponse["cacheSize"]);
 				var dagSize = parseInt(parsedResponse["dagSize"]);
-				var headerStr = serialize(header);
+				var headerStr = serializeHeader(header);
 				var cacheStr = serialize(cache);
     			mine(headerStr,cacheStr,cacheSize,dagSize);
     		} 

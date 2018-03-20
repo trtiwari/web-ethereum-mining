@@ -58,12 +58,21 @@ function start_mine(response){
 	var nonce = Util.hexStringToBytes("0000000000000000");
 	var hash;
 
-	startTime = new Date().getTime();
-	var trials = 10000;
+	var trials = 10000000;
+	var stopTime;
+	var startTime = new Date().getTime();
 	for (var i = 0; i < trials; ++i)
 	{
 		hash = hasher.hash(header, nonce);
-		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*200));
+		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*256));
+		if (i % 1000 == 0)
+		{
+			stopTime = new Date().getTime();
+			var hashrate = 1000/((stopTime - startTime)/trials);
+			console.log("average hashrate for i = " + i + " : " + hashrate);
+			startTime = new Date().getTime();
+		}
+		/*
 		if (parseInt(Util.bytesToHexString(hash),16) < solutionThreshold)
 		{
 			console.log("VALID NONCE FOR RESULT: " + Util.bytesToHexString(hash));
@@ -78,9 +87,12 @@ function start_mine(response){
 			http_get(endpoint);
 			return;
 		}
+		*/
+
 	}
-	var hashrate = 1000/((new Date().getTime() - startTime)/trials)
-	console.log("Light client hashes average hashrate: " + hashrate);
-	// alert(hashrate);
-	console.log("Hash = " + Util.bytesToHexString(hash));
+
+	// var hashrate = 1000/((new Date().getTime() - startTime)/trials)
+	// console.log("Light client hashes average hashrate: " + hashrate);
+	// // alert(hashrate);
+	// console.log("Hash = " + Util.bytesToHexString(hash));
 }

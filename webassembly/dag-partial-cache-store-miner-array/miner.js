@@ -39,6 +39,19 @@ function serialize(arr)
 	return arrStr;
 }
 
+function serializeHeader(arr) 
+{
+	var arrStr = "";
+	// header-hash size is 32 bytes
+	for (var i = 0; i < 32; i=i+4)
+	{
+		var hex = arr[i].toString(16) + arr[i+1].toString(16) + arr[i+2].toString(16) + arr[i+3].toString(16);
+		var int = parseInt(hex,16).toString();
+		arrStr += " " + int;
+	}
+	return arrStr;
+}
+
 function http_get(theUrl)
 {
     var xmlHttp = new XMLHttpRequest();
@@ -59,7 +72,7 @@ function http_get(theUrl)
 				var dagSize = parseInt(parsedResponse["dagSize"]);
 				var startIndex = parseInt(parsedResponse["startIndex"]);
 				var endIndex = parseInt(parsedResponse["endIndex"]);
-				var headerStr = serialize(header);
+				var headerStr = serializeHeader(header);
 				var cacheStr = serialize(cache);
 				var dagStr = serialize(dag);
     			mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize);
@@ -96,6 +109,7 @@ function mine(headerStr,cacheStr,dagStr,startIndex,endIndex,cacheSize,dagSize){
 // emcc --bind -o glue.js miner.cpp -w -O3 -s TOTAL_MEMORY=218103808
 // emcc --bind -o glue.js miner.cpp -w -O3 -s ALLOW_MEMORY_GROWTH=1
 
+/*
 var src = Util.stringToBytes("abcd");
 console.log(Util.bytesToHexString(new Keccak().digest(32, src)));
 src = new Uint32Array(src.buffer);
@@ -105,3 +119,4 @@ console.log(Util.wordsToHexString(dst1));
 var dst = new Uint32Array(16);
 new Keccak().digestWords(dst, 0, dst.length, src, 0, src.length);
 console.log(Util.wordsToHexString(dst));
+*/
