@@ -1,4 +1,4 @@
-#include <emscripten/bind.h>
+// #include <emscripten/bind.h>
 #include <time.h>
 #include <string.h>
 #include <math.h>
@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <iomanip>
 
-using namespace emscripten;
+// using namespace emscripten;
 
 unsigned int * dag;
 unsigned int numSlicesLocal;
@@ -768,18 +768,18 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	return hashRate;
 }
 
-
+/*
 EMSCRIPTEN_BINDINGS(mineModule){
 	function("mine", &mine);
 }
+*/
 
-/*
 int main()
 {
 	unsigned int dagSize = 268434976;
 	// unsigned int startIndex = 0;
 	// unsigned int endIndex = 10000;
-	numSlicesLocal = 1677719;
+	numSlicesLocal = 6710876;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
@@ -797,7 +797,7 @@ int main()
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 4001000;
+	unsigned int trials = 801000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -827,7 +827,6 @@ int main()
 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
 	return 0;
 }
-*/
 
 // checker functions
 // these conversion functions don't work yet :(
