@@ -728,7 +728,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	srand(time(NULL));
 	Params params(cacheSize,dagSize);
 	unsigned int header[8];
-	numSlicesLocal = 11744033;
+	numSlicesLocal = 6710876;
 	unsigned int * cache = new unsigned int[cacheSize];
 	dag = new unsigned int[numSlicesLocal*16]();
 
