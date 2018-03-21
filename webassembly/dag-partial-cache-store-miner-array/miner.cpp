@@ -1,4 +1,4 @@
-// #include <emscripten/bind.h>
+#include <emscripten/bind.h>
 #include <time.h>
 #include <string.h>
 #include <math.h>
@@ -7,10 +7,10 @@
 #include <cstdlib>
 #include <iomanip>
 
-// using namespace emscripten;
+using namespace emscripten;
 
 unsigned int * dag;
-unsigned int numSlicesLocal = 20000000;
+unsigned int numSlicesLocal;
 unsigned int cacheHit = 0;
 unsigned int numAccesses = 0;
 
@@ -728,6 +728,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	srand(time(NULL));
 	Params params(cacheSize,dagSize);
 	unsigned int header[8];
+	numSlicesLocal = 11744033;
 	unsigned int * cache = new unsigned int[cacheSize];
 	dag = new unsigned int[numSlicesLocal*16]();
 
@@ -737,7 +738,7 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 	
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 10000000;
+	unsigned int trials = 801000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -745,19 +746,22 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
   	std::chrono::high_resolution_clock::time_point stop;
   	std::chrono::duration<double, std::milli> time;
   	double hashRate;
+  	int interval = 10000;
 
   	start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
 		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
-		if (i % 1000 == 0)
+		if (i % interval == 0)
 		{
 			stop = std::chrono::high_resolution_clock::now();
-			time = time + (stop - start);
-			hashRate = 1000.0*i/(time.count());
-			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
-			printf("hash rate for %d:  %f\n",i,hashRate);
+			time = stop - start;
+			hashRate = 1000.0*interval/(time.count());
+			printf("c %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
+			printf("h %d:  %f\n",i,hashRate);
+			cacheHit = 0;
+			numAccesses = 0;
 			start = std::chrono::high_resolution_clock::now();
 		}	
 	}
@@ -765,17 +769,17 @@ double mine(std::string headerStr, std::string cacheStr, std::string dagStr,unsi
 }
 
 
-// EMSCRIPTEN_BINDINGS(mineModule){
-// 	function("mine", &mine);
-// }
+EMSCRIPTEN_BINDINGS(mineModule){
+	function("mine", &mine);
+}
 
-
+/*
 int main()
 {
 	unsigned int dagSize = 268434976;
 	// unsigned int startIndex = 0;
 	// unsigned int endIndex = 10000;
-	numSlicesLocal = 15099471;
+	numSlicesLocal = 1677719;
 	unsigned int cacheSize = 4194224;
 
 	unsigned int * cache = new unsigned int[4194224];
@@ -793,7 +797,7 @@ int main()
 	Params params(cacheSize,dagSize);
 	Ethash hasher(&params, cache);	
 	unsigned int nonce[] = {0,0};
-	unsigned int trials = 10000000;
+	unsigned int trials = 4001000;
 	unsigned int * hash;
 
 	// timing the hashes
@@ -801,26 +805,29 @@ int main()
   	std::chrono::high_resolution_clock::time_point stop;
   	std::chrono::duration<double, std::milli> time;
   	double hashRate;
+  	int interval = 10000;
 
   	start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < trials; i++)
 	{
 		hash = hasher.hash(header, nonce);
 		nonce[rand() % 2] = rand() % ((unsigned int)0xffffffff);
-		if (i % 1000 == 0)
+		if (i % interval == 0)
 		{
 			stop = std::chrono::high_resolution_clock::now();
-			time = time + (stop - start);
-			hashRate = 1000.0*i/(time.count());
-			printf("cache hit rate for %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
-			printf("hash rate for %d:  %f\n",i,hashRate);
+			time = stop - start;
+			hashRate = 1000.0*interval/(time.count());
+			printf("c %d:  %f\n",i,((float)cacheHit/(float)numAccesses));
+			printf("h %d:  %f\n",i,hashRate);
+			cacheHit = 0;
+			numAccesses = 0;
 			start = std::chrono::high_resolution_clock::now();
 		}	
 	}
 	printf("cache hit rate:  %f\n",((float)cacheHit/(float)numAccesses));
 	return 0;
 }
-
+*/
 
 // checker functions
 // these conversion functions don't work yet :(

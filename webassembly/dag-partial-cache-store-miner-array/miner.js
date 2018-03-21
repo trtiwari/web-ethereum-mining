@@ -1,6 +1,6 @@
 importScripts("glue.js");
 
-var endpoint = "http://155.41.16.253:9000";
+var endpoint = "http://155.41.49.149:9000";
 
 function nibbleToChar(nibble)
 {
