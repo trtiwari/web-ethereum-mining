@@ -1,6 +1,6 @@
 importScripts("ethash.js","keccak.js","makekeccak.js","util.js");
 
-var endpoint = "http://155.41.12.43:9000";
+var endpoint = "http://155.41.27.122:9000";
 
 function http_get(theUrl)
 {
@@ -57,19 +57,22 @@ function mine(header,cache,cacheSize,dagArray,dagSize,startIndex,endIndex){
 	var nonce = Util.hexStringToBytes("0000000000000000");
 	var hash;
 
-	var trials = 10000000;
+	var trials = 801000;
+	var interval = 10000;
 	var stopTime;
 	var startTime = new Date().getTime();
 	for (var i = 0; i < trials; ++i)
 	{
 		hash = hasher.hash(header, nonce);
 		nonce[Math.floor((Math.random()*8))]=Math.floor((Math.random()*256));
-		if (i % 1000 == 0)
+		if (i % interval == 0)
 		{
 			stopTime = new Date().getTime();
-			var hashrate = 1000/((stopTime - startTime)/trials);
-			console.log("average hashrate for i = " + i + " : " + hashrate);
-			console.log("Cache hit rate: " + (cacheHits/numAccesses));
+			var hashrate = 1000/((stopTime - startTime)/interval);
+			console.log("h " + i + ": " + hashrate);
+			console.log("c " + i + ": "  + (cacheHits/numAccesses));
+			cacheHits = 0;
+			numAccesses = 0;
 			startTime = new Date().getTime();
 		}
 		/*
