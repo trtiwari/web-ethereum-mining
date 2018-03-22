@@ -105,19 +105,19 @@ def fill_partial_buf():
 
 
 def miner_res(title,cache_hit,hash_rate):
-	# plt.imshow(hash_rate,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500)
-	# plt.colorbar()
-	# plt.ylabel('buffer hit rate')
-	# plt.xlabel('Hashes computed (in thousands)')
-	# plt.title(title)
-	# plt.show()
+	plt.imshow(hash_rate,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=70000)
+	plt.colorbar()
+	plt.ylabel('buffer hit rate')
+	plt.xlabel('Hashes computed (in thousands)')
+	plt.title(title)
+	plt.show()
 
-	# plt.imshow(cache_hit,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500)
-	# plt.colorbar()
-	# plt.ylabel('buffer hit rate')
-	# plt.xlabel('Hashes computed (in thousands)')
-	# plt.title(title)
-	# plt.show()
+	plt.imshow(cache_hit,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
+	plt.colorbar()
+	plt.ylabel('buffer hit rate')
+	plt.xlabel('Hashes computed (in thousands)')
+	plt.title(title)
+	plt.show()
 
 	hash_list = list()
 	time_list = list()
@@ -147,7 +147,7 @@ def miner_res(title,cache_hit,hash_rate):
 
 def miner_comparison(title,h1,h2):
 	h_diff = (np.array(h1) - np.array(h2))/np.array(h1)
-	plt.imshow(h_diff, origin='lower',cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500)
+	plt.imshow(h_diff, origin='lower',cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
 	plt.colorbar()
 	plt.ylabel('buffer hit rate')
 	plt.xlabel('Hashes computed (in thousands)')
@@ -155,5 +155,5 @@ def miner_comparison(title,h1,h2):
 	plt.show()
 
 miner_comparison('Native miner vs WebAssembly miner',hash_rate_native_miner,hash_rate_wasm_miner)
-# miner_comparison('Native miner vs JavaScript miner',hash_rate_native_miner,hash_rate_js_miner)
-# miner_comparison('WebAssembly miner vs JavaScript miner',hash_rate_wasm_miner,hash_rate_js_miner)
+miner_comparison('Native miner vs JavaScript miner',hash_rate_native_miner,hash_rate_js_miner)
+miner_comparison('WebAssembly miner vs JavaScript miner',hash_rate_wasm_miner,hash_rate_js_miner)
