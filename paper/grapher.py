@@ -134,7 +134,7 @@ def miner_res(title,cache_hit,hash_rate):
 	plt.title(title)
 	plt.show()
 
-	plt.plot(cache_list,hash_list,'ro')
+	plt.plot(cache_list,time_list,'ro')
 	plt.xlabel('Buffer Hit Rate')
 	plt.ylabel('Time taken per hash (s/H)')
 	plt.title(title)
@@ -167,3 +167,8 @@ def hash_rate_trajectory(title,hash_rate):
 hash_rate_trajectory("JavaScript miner",hash_rate_js_miner[-1])
 hash_rate_trajectory("WebAssembly miner",hash_rate_wasm_miner[-1])
 hash_rate_trajectory("Native miner",hash_rate_native_miner[-1])
+
+# error bars
+# level curves
+# log scale for heat maps?
+# more clear titles
