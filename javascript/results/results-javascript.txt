@@ -1,541 +1,160 @@
-			hashrate over 10000 hashes
-num slices	cache mining/partial-dag mining
-
-0			429.6455424274973							
-			430.7374224672639
-
-100			418.51510839541305	0.0000609375
-			421.123557651815	0
-
-1000		429.1108822519739	0.0002421875
-			430.44077134986225	0.00020390625
-
-10000		430.7559767391773	0.00239765625
-			427.38695615009834	0.002440625
-
-100000		439.3673110720563	0.0236515625
-			441.28679228630693	0.0235921875
-
-1000000		562.1451458766654	0.23803125
-			561.6084465910368	0.2385140625
-
-10000000												
-
-
-allocate a 10^7 element array for DAG and store everything that falls within the range in it
-
-num slices									num hashes
-		10000								100000								1000000
-100		484.9425343096843	0.142596875		1246.9605336991083	0.68811578125	6167.091168108738	0.96723284375
-
-1000	
-
-10000
-
-100000
-
-
-empty buffer 10**7 slices out of 1.6*10**7 slices
-
-Cache hit rate for i = 0: 0
-miner.js:68 Cache hit rate for i = 1000: 0.004745254745254745
-miner.js:68 Cache hit rate for i = 2000: 0.006309345327336332
-miner.js:68 Cache hit rate for i = 3000: 0.008517994001999334
-miner.js:68 Cache hit rate for i = 4000: 0.011793926518370407
-miner.js:68 Cache hit rate for i = 5000: 0.014156543691261748
-miner.js:68 Cache hit rate for i = 6000: 0.016221254790868188
-miner.js:68 Cache hit rate for i = 7000: 0.018417011855449222
-miner.js:68 Cache hit rate for i = 8000: 0.020386123609548806
-miner.js:68 Cache hit rate for i = 9000: 0.022533954560604377
-miner.js:68 Cache hit rate for i = 10000: 0.02456941805819418
-miner.js:68 Cache hit rate for i = 11000: 0.0269705594945914
-miner.js:68 Cache hit rate for i = 12000: 0.02906789017581868
-miner.js:68 Cache hit rate for i = 13000: 0.03121634874240443
-miner.js:68 Cache hit rate for i = 14000: 0.033236465252481966
-miner.js:68 Cache hit rate for i = 15000: 0.0353361859209386
-miner.js:68 Cache hit rate for i = 16000: 0.037281849571901754
-miner.js:68 Cache hit rate for i = 17000: 0.039161299335333216
-miner.js:68 Cache hit rate for i = 18000: 0.041189551969335034
-miner.js:68 Cache hit rate for i = 19000: 0.04321565312351981
-miner.js:68 Cache hit rate for i = 20000: 0.04521336433178341
-miner.js:68 Cache hit rate for i = 21000: 0.04729759892386077
-miner.js:68 Cache hit rate for i = 22000: 0.049301736284714334
-miner.js:68 Cache hit rate for i = 23000: 0.05124301660797357
-miner.js:68 Cache hit rate for i = 24000: 0.05328423815674347
-miner.js:68 Cache hit rate for i = 25000: 0.05542903283868645
-miner.js:68 Cache hit rate for i = 26000: 0.05733493423329872
-miner.js:68 Cache hit rate for i = 27000: 0.05931377541572534
-miner.js:68 Cache hit rate for i = 28000: 0.061316448519695727
-miner.js:68 Cache hit rate for i = 29000: 0.06318262732319575
-miner.js:68 Cache hit rate for i = 30000: 0.06510876720775974
-miner.js:68 Cache hit rate for i = 31000: 0.06700590303538595
-miner.js:68 Cache hit rate for i = 32000: 0.068973918783788
-miner.js:68 Cache hit rate for i = 33000: 0.07093629738492772
-miner.js:68 Cache hit rate for i = 34000: 0.07284712214346636
-miner.js:68 Cache hit rate for i = 35000: 0.07474786434673295
-miner.js:68 Cache hit rate for i = 36000: 0.07657903599900003
-miner.js:68 Cache hit rate for i = 37000: 0.0784510047025756
-miner.js:68 Cache hit rate for i = 38000: 0.0802725586168785
-miner.js:68 Cache hit rate for i = 39000: 0.082116484192713
-miner.js:68 Cache hit rate for i = 40000: 0.08393813592160196
-miner.js:68 Cache hit rate for i = 41000: 0.08577801456062047
-miner.js:68 Cache hit rate for i = 42000: 0.0875909204542749
-miner.js:68 Cache hit rate for i = 43000: 0.08942270237901444
-miner.js:68 Cache hit rate for i = 44000: 0.09124544044453535
-miner.js:68 Cache hit rate for i = 45000: 0.09301980789315793
-miner.js:68 Cache hit rate for i = 46000: 0.0948077215712702
-miner.js:68 Cache hit rate for i = 47000: 0.09660964660326377
-miner.js:68 Cache hit rate for i = 48000: 0.09836676579654591
-miner.js:68 Cache hit rate for i = 49000: 0.10019342717495561
-miner.js:68 Cache hit rate for i = 50000: 0.10199858502829943
-miner.js:68 Cache hit rate for i = 51000: 0.10379790347248093
-miner.js:68 Cache hit rate for i = 52000: 0.10557939991538624
-miner.js:68 Cache hit rate for i = 53000: 0.10728512197883058
-miner.js:68 Cache hit rate for i = 54000: 0.10907031814225662
-miner.js:68 Cache hit rate for i = 55000: 0.11078179260377084
-miner.js:68 Cache hit rate for i = 56000: 0.11256997642899234
-miner.js:68 Cache hit rate for i = 57000: 0.11425128506517429
-miner.js:68 Cache hit rate for i = 58000: 0.11595839942414786
-miner.js:68 Cache hit rate for i = 59000: 0.11756606879544415
-miner.js:68 Cache hit rate for i = 60000: 0.11924540840985984
-miner.js:68 Cache hit rate for i = 61000: 0.12088300806544156
-miner.js:68 Cache hit rate for i = 62000: 0.12258219625489912
-miner.js:68 Cache hit rate for i = 63000: 0.12426315653719783
-miner.js:68 Cache hit rate for i = 64000: 0.12592283714316962
-miner.js:68 Cache hit rate for i = 65000: 0.12756149905386072
-miner.js:68 Cache hit rate for i = 66000: 0.12921347782609355
-miner.js:68 Cache hit rate for i = 67000: 0.13082990365815436
-miner.js:68 Cache hit rate for i = 68000: 0.13244267547536065
-miner.js:68 Cache hit rate for i = 69000: 0.1340433471978667
-miner.js:68 Cache hit rate for i = 70000: 0.13563243739375153
-miner.js:68 Cache hit rate for i = 71000: 0.13724586625540486
-miner.js:68 Cache hit rate for i = 72000: 0.13885592734823127
-miner.js:68 Cache hit rate for i = 73000: 0.14047324694182273
-miner.js:68 Cache hit rate for i = 74000: 0.14205867995027094
-miner.js:68 Cache hit rate for i = 75000: 0.14363745983386889
-miner.js:68 Cache hit rate for i = 76000: 0.1451876455572953
-miner.js:68 Cache hit rate for i = 77000: 0.14668985630056752
-miner.js:68 Cache hit rate for i = 78000: 0.14824469397828233
-miner.js:68 Cache hit rate for i = 79000: 0.14975126897127886
-miner.js:68 Cache hit rate for i = 80000: 0.15128541361982975
-miner.js:68 Cache hit rate for i = 81000: 0.15284224886112519
-miner.js:68 Cache hit rate for i = 82000: 0.15437292685455056
-miner.js:68 Cache hit rate for i = 83000: 0.15585636769436512
-miner.js:68 Cache hit rate for i = 84000: 0.1573379706789205
-miner.js:68 Cache hit rate for i = 85000: 0.15882533734897236
-miner.js:68 Cache hit rate for i = 86000: 0.16031463296938409
-miner.js:68 Cache hit rate for i = 87000: 0.16179411730899645
-miner.js:68 Cache hit rate for i = 88000: 0.16326430239429096
-miner.js:68 Cache hit rate for i = 89000: 0.16473673750856732
-miner.js:68 Cache hit rate for i = 90000: 0.16619346590593437
-miner.js:68 Cache hit rate for i = 91000: 0.16762848073098097
-miner.js:68 Cache hit rate for i = 92000: 0.16906898430451842
-miner.js:68 Cache hit rate for i = 93000: 0.17054873737916795
-miner.js:68 Cache hit rate for i = 94000: 0.17200182710822226
-miner.js:68 Cache hit rate for i = 95000: 0.1734055759939369
-miner.js:68 Cache hit rate for i = 96000: 0.17482158388975114
-miner.js:68 Cache hit rate for i = 97000: 0.17623030303811302
-miner.js:68 Cache hit rate for i = 98000: 0.17763147825022194
-miner.js:68 Cache hit rate for i = 99000: 0.179027705528227
-miner.js:68 Cache hit rate for i = 100000: 0.18042460200397997
-miner.js:68 Cache hit rate for i = 101000: 0.1817904340056039
-miner.js:68 Cache hit rate for i = 102000: 0.18315996901991158
-miner.js:68 Cache hit rate for i = 103000: 0.18450647627207503
-miner.js:68 Cache hit rate for i = 104000: 0.18583978459341738
-miner.js:68 Cache hit rate for i = 105000: 0.187215999728574
-miner.js:68 Cache hit rate for i = 106000: 0.18857170274337035
-miner.js:68 Cache hit rate for i = 107000: 0.18990002137830486
-miner.js:68 Cache hit rate for i = 108000: 0.19125003761539244
-miner.js:68 Cache hit rate for i = 109000: 0.19260667620021835
-miner.js:68 Cache hit rate for i = 110000: 0.19395043851874075
-miner.js:68 Cache hit rate for i = 111000: 0.19525703878793885
-miner.js:68 Cache hit rate for i = 112000: 0.19659527314488265
-miner.js:68 Cache hit rate for i = 113000: 0.19789170836983744
-miner.js:68 Cache hit rate for i = 114000: 0.19916224693204446
-miner.js:68 Cache hit rate for i = 115000: 0.20044384124920653
-miner.js:68 Cache hit rate for i = 116000: 0.20173000933181612
-miner.js:68 Cache hit rate for i = 117000: 0.2030205003589713
-miner.js:68 Cache hit rate for i = 118000: 0.20426859465174024
-miner.js:68 Cache hit rate for i = 119000: 0.20556819112864597
-miner.js:68 Cache hit rate for i = 120000: 0.20681214375296872
-miner.js:68 Cache hit rate for i = 121000: 0.20802688355881357
-miner.js:68 Cache hit rate for i = 122000: 0.20927485993967263
-miner.js:68 Cache hit rate for i = 123000: 0.21049339791952912
-miner.js:68 Cache hit rate for i = 124000: 0.21173499860888217
-miner.js:68 Cache hit rate for i = 125000: 0.21295198388412892
-miner.js:68 Cache hit rate for i = 126000: 0.21417792567122484
-miner.js:68 Cache hit rate for i = 127000: 0.2153779177919859
-miner.js:68 Cache hit rate for i = 128000: 0.21660499722658416
-miner.js:68 Cache hit rate for i = 129000: 0.21780269629692794
-miner.js:68 Cache hit rate for i = 130000: 0.21899266640256612
-miner.js:68 Cache hit rate for i = 131000: 0.22018247952305708
-miner.js:68 Cache hit rate for i = 132000: 0.22136266960098788
-miner.js:68 Cache hit rate for i = 133000: 0.22254543668844595
-miner.js:68 Cache hit rate for i = 134000: 0.22372944045193693
-miner.js:68 Cache hit rate for i = 135000: 0.22489775538699713
-miner.js:68 Cache hit rate for i = 136000: 0.22608255178270747
-miner.js:68 Cache hit rate for i = 137000: 0.22724172633776396
-miner.js:68 Cache hit rate for i = 138000: 0.2283931592887008
-miner.js:68 Cache hit rate for i = 139000: 0.22955983679973527
-miner.js:68 Cache hit rate for i = 140000: 0.23069846376097314
-miner.js:68 Cache hit rate for i = 141000: 0.23184731402614167
-miner.js:68 Cache hit rate for i = 142000: 0.23298284431095556
-miner.js:68 Cache hit rate for i = 143000: 0.2341286074922553
-miner.js:68 Cache hit rate for i = 144000: 0.23526301466656482
-miner.js:68 Cache hit rate for i = 145000: 0.2363817749532762
-miner.js:68 Cache hit rate for i = 146000: 0.23747140430544997
-miner.js:68 Cache hit rate for i = 147000: 0.23857501394548336
-miner.js:68 Cache hit rate for i = 148000: 0.23968387460219864
-miner.js:68 Cache hit rate for i = 149000: 0.24078582106831498
-miner.js:68 Cache hit rate for i = 150000: 0.24189515819894533
-miner.js:68 Cache hit rate for i = 151000: 0.24300139154707584
-miner.js:68 Cache hit rate for i = 152000: 0.24409348047052323
-miner.js:68 Cache hit rate for i = 153000: 0.24518508048967
-miner.js:68 Cache hit rate for i = 154000: 0.2462566192751995
-miner.js:68 Cache hit rate for i = 155000: 0.24732572289856194
-miner.js:68 Cache hit rate for i = 156000: 0.24837721392811585
-miner.js:68 Cache hit rate for i = 157000: 0.24945740791459928
-miner.js:68 Cache hit rate for i = 158000: 0.25049614005607557
-miner.js:68 Cache hit rate for i = 159000: 0.2515550216665304
-miner.js:68 Cache hit rate for i = 160000: 0.2525865072718296
-miner.js:68 Cache hit rate for i = 161000: 0.25363215911702414
-miner.js:68 Cache hit rate for i = 162000: 0.2546728106616626
-miner.js:68 Cache hit rate for i = 163000: 0.2557100876681738
-miner.js:68 Cache hit rate for i = 164000: 0.25674157474649545
-miner.js:68 Cache hit rate for i = 165000: 0.25778082405561176
-miner.js:68 Cache hit rate for i = 166000: 0.2588164002024084
-miner.js:68 Cache hit rate for i = 167000: 0.25982656915228053
-miner.js:68 Cache hit rate for i = 168000: 0.2608463826108178
-miner.js:68 Cache hit rate for i = 169000: 0.261840166626233
-miner.js:68 Cache hit rate for i = 170000: 0.2628687662131399
-miner.js:68 Cache hit rate for i = 171000: 0.26384558789129886
-miner.js:68 Cache hit rate for i = 172000: 0.26485456479904185
-miner.js:68 Cache hit rate for i = 173000: 0.26585630285374073
-miner.js:68 Cache hit rate for i = 174000: 0.26682461595048307
-miner.js:68 Cache hit rate for i = 175000: 0.2678081125250713
-miner.js:68 Cache hit rate for i = 176000: 0.26879623553275267
-miner.js:68 Cache hit rate for i = 177000: 0.2697819327291936
-miner.js:68 Cache hit rate for i = 178000: 0.2707593637114398
-miner.js:68 Cache hit rate for i = 179000: 0.27171308575091757
-miner.js:68 Cache hit rate for i = 180000: 0.27268333752312485
-miner.js:68 Cache hit rate for i = 181000: 0.2736339768150452
-miner.js:68 Cache hit rate for i = 182000: 0.27459176906995014
-miner.js:68 Cache hit rate for i = 183000: 0.2755431066633516
-miner.js:68 Cache hit rate for i = 184000: 0.2764919161444775
-miner.js:68 Cache hit rate for i = 185000: 0.2774326642153286
-miner.js:68 Cache hit rate for i = 186000: 0.2783692611195639
-miner.js:68 Cache hit rate for i = 187000: 0.2793185681493682
-miner.js:68 Cache hit rate for i = 188000: 0.28022195526885496
-miner.js:68 Cache hit rate for i = 189000: 0.2811481900228041
-miner.js:68 Cache hit rate for i = 190000: 0.28206393486086917
-miner.js:68 Cache hit rate for i = 191000: 0.2829783531892503
-miner.js:68 Cache hit rate for i = 192000: 0.2838990340545101
-miner.js:68 Cache hit rate for i = 193000: 0.2847979495572562
-miner.js:68 Cache hit rate for i = 194000: 0.28569444390750565
-miner.js:68 Cache hit rate for i = 195000: 0.286581743491059
-miner.js:68 Cache hit rate for i = 196000: 0.28746086595221454
-miner.js:68 Cache hit rate for i = 197000: 0.28834835387891433
-miner.js:68 Cache hit rate for i = 198000: 0.28924581662466353
-miner.js:68 Cache hit rate for i = 199000: 0.29013873516967253
-miner.js:68 Cache hit rate for i = 200000: 0.29101319337153314
-miner.js:68 Cache hit rate for i = 201000: 0.29188205997731353
-miner.js:68 Cache hit rate for i = 202000: 0.29272971575635764
-miner.js:68 Cache hit rate for i = 203000: 0.2936006549844582
-miner.js:68 Cache hit rate for i = 204000: 0.2944759998112754
-miner.js:68 Cache hit rate for i = 205000: 0.29533693585641047
-miner.js:68 Cache hit rate for i = 206000: 0.29619687070693834
-miner.js:68 Cache hit rate for i = 207000: 0.29703513660562025
-miner.js:68 Cache hit rate for i = 208000: 0.2978863007269196
-miner.js:68 Cache hit rate for i = 209000: 0.2987183299960287
-miner.js:68 Cache hit rate for i = 210000: 0.2995583577578202
-miner.js:68 Cache hit rate for i = 211000: 0.30040730701513263
-miner.js:68 Cache hit rate for i = 212000: 0.301235128313074
-miner.js:68 Cache hit rate for i = 213000: 0.30206757391984074
-miner.js:68 Cache hit rate for i = 214000: 0.30289822681903356
-miner.js:68 Cache hit rate for i = 215000: 0.303713667320152
-miner.js:68 Cache hit rate for i = 216000: 0.3045324804630534
-miner.js:68 Cache hit rate for i = 217000: 0.30534525906562643
-miner.js:68 Cache hit rate for i = 218000: 0.30615846515612316
-miner.js:68 Cache hit rate for i = 219000: 0.30696759803608203
-miner.js:68 Cache hit rate for i = 220000: 0.30778833817800827
-miner.js:68 Cache hit rate for i = 221000: 0.3085838341794834
-miner.js:68 Cache hit rate for i = 222000: 0.3093922226138621
-miner.js:68 Cache hit rate for i = 223000: 0.31018341145331185
-miner.js:68 Cache hit rate for i = 224000: 0.31097792950701114
-miner.js:68 Cache hit rate for i = 225000: 0.3117874684445847
-miner.js:68 Cache hit rate for i = 226000: 0.31257567029570665
-miner.js:68 Cache hit rate for i = 227000: 0.3133466028233356
-miner.js:68 Cache hit rate for i = 228000: 0.31413400462059377
-miner.js:68 Cache hit rate for i = 229000: 0.3148961753987974
-miner.js:68 Cache hit rate for i = 230000: 0.31566999301089993
-miner.js:68 Cache hit rate for i = 231000: 0.3164383961000169
-miner.js:68 Cache hit rate for i = 232000: 0.3172159346834712
-miner.js:68 Cache hit rate for i = 233000: 0.31797526485937827
-miner.js:68 Cache hit rate for i = 234000: 0.31873438174409513
-miner.js:68 Cache hit rate for i = 235000: 0.31949275614784617
-miner.js:68 Cache hit rate for i = 236000: 0.32023556706327516
-miner.js:68 Cache hit rate for i = 237000: 0.32098186690140545
-miner.js:68 Cache hit rate for i = 238000: 0.3217197945071659
-miner.js:68 Cache hit rate for i = 239000: 0.3224554695900854
-miner.js:68 Cache hit rate for i = 240000: 0.32319204529356127
-miner.js:68 Cache hit rate for i = 241000: 0.323917872747416
-miner.js:68 Cache hit rate for i = 242000: 0.3246489683926926
-miner.js:68 Cache hit rate for i = 243000: 0.32538330603577764
-miner.js:68 Cache hit rate for i = 244000: 0.3261067577591895
-miner.js:68 Cache hit rate for i = 245000: 0.32682353847535317
-miner.js:68 Cache hit rate for i = 246000: 0.32754871931414914
-miner.js:68 Cache hit rate for i = 247000: 0.32827106469204576
-miner.js:68 Cache hit rate for i = 248000: 0.3289878367425938
-miner.js:68 Cache hit rate for i = 249000: 0.3297160453170871
-miner.js:68 Cache hit rate for i = 250000: 0.3304119908520366
-miner.js:68 Cache hit rate for i = 251000: 0.33112698007179253
-miner.js:68 Cache hit rate for i = 252000: 0.33184162711655907
-miner.js:68 Cache hit rate for i = 253000: 0.33255334218046567
-miner.js:68 Cache hit rate for i = 254000: 0.33325268650517126
-miner.js:68 Cache hit rate for i = 255000: 0.33394323698730594
-miner.js:68 Cache hit rate for i = 256000: 0.3346288198092976
-miner.js:68 Cache hit rate for i = 257000: 0.3353198893194968
-miner.js:68 Cache hit rate for i = 258000: 0.33601226351835844
-miner.js:68 Cache hit rate for i = 259000: 0.3366860793973768
-miner.js:68 Cache hit rate for i = 260000: 0.33736739233695257
-miner.js:68 Cache hit rate for i = 261000: 0.33804803429871916
-miner.js:68 Cache hit rate for i = 262000: 0.3387092868920348
-miner.js:68 Cache hit rate for i = 263000: 0.33938291822084327
-miner.js:68 Cache hit rate for i = 264000: 0.34004292360634997
-miner.js:68 Cache hit rate for i = 265000: 0.34070873789155515
-miner.js:68 Cache hit rate for i = 266000: 0.3413642006984936
-miner.js:68 Cache hit rate for i = 267000: 0.3420291497035592
-miner.js:68 Cache hit rate for i = 268000: 0.3426830730109216
-miner.js:68 Cache hit rate for i = 269000: 0.3433352710584719
-miner.js:68 Cache hit rate for i = 270000: 0.3439835060796071
-miner.js:68 Cache hit rate for i = 271000: 0.3446465603447958
-miner.js:68 Cache hit rate for i = 272000: 0.345295145973728
-miner.js:68 Cache hit rate for i = 273000: 0.34595220118241327
-miner.js:68 Cache hit rate for i = 274000: 0.34658701063134806
-miner.js:68 Cache hit rate for i = 275000: 0.3472332259700874
-miner.js:68 Cache hit rate for i = 276000: 0.34787515489074317
-miner.js:68 Cache hit rate for i = 277000: 0.34850116741455806
-miner.js:68 Cache hit rate for i = 278000: 0.34914948597307205
-miner.js:68 Cache hit rate for i = 279000: 0.3497819564266795
-miner.js:68 Cache hit rate for i = 280000: 0.3504001436602012
-miner.js:68 Cache hit rate for i = 281000: 0.3510234950231494
-miner.js:68 Cache hit rate for i = 282000: 0.35164436473629523
-miner.js:68 Cache hit rate for i = 283000: 0.3522645458849969
-miner.js:68 Cache hit rate for i = 284000: 0.35289136305858076
-miner.js:68 Cache hit rate for i = 285000: 0.35350917628359196
-miner.js:68 Cache hit rate for i = 286000: 0.3541181892720655
-miner.js:68 Cache hit rate for i = 287000: 0.3547392365357612
-miner.js:68 Cache hit rate for i = 288000: 0.3553448490630241
-miner.js:68 Cache hit rate for i = 289000: 0.3559460001868506
-miner.js:68 Cache hit rate for i = 290000: 0.35653912615818567
-miner.js:68 Cache hit rate for i = 291000: 0.3571409548420796
-miner.js:68 Cache hit rate for i = 292000: 0.35774374488443533
-miner.js:68 Cache hit rate for i = 293000: 0.35833047498131404
-miner.js:68 Cache hit rate for i = 294000: 0.35892697856469874
-miner.js:68 Cache hit rate for i = 295000: 0.359505084304799
-miner.js:68 Cache hit rate for i = 296000: 0.36008450984962886
-miner.js:68 Cache hit rate for i = 297000: 0.36066676753613625
-miner.js:68 Cache hit rate for i = 298000: 0.3612477915342566
-miner.js:68 Cache hit rate for i = 299000: 0.3618268103618383
-miner.js:68 Cache hit rate for i = 300000: 0.3624078023906587
-miner.js:68 Cache hit rate for i = 301000: 0.36299137087584427
-miner.js:68 Cache hit rate for i = 302000: 0.3635711264201112
-miner.js:68 Cache hit rate for i = 303000: 0.36414421899597693
-miner.js:68 Cache hit rate for i = 304000: 0.36472546554123175
-miner.js:68 Cache hit rate for i = 305000: 0.36528871011898323
-miner.js:68 Cache hit rate for i = 306000: 0.3658570049607681
-miner.js:68 Cache hit rate for i = 307000: 0.3664087209813649
-miner.js:68 Cache hit rate for i = 308000: 0.3669563978688381
-miner.js:68 Cache hit rate for i = 309000: 0.3675198967802693
-miner.js:68 Cache hit rate for i = 310000: 0.36806655462401733
-miner.js:68 Cache hit rate for i = 311000: 0.3686193935067733
-miner.js:68 Cache hit rate for i = 312000: 0.36917269495931104
-miner.js:68 Cache hit rate for i = 313000: 0.36971846735313946
-miner.js:68 Cache hit rate for i = 314000: 0.37026514246769915
-miner.js:68 Cache hit rate for i = 315000: 0.37082233469100095
-miner.js:68 Cache hit rate for i = 316000: 0.3713690284999098
-miner.js:68 Cache hit rate for i = 317000: 0.37191301249838327
-miner.js:68 Cache hit rate for i = 318000: 0.3724475316115358
-miner.js:68 Cache hit rate for i = 319000: 0.37298482214789297
-miner.js:68 Cache hit rate for i = 320000: 0.37351953587645037
-miner.js:68 Cache hit rate for i = 321000: 0.3740530111276912
-miner.js:68 Cache hit rate for i = 322000: 0.37457623384709987
-miner.js:68 Cache hit rate for i = 323000: 0.37510729455945957
-miner.js:68 Cache hit rate for i = 324000: 0.3756281809315403
-miner.js:68 Cache hit rate for i = 325000: 0.376154419524863
-miner.js:68 Cache hit rate for i = 326000: 0.37667637522584285
-miner.js:68 Cache hit rate for i = 327000: 0.3771919371041679
-miner.js:68 Cache hit rate for i = 328000: 0.3777115961536703
-miner.js:68 Cache hit rate for i = 329000: 0.37822838114473817
-miner.js:68 Cache hit rate for i = 330000: 0.3787539185487317
-miner.js:68 Cache hit rate for i = 331000: 0.3792631574375908
-miner.js:68 Cache hit rate for i = 332000: 0.3797769528555637
-miner.js:68 Cache hit rate for i = 333000: 0.3802790757385113
-miner.js:68 Cache hit rate for i = 334000: 0.38079269410870026
-miner.js:68 Cache hit rate for i = 335000: 0.38130898303288646
-miner.js:68 Cache hit rate for i = 336000: 0.3817971337882923
-miner.js:68 Cache hit rate for i = 337000: 0.3822977806445678
-miner.js:68 Cache hit rate for i = 338000: 0.38279856235632437
-miner.js:68 Cache hit rate for i = 339000: 0.38328896891159614
-miner.js:68 Cache hit rate for i = 340000: 0.3837835219602295
-miner.js:68 Cache hit rate for i = 341000: 0.3842683012659787
-miner.js:68 Cache hit rate for i = 342000: 0.3847580580904734
-miner.js:68 Cache hit rate for i = 343000: 0.3852383538969274
-miner.js:68 Cache hit rate for i = 344000: 0.3857194910043866
-miner.js:68 Cache hit rate for i = 345000: 0.38619824652682166
-miner.js:68 Cache hit rate for i = 346000: 0.38667838929656273
-miner.js:68 Cache hit rate for i = 347000: 0.38715860148818015
-miner.js:68 Cache hit rate for i = 348000: 0.3876352905595099
-miner.js:68 Cache hit rate for i = 349000: 0.3881191422087616
-miner.js:68 Cache hit rate for i = 350000: 0.3886088896888866
-miner.js:68 Cache hit rate for i = 351000: 0.38908765573317455
-miner.js:68 Cache hit rate for i = 352000: 0.3895680960423408
-miner.js:68 Cache hit rate for i = 353000: 0.3900336419018643
-miner.js:68 Cache hit rate for i = 354000: 0.39049836723625075
-miner.js:68 Cache hit rate for i = 355000: 0.3909698273737257
-miner.js:68 Cache hit rate for i = 356000: 0.39143365731416485
-miner.js:68 Cache hit rate for i = 357000: 0.39189136550037673
-miner.js:68 Cache hit rate for i = 358000: 0.39235618406093836
-miner.js:68 Cache hit rate for i = 359000: 0.39281175400625623
-miner.js:68 Cache hit rate for i = 360000: 0.3932684388376699
-miner.js:68 Cache hit rate for i = 361000: 0.3937322888302249
-miner.js:68 Cache hit rate for i = 362000: 0.3941805409377322
-miner.js:68 Cache hit rate for i = 363000: 0.3946277868380528
-miner.js:68 Cache hit rate for i = 364000: 0.3950756230752113
-miner.js:68 Cache hit rate for i = 365000: 0.3955263992427418
-miner.js:68 Cache hit rate for i = 366000: 0.3959765905694247
-miner.js:68 Cache hit rate for i = 367000: 0.39642262555142904
-miner.js:68 Cache hit rate for i = 368000: 0.3968665336507238
-miner.js:68 Cache hit rate for i = 369000: 0.3973070618372308
-miner.js:68 Cache hit rate for i = 370000: 0.39775614626717226
-miner.js:68 Cache hit rate for i = 371000: 0.3982025570685793
-miner.js:68 Cache hit rate for i = 372000: 0.3986437956483988
-miner.js:68 Cache hit rate for i = 373000: 0.399075295709663
-miner.js:68 Cache hit rate for i = 374000: 0.3995123843251756
-miner.js:68 Cache hit rate for i = 375000: 0.3999350168399551
-miner.js:68 Cache hit rate for i = 376000: 0.40036096978465485
-miner.js:68 Cache hit rate for i = 377000: 0.40078735699640056
-miner.js:68 Cache hit rate for i = 378000: 0.4012139270134206
-miner.js:68 Cache hit rate for i = 379000: 0.401631278677365
-miner.js:68 Cache hit rate for i = 380000: 0.4020560143262781
-miner.js:68 Cache hit rate for i = 381000: 0.40248007879244413
-miner.js:68 Cache hit rate for i = 382000: 0.4029028228983694
-miner.js:68 Cache hit rate for i = 383000: 0.40330952954430926
-miner.js:68 Cache hit rate for i = 384000: 0.40373222498118494
-miner.js:68 Cache hit rate for i = 385000: 0.4041520346700398
-miner.js:68 Cache hit rate for i = 386000: 0.40456375922601234
-miner.js:68 Cache hit rate for i = 387000: 0.4049753747406337
-miner.js:68 Cache hit rate for i = 388000: 0.4053912312725998
-miner.js:68 Cache hit rate for i = 389000: 0.40580310204858083
-miner.js:68 Cache hit rate for i = 390000: 0.406215344640142
-miner.js:68 Cache hit rate for i = 391000: 0.40662068319518363
-miner.js:68 Cache hit rate for i = 392000: 0.40702594668125847
-miner.js:68 Cache hit rate for i = 393000: 0.4074272393708922
-miner.js:68 Cache hit rate for i = 394000: 0.4078313728899165
-miner.js:68 Cache hit rate for i = 395000: 0.40822748708231116
-miner.js:68 Cache hit rate for i = 396000: 0.40863103091911385
-miner.js:68 Cache hit rate for i = 397000: 0.40903147913985105
-miner.js:68 Cache hit rate for i = 398000: 0.40943066097823877
-miner.js:68 Cache hit rate for i = 399000: 0.40983026984894777
-miner.js:68 Cache hit rate for i = 400000: 0.41022260725598186
-miner.js:68 Cache hit rate for i = 401000: 0.4106221056805345
-miner.js:68 Cache hit rate for i = 402000: 0.41101701239549154
-miner.js:68 Cache hit rate for i = 403000: 0.41140646983506246
-miner.js:68 Cache hit rate for i = 404000: 0.41179782816131644
-miner.js:68 Cache hit rate for i = 405000: 0.4121928865607739
-miner.js:68 Cache hit rate for i = 406000: 0.4125767624340827
-miner.js:68 Cache hit rate for i = 407000: 0.41295951975547973
-miner.js:68 Cache hit rate for i = 408000: 0.41334549425123956
-miner.js:68 Cache hit rate for i = 409000: 0.4137221317918538
-miner.js:68 Cache hit rate for i = 410000: 0.41410573541284046
-miner.js:68 Cache hit rate for i = 411000: 0.41448192188096866
-miner.js:68 Cache hit rate for i = 412000: 0.41486633224191205
-miner.js:68 Cache hit rate for i = 413000: 0.41524657325284925
-miner.js:68 Cache hit rate for i = 414000: 0.41562161836565614
-miner.js:68 Cache hit rate for i = 415000: 0.4159949689880265
-miner.js:68 Cache hit rate for i = 416000: 0.41636505981956773
-miner.js:68 Cache hit rate for i = 417000: 0.4167364107040511
-miner.js:68 Cache hit rate for i = 418000: 0.41710531194901446
-miner.js:68 Cache hit rate for i = 419000: 0.41747159463819894
-miner.js:68 Cache hit rate for i = 420000: 0.4178382164566275
-miner.js:68 Cache hit rate for i = 421000: 0.4182023543293246
-miner.js:68 Cache hit rate for i = 422000: 0.41856580316160386
-miner.js:68 Cache hit rate for i = 423000: 0.4189244307342063
-miner.js:68 Cache hit rate for i = 424000: 0.4192840568182622
-miner.js:68 Cache hit rate for i = 425000: 0.41965007876452054
-miner.js:68 Cache hit rate for i = 426000: 0.4200144556585548
-miner.js:68 Cache hit rate for i = 427000: 0.42036856324692445
-miner.js:68 Cache hit rate for i = 428000: 0.42071893523613263
-miner.js:68 Cache hit rate for i = 429000: 0.4210751402677383
-miner.js:68 Cache hit rate for i = 430000: 0.42142834406199053
-miner.js:68 Cache hit rate for i = 431000: 0.42178541929137053
-miner.js:68 Cache hit rate for i = 432000: 0.422134186321328
-miner.js:68 Cache hit rate for i = 433000: 0.42248931728795086
-miner.js:68 Cache hit rate for i = 434000: 0.4228376273902595
-miner.js:68 Cache hit rate for i = 435000: 0.42319428576026263
-miner.js:68 Cache hit rate for i = 436000: 0.4235427499019498
-miner.js:68 Cache hit rate for i = 437000: 0.4238823252120705
-miner.js:68 Cache hit rate for i = 438000: 0.42422819810913676
-miner.js:68 Cache hit rate for i = 439000: 0.4245715342903547
-miner.js:68 Cache hit rate for i = 440000: 0.4249091550360113
-miner.js:68 Cache hit rate for i = 441000: 0.42525417317647807
-miner.js:68 Cache hit rate for i = 442000: 0.4255894641641082
-miner.js:68 Cache hit rate for i = 443000: 0.4259280029841919
-miner.js:68 Cache hit rate for i = 444000: 0.42627064747601917
-miner.js:68 Cache hit rate for i = 445000: 0.4266013236487109
-miner.js:68 Cache hit rate for i = 446000: 0.4269282397909422
-miner.js:68 Cache hit rate for i = 447000: 0.4272619776018398
-miner.js:68 Cache hit rate for i = 448000: 0.4275943301465845
-miner.js:68 Cache hit rate for i = 449000: 0.42792617666775795
-miner.js:68 Cache hit rate for i = 450000: 0.4282550205443988
-miner.js:68 Cache hit rate for i = 451000: 0.4285820596850118
-miner.js:68 Cache hit rate for i = 452000: 0.428913735810319
-miner.js:68 Cache hit rate for i = 453000: 0.4292412227014951
-miner.js:68 Cache hit rate for i = 454000: 0.42957005463644354
-miner.js:68 Cache hit rate for i = 455000: 0.42989321726765434
-miner.js:68 Cache hit rate for i = 456000: 0.43021438001232454
-miner.js:68 Cache hit rate for i = 457000: 0.4305360518904773
-miner.js:68 Cache hit rate for i = 458000: 0.43085614851277615
-miner.js:68 Cache hit rate for i = 459000: 0.4311752929187518
-miner.js:68 Cache hit rate for i = 460000: 0.4314979410370847
-miner.js:68 Cache hit rate for i = 461000: 0.43182003672443225
-miner.js:68 Cache hit rate for i = 462000: 0.432144221549304
-miner.js:68 Cache hit rate for i = 463000: 0.4324609652570945
-miner.js:68 Cache hit rate for i = 464000: 0.4327768151361743
-miner.js:68 Cache hit rate for i = 465000: 0.43308972722639305
-miner.js:68 Cache hit rate for i = 466000: 0.43340226871830745
-miner.js:68 Cache hit rate for i = 467000: 0.4337126687094888
-miner.js:68 Cache hit rate for i = 468000: 0.43402160866109263
-miner.js:68 Cache hit rate for i = 469000: 0.43433336229560277
-miner.js:68 Cache hit rate for i = 470000: 0.43464079730681426
-miner.js:68 Cache hit rate for i = 471000: 0.43494433929015014
-miner.js:68 Cache hit rate for i = 472000: 0.43525650965252194
-miner.js:68 Cache hit rate for i = 473000: 0.4355629170181458
-miner.js:68 Cache hit rate for i = 474000: 0.43586681185799186
-miner.js:68 Cache hit rate for i = 475000: 0.4361748218687961
-miner.js:68 Cache hit rate for i = 476000: 0.436481898803784
-miner.js:68 Cache hit rate for i = 477000: 0.43677871285909253
-miner.js:68 Cache hit rate for i = 478000: 0.4370811822307903
-miner.js:68 Cache hit rate for i = 479000: 0.43737984432704735
-miner.js:68 Cache hit rate for i = 480000: 0.437674625287239
-miner.js:68 Cache hit rate for i = 481000: 0.4379763990875279
-miner.js:68 Cache hit rate for i = 482000: 0.43827513778498384
-miner.js:68 Cache hit rate for i = 483000: 0.43856655770381425
-miner.js:68 Cache hit rate for i = 484000: 0.4388653929692294
-miner.js:68 Cache hit rate for i = 485000: 0.43915829232826326
-miner.js:68 Cache hit rate for i = 486000: 0.43945789527696444
-miner.js:68 Cache hit rate for i = 487000: 0.43974693134613685
-miner.js:68 Cache hit rate for i = 488000: 0.4400397456921195
-miner.js:68 Cache hit rate for i = 489000: 0.4403255150551839
-miner.js:68 Cache hit rate for i = 490000: 0.4406109152073159
-miner.js:68 Cache hit rate for i = 491000: 0.44089814417384077
-miner.js:68 Cache hit rate for i = 492000: 0.4411825858839718
-miner.js:68 Cache hit rate for i = 493000: 0.4414638769748946
-miner.js:68 Cache hit rate for i = 494000: 0.4417535813439649
-miner.js:68 Cache hit rate for i = 495000: 0.4420370962634419
-miner.js:68 Cache hit rate for i = 496000: 0.4423240042610801
-miner.js:68 Cache hit rate for i = 497000: 0.4426055449335112
-miner.js:68 Cache hit rate for i = 498000: 0.4428867706841954
-miner.js:68 Cache hit rate for i = 499000: 0.4431613269562586
-miner.js:87 Hashrate: 173.60261181657427
-miner.js:88 Cache hit rate: 0.443441859375
+h 10000: 445.31528322052014
+c 10000: 0.0371703125
+h 20000: 474.18085257717286
+c 20000: 0.100478125
+h 30000: 506.89375506893754
+c 30000: 0.158559375
+h 40000: 538.9382915656157
+c 40000: 0.213175
+h 50000: 576.3024435223605
+c 50000: 0.263628125
+h 60000: 612.2199093914534
+c 60000: 0.31019375
+h 70000: 651.1264487563485
+c 70000: 0.3530609375
+h 80000: 688.8475580354068
+c 80000: 0.39106875
+h 90000: 733.3528894103844
+c 90000: 0.43141640625
+h 100000: 776.5180928715639
+c 100000: 0.463990625
+h 110000: 823.2485387338438
+c 110000: 0.496690625
+h 120000: 867.3779165582444
+c 120000: 0.524546875
+h 130000: 919.7093718384991
+c 130000: 0.5534765625
+h 140000: 968.8044952528579
+c 140000: 0.57909375
+h 150000: 1016.880211511084
+c 150000: 0.6021859375
+h 160000: 1074.69102632993
+c 160000: 0.625028125
+h 170000: 1129.5606009262397
+c 170000: 0.6439859375
+h 180000: 1185.9582542694498
+c 180000: 0.6631546875
+h 190000: 1244.2453651860146
+c 190000: 0.680221875
+h 200000: 1287.1669455528381
+c 200000: 0.69519375
+h 210000: 1352.813852813853
+c 210000: 0.7104515625
+h 220000: 1416.22999575131
+c 220000: 0.724275
+h 230000: 1480.3849000740192
+c 230000: 0.738153125
+h 240000: 1543.4480629726809
+c 240000: 0.7493640625
+h 250000: 1603.5920461834507
+c 250000: 0.7605015625
+h 260000: 1668.0567139282734
+c 260000: 0.7710625
+h 270000: 1725.327812284334
+c 270000: 0.7800296875
+h 280000: 1784.758165268606
+c 280000: 0.7891765625
+h 290000: 1847.7457501847746
+c 290000: 0.7972546875
+h 300000: 1894.65706707086
+c 300000: 0.8052640625
+h 310000: 1970.831690973591
+c 310000: 0.8121359375
+h 320000: 1993.2230416583614
+c 320000: 0.8172890625
+h 330000: 2075.5500207555
+c 330000: 0.8243921875
+h 340000: 2139.03743315508
+c 340000: 0.8302984375
+h 350000: 2177.2262138036144
+c 350000: 0.8342390625
+h 360000: 2236.13595706619
+c 360000: 0.839078125
+h 370000: 2307.3373327180434
+c 370000: 0.844959375
+h 380000: 2335.90282644242
+c 380000: 0.848865625
+h 390000: 2381.5194093831865
+c 390000: 0.851534375
+h 400000: 2443.195699975568
+c 400000: 0.8559421875
+h 410000: 2472.7992087042535
+c 410000: 0.8586625
+h 420000: 2516.9896803423107
+c 420000: 0.8609890625
+h 430000: 2563.445270443476
+c 430000: 0.8644265625
+h 440000: 2594.706798131811
+c 440000: 0.86709375
+h 450000: 2632.964718272775
+c 450000: 0.8687640625
+h 460000: 2669.5141484249866
+c 460000: 0.8711984375
+h 470000: 2684.5637583892617
+c 470000: 0.8740140625
+h 480000: 2717.391304347826
+c 480000: 0.8754125
+h 490000: 2777.777777777778
+c 490000: 0.8777453125
+h 500000: 2799.552071668533
+c 500000: 0.878971875
+h 510000: 2834.467120181406
+c 510000: 0.88129375
+h 520000: 2847.380410022779
+c 520000: 0.88160625
+h 530000: 2876.0425654299684
+c 530000: 0.8831484375
+h 540000: 2899.391127863149
+c 540000: 0.884346875
+h 550000: 2917.1528588098017
+c 550000: 0.8858765625
+h 560000: 2943.773918163085
+c 560000: 0.8865421875
+h 570000: 2975.304968759298
+c 570000: 0.8880296875
+h 580000: 2970.8853238265
+c 580000: 0.8883734375
+h 590000: 2975.304968759298
+c 590000: 0.888375
+h 600000: 3022.0610456331215
+c 600000: 0.890359375
+h 610000: 3032.140691328078
+c 610000: 0.891053125
+h 620000: 2969.121140142518
+c 620000: 0.8913078125
+h 630000: 2989.536621823617
+c 630000: 0.892328125
+h 640000: 3038.5900941962927
+c 640000: 0.8930796875
+h 650000: 3007.518796992481
+c 650000: 0.8933671875
+h 660000: 3040.4378230465186
+c 660000: 0.8941890625
+h 670000: 3096.934035305048
+c 670000: 0.8943703125
+h 680000: 3088.326127239037
+c 680000: 0.8941203125
+h 690000: 3088.326127239037
+c 690000: 0.89445
+h 700000: 3116.2355874104082
+c 700000: 0.8951609375
+h 710000: 3140.7035175879396
+c 710000: 0.896125
+h 720000: 3154.5741324921137
+c 720000: 0.896640625
+h 730000: 3139.717425431711
+c 730000: 0.89606875
+h 740000: 3157.562361856647
+c 740000: 0.8970359375
+h 750000: 3163.555836760519
+c 750000: 0.8971171875
+h 760000: 3160.5562579013904
+c 760000: 0.89696875
+h 770000: 3160.5562579013904
+c 770000: 0.89706875
+h 780000: 3170.577045022194
+c 780000: 0.89775
+h 790000: 3170.577045022194
+c 790000: 0.8973703125
+h 800000: 3170.577045022194
+c 800000: 0.897521875
