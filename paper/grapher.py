@@ -109,14 +109,14 @@ def miner_res(title,cache_hit,hash_rate):
 	plt.colorbar()
 	plt.ylabel('Buffer Size as a fraction of DAG')
 	plt.xlabel('Hashes Computed (in thousands)')
-	plt.title(title)
+	plt.title(title + " hash rate")
 	plt.show()
 
 	plt.imshow(cache_hit,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
 	plt.colorbar()
 	plt.ylabel('Buffer Size as a fraction of DAG')
 	plt.xlabel('Hashes Computed (in thousands)')
-	plt.title(title)
+	plt.title(title + " cache hit rate")
 	plt.show()
 
 	hash_list = list()
@@ -151,7 +151,7 @@ def miner_comparison(title,h1,h2):
 	plt.colorbar()
 	plt.ylabel('Buffer Size as a fraction of DAG')
 	plt.xlabel('Hashes computed (in thousands)')
-	plt.title(title)
+	plt.title(title + " hash rate")
 	plt.show()
 
 miner_comparison('Native miner vs WebAssembly miner',hash_rate_native_miner,hash_rate_wasm_miner)
