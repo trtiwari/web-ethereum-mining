@@ -107,14 +107,14 @@ def fill_partial_buf():
 def miner_res(title,cache_hit,hash_rate):
 	plt.imshow(hash_rate,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=70000)
 	plt.colorbar()
-	plt.xlabel('Buffer Hit Rate')
+	plt.ylabel('Buffer Hit Rate')
 	plt.xlabel('Hashes Computed (in thousands)')
 	plt.title(title)
 	plt.show()
 
 	plt.imshow(cache_hit,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
 	plt.colorbar()
-	plt.xlabel('Buffer Hit Rate')
+	plt.ylabel('Buffer Hit Rate')
 	plt.xlabel('Hashes Computed (in thousands)')
 	plt.title(title)
 	plt.show()
