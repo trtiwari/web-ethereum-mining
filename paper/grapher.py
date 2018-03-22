@@ -104,20 +104,23 @@ def fill_partial_buf():
 	plt.show()
 
 
-def miner_res(title,cache_hit,hash_rate):
-	plt.imshow(hash_rate,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=70000)
-	plt.colorbar()
-	plt.ylabel('Buffer Size as a fraction of DAG')
-	plt.xlabel('Hashes Computed (in thousands)')
-	plt.title(title + " hash rate")
-	plt.show()
+def miner_res(title,cache_hit,hash_rate,label=None):
+	# # log_hash_rate = [[math.log(i) for i in row] for row in hash_rate]
+	# plt.imshow(hash_rate,origin='lower', cmap='seismic',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=70000)
+	# plt.colorbar()
+	# plt.ylabel('Buffer Size as a fraction of DAG')
+	# plt.xlabel('Hashes Computed (in thousands)')
+	# plt.title(title + " Log(Hash Rate)")
+	# # plt.show()
+	# plt.savefig(title + " Hash Rate.pdf", bbox_inches='tight')
 
-	plt.imshow(cache_hit,origin='lower', cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
-	plt.colorbar()
-	plt.ylabel('Buffer Size as a fraction of DAG')
-	plt.xlabel('Hashes Computed (in thousands)')
-	plt.title(title + " cache hit rate")
-	plt.show()
+	# plt.imshow(cache_hit,origin='lower', cmap='seismic',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
+	# plt.colorbar()
+	# plt.ylabel('Buffer Size as a fraction of DAG')
+	# plt.xlabel('Hashes Computed (in thousands)')
+	# plt.title(title + " Buffer Hit Rate Percent")
+	# plt.show()
+	# plt.savefig(title + " Buffer Hit Rate.pdf", bbox_inches='tight')
 
 	hash_list = list()
 	time_list = list()
@@ -128,45 +131,63 @@ def miner_res(title,cache_hit,hash_rate):
 		hash_list.extend(h)
 		time_list.extend(1/np.array(h))
 
-	plt.plot(cache_list,hash_list,'ro')
+	plt.plot(cache_list,hash_list,'o',label=label)
 	plt.xlabel('Buffer Hit Rate')
 	plt.ylabel('Hash Rate (H/s)')
 	plt.title(title)
-	plt.show()
+	# plt.show()
+	if label != None:
+		plt.legend()
+	plt.savefig(title + " Hash Rate.pdf", bbox_inches='tight')
 
-	plt.plot(cache_list,time_list,'ro')
-	plt.xlabel('Buffer Hit Rate')
-	plt.ylabel('Time taken per hash (s/H)')
-	plt.title(title)
-	plt.show()
+	# plt.plot(cache_list,time_list,'ro')
+	# plt.xlabel('Buffer Hit Rate')
+	# plt.ylabel('Time taken per hash (s/H)')
+	# plt.title(title)
+	# plt.savefig(title + " Time per Hash.pdf", bbox_inches='tight')
+	# plt.show()
 
+# miner_res("Native C++ Miner",cache_hit_rate_native_miner,hash_rate_native_miner)
+# miner_res("WebAssembly Miner",cache_hit_rate_wasm_miner,hash_rate_wasm_miner)
+# miner_res("JavaScript Miner",cache_hit_rate_js_miner,hash_rate_js_miner)
 
-miner_res("native C++ miner",cache_hit_rate_native_miner,hash_rate_native_miner)
-miner_res("WebAssembly miner",cache_hit_rate_wasm_miner,hash_rate_wasm_miner)
-miner_res("JavaScript miner",cache_hit_rate_js_miner,hash_rate_js_miner)
+# miner_res("All Miners",cache_hit_rate_native_miner,hash_rate_native_miner,label='Native')
+# miner_res("All Miners",cache_hit_rate_wasm_miner,hash_rate_wasm_miner,label='WebAssembly')
+# miner_res("All Miners",cache_hit_rate_js_miner,hash_rate_js_miner,label='JavaScript')
+
 
 def miner_comparison(title,h1,h2):
 	h_diff = (np.array(h1) - np.array(h2))/np.array(h1)
-	plt.imshow(h_diff, origin='lower',cmap='Wistia',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
+	plt.imshow(h_diff, origin='lower',cmap='seismic',interpolation='nearest',extent=[10,800,0,1],aspect=800,vmin=0, vmax=1)
 	plt.colorbar()
 	plt.ylabel('Buffer Size as a fraction of DAG')
 	plt.xlabel('Hashes computed (in thousands)')
-	plt.title(title + " hash rate")
-	plt.show()
+	plt.title(title + " Hash Rate Percent Improvement")
+	plt.savefig(title + " Hash Rate Percent Improvement.pdf", bbox_inches='tight')
+	# plt.show()
 
-miner_comparison('Native miner vs WebAssembly miner',hash_rate_native_miner,hash_rate_wasm_miner)
-miner_comparison('Native miner vs JavaScript miner',hash_rate_native_miner,hash_rate_js_miner)
-miner_comparison('WebAssembly miner vs JavaScript miner',hash_rate_wasm_miner,hash_rate_js_miner)
+# miner_comparison('Native Miner vs WebAssembly miner',hash_rate_native_miner,hash_rate_wasm_miner)
+# miner_comparison('Native Miner vs JavaScript miner',hash_rate_native_miner,hash_rate_js_miner)
+# miner_comparison('WebAssembly Miner vs JavaScript miner',hash_rate_wasm_miner,hash_rate_js_miner)
 
-def hash_rate_trajectory(title,hash_rate):
-	plt.plot(np.arange(10000,800000,10000),hash_rate)
-	plt.xlabel('Hashes computed')
+def hash_rate_trajectory(title,hash_rate,label=None):
+	plt.plot(np.arange(10,801,10),hash_rate,label=label)
+	plt.xlabel('Hashes computed (in thousands)')
 	plt.ylabel('Hash Rate (H/s)')
 	plt.title(title)
+	# plt.show()
+	if label != None:
+		plt.legend()
+	plt.savefig(title+' Trajectory.pdf', bbox_inches='tight')
 
-hash_rate_trajectory("JavaScript miner",hash_rate_js_miner[-1])
-hash_rate_trajectory("WebAssembly miner",hash_rate_wasm_miner[-1])
-hash_rate_trajectory("Native miner",hash_rate_native_miner[-1])
+
+# hash_rate_trajectory("JavaScript Miner",hash_rate_js_miner[-1])
+# hash_rate_trajectory("WebAssembly Miner",hash_rate_wasm_miner[-1])
+# hash_rate_trajectory("Native Miner",hash_rate_native_miner[-1])
+
+hash_rate_trajectory("All Miners",hash_rate_js_miner[-1],label='JavaScript')
+hash_rate_trajectory("All Miners",hash_rate_wasm_miner[-1],label='WebAssembly')
+hash_rate_trajectory("All Miners",hash_rate_native_miner[-1],label='Native')
 
 # error bars
 # level curves
