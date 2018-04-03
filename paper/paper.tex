@@ -153,31 +153,79 @@ We must point out that both our current implementations in \verb|JavaScript| and
 \end{figure}
 
 \subsection{Theoretical Analysis}
-With this lazy-evaluation based approach, we can calculate exactly how many hashes we would have to compute in order to fill up a buffer of a given size. This is important because once the buffer in the browser fills up, the hash rate that the browser gives is at its maximum, steady-state. In this section, we will mathematically demonstrate that filling a buffer the size of the DAG up should take at most 4.5 million hashes, while filling up 95\% of this buffer takes merely 800k hashes. This is a significant difference since in our experimental set-up, the browser takes X s to compute 4.5 million hashes, while only Y s to compute 800k hashes. The approach we take is similar to the Coupon Collector problem \cite{couponCollector}, and is discussed below:
+With this lazy-evaluation based approach, we can calculate exactly how many hashes we would have to compute in order to fill up a buffer of a given size. This is important because once the buffer in the browser fills up, the hash rate that the browser gives is at its maximum, steady-state. In this section, we will mathematically demonstrate that filling a buffer the size of the DAG up should take at most 4.5 million hashes, while filling up 95\% of this buffer takes merely 800k hashes. This is a significant difference since in our experimental set-up, the browser takes X s to compute 4.5 million hashes, while only Y s to compute 800k hashes. The approach we take is similar to the Coupon Collector problem \cite{couponCollector}, and is discussed below. Note that for simplification, we assume that the DAG is randomly sampled in order to compute hashes. In reality, this is not entirely true and hence the results we obtain from this analysis are more conservative than what we see in practice. In fact, while we show here that filling up 95\% of a buffer as big as the DAG takes 800k hashes, whereas in reality it only takes half as many hashes~\ref{section:Results} \\
+
+\makebox[\textwidth][l]{If we define}
+\makebox[\textwidth][c]{Number of DAG slices = N}
+\makebox[\textwidth][c]{Fraction of the DAG we want to buffer = $f_1$}
+\makebox[\textwidth][c]{Number of DAG slices needed to compute a single hash = a}
+\makebox[\textwidth][c]{Failure probability of finding a specific slice in the buffer (Buffer miss rate)= $\delta$}
+% \makebox[\textwidth][c]{Failure probability of computing a hash just using slices in the buffer = $\omega$}
+\makebox[\textwidth][c]{nth Harmonic Number = $H_n$}
+% \makebox[\textwidth][c]{Euler-Mascheroni constant = $\gamma = 0.57721566...$}
+% \makebox[\textwidth][c]{Expected number of hashes it takes to fill the buffer = E(H)}
+% \begin{gather}\label{eq:slicevshash}
+% 	(1-\delta)^a = 1-a\delta;\;\delta \to 0 %1-\omega
+% \end{gather}
+% \makebox[\textwidth][l]{When $\delta \to 0$, equation \ref{eq:slicevshash} can be re-written as}
+% \begin{gather}
+% 	1-a\delta = 1-\omega \\
+%     \label{eq:deltaomega}
+% 	a\delta = \omega
+% \end{gather}
+% \makebox[\textwidth][l]{Hence, the probability that a specific slice is present in the buffer}
+% \begin{gather}
+% 	1-\delta = 1-\frac{\omega}{a}
+% \end{gather}
+The number of slices $n$ needed to fill up a buffer of size $f_1$ for a given $\delta$ is given by:
+\begin{gather}
+	n = Nf_1(1-\delta) %= Nf_1(1-\frac{\omega}{a})
+\end{gather}
+This means that we are willing to allocate a buffer that is fraction $f_1$ of the entire DAG, but instead of filling up all $Nf_1$ slices, we are willing to forgo $Nf_1\delta$ slices. Using the Coupon Collector proof~\cite{couponCollector}, we know that the expected number of trials $E(t)$ of obtaining the $xth$ new slice after having buffered $x-1$ slices is:\\
+\begin{gather}
+	E(t_x) = \frac{Nf_1}{Nf_1-(x-1)}
+\end{gather}
+we see that the expected number of trials in order to obtain $n$ slices is given by
+\begin{gather}
+	E(t) = \sum_{x=1}^{n}E(t_x) = Nf_1\sum_{x=1}^{n}\frac{1}{Nf_1-x+1} = Nf_1\sum_{x=1}^{Nf_1(1-\delta)}\frac{1}{Nf_1-x+1}
+\end{gather}
+Splitting this into two summations,
+\begin{gather}
+	E(t) = Nf_1[\sum_{x=1}^{Nf_1}\frac{1}{Nf_1-x+1} - \sum_{x=Nf_1(1-\delta)+1}^{Nf_1}\frac{1}{Nf_1-x+1}] \\
+    E(t) = Nf_1[H_{Nf_1} -H_{Nf_1\delta}] \\
+    \label{eq:expectedHashes}
+	E(H) = \frac{Nf_1}{a}[H_{Nf_1} -H_{Nf_1\delta}]
+\end{gather}
+Now, using equation ~\ref{eq:expectedHashes}, bounds on Harmonic Numbers ~\cite{harmonicNumber}, and setting $N = 16777186$, $f_1 = 1$, $a = 64$ and $\delta = 0.95$, we get $E(H) = 785312$ hashes.
+Hence, we see that even computing merely 800k hashes fills a DAG buffer as large as the entire DAG by more than 95\%, as opposed to calculating 4.5 million to fill the buffer entirely. (Note that this number should be smaller for smaller buffer sizes; so this is again a rough upper bound). This suggests that the fuller the buffer is, the marginal cost of computing more hashes outweighs the rate at which the buffer is filled up. In fact, as we will see in the results, filling up 95\% of a buffer as large as the DAG already starts giving us good hash rates for a browser (10kH/s). 
+This means that reaching a reasonably steady state is not as hard as it seems at face value, making this approach viable for web setting where users might not stay on websites for long. Given this result, we compute 800k hashes for all our experiments, as discussed in the next section.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \begin{theorem}[Expectation of Number of Hashes]
 % \label{expectedHashes}\\
-\makebox[\textwidth][l]{If we define}
-\makebox[\textwidth][c]{Number of DAG slices = n}
-\makebox[\textwidth][c]{Size of buffer as a fraction of the total DAG = $f_1$; $f_1$=[0,1]}
-\makebox[\textwidth][c]{Expected number of hashes it takes to fill the buffer = E(H)}
-\makebox[\textwidth][c]{nth Harmonic Number = $H_n$}
-\makebox[\textwidth][c]{Euler-Mascheroni constant = $\gamma = 0.57721566...$}
-\makebox[\textwidth][c]{Probability of obtaining a new slice after having buffered x slices = $P_x = \frac{nf_1-x}{n}$}
-\makebox[\textwidth][c]{Expected number of trials $t_x$ to get a new slice after having seen} 
-\makebox[\textwidth][c]{$x$ out of $nf_1$ slices = 
-$E(t_x) = \frac{1}{P_x} = \frac{n}{nf_1-x}$}
-\makebox[\textwidth][c]{Expected number of trials it would take to see all $x$ slices = $E(t)$}
-Note that for simplification, we assume that the DAG is randomly sampled in order to compute hashes. In reality, this is not entirely true and hence the results we obtain from this analysis are more conservative than what we see in practice. In fact, while we show here that filling up 95\% of a buffer as big as the DAG takes 800k hashes, whereas in reality it only takes half as many hashes~\ref{section:Results} \\
-% ~\trishita{add reference to results}
-From the Coupon Collector Problem~\cite{couponCollector}, it follows that:
-\begin{gather}
-E(t) = \sum_{x=0}^{nf_1-1}E(t_x) = \sum_{x=0}^{nf_1-1}\frac{1}{P_x} = n\sum_{x=0}^{nf_1-1}\frac{1}{nf_1-x} = nH_{nf_1}
-\end{gather}
+% \makebox[\textwidth][l]{If we define}
+% \makebox[\textwidth][c]{Number of DAG slices = n}
+% \makebox[\textwidth][c]{Size of buffer as a fraction of the total DAG = $f_1$; $f_1$=[0,1]}
+% \makebox[\textwidth][c]{Expected number of hashes it takes to fill the buffer = E(H)}
+% \makebox[\textwidth][c]{nth Harmonic Number = $H_n$}
+% \makebox[\textwidth][c]{Euler-Mascheroni constant = $\gamma = 0.57721566...$}
+% \makebox[\textwidth][c]{Probability of obtaining a new slice after having buffered x slices = $P_x = \frac{nf_1-x}{n}$}
+% \makebox[\textwidth][c]{Expected number of trials $t_x$ to get a new slice after having seen} 
+% \makebox[\textwidth][c]{$x$ out of $nf_1$ slices = 
+% $E(t_x) = \frac{1}{P_x} = \frac{n}{nf_1-x}$}
+% \makebox[\textwidth][c]{Expected number of trials it would take to see all $x$ slices = $E(t)$}
+% % ~\trishita{add reference to results}
+% From the Coupon Collector Problem~\cite{couponCollector}, it follows that:
+% \begin{gather}
+% E(t) = \sum_{x=0}^{nf_1-1}E(t_x) = \sum_{x=0}^{nf_1-1}\frac{1}{P_x} = n\sum_{x=0}^{nf_1-1}\frac{1}{nf_1-x} = nH_{nf_1}
+% \end{gather}
 
-It then follows from bounds on the nth Harmonic Number~\cite{harmonicNumber} that the expected number of hashes $E(H)$ it takes to fill up a buffer of fraction $f_1$ of a DAG with $n$ slices is bounded by:
-\begin{gather}
-\frac{n}{64}[\ln{nf_1} + \frac{1}{2nf_1} + \gamma - \frac{1}{12({nf_1})^2+2\frac{7-12\gamma}{2\gamma - 1}}] <= E(H) \\ E(H)< \frac{n}{64}[\ln{nf_1} + \frac{1}{2nf_1} + \gamma - \frac{1}{12({nf_1})^2+\frac{6}{5}}] 
-\end{gather}
+% It then follows from bounds on the nth Harmonic Number~\cite{harmonicNumber} that the expected number of hashes $E(H)$ it takes to fill up a buffer of fraction $f_1$ of a DAG with $n$ slices is bounded by:
+% \begin{gather}
+% \frac{n}{64}[\ln{nf_1} + \frac{1}{2nf_1} + \gamma - \frac{1}{12({nf_1})^2+2\frac{7-12\gamma}{2\gamma - 1}}] <= E(H) \\ E(H)< \frac{n}{64}[\ln{nf_1} + \frac{1}{2nf_1} + \gamma - \frac{1}{12({nf_1})^2+\frac{6}{5}}] 
+% \end{gather}
 
 % this was the proof for the expression above
 % % \end{theorem}
@@ -205,47 +253,49 @@ It then follows from bounds on the nth Harmonic Number~\cite{harmonicNumber} tha
 % \end{proof}
 
 
-The factor of 64 comes from the fact that calculating each hash requires sampling the DAG 64 times. Given this, let us do a simple calculation for one extreme case, where we allocate a buffer as large as the entire DAG on the browser (in order to get an upper bound on the number of hashes it would take to fill this buffer up). Here $f_1 = 1$ and $n = 16777186$ (for our private test network), which, using ~\ref{eq:6}, gives us $4512210 < E(H) <= 4512210$ hashes. Hence, it takes around 4.5 million hashes to fill up a buffer as large as the entire DAG. If $f_1 < 1$, the number of hashes should be less than 4.5 million, thus making it a very loose upper bound on the number of hashes needed to fill up a DAG buffer (and thereby reaching a steady-state hash rate). 
-% \trishita{To Do: reword the next two sentences to motivate the analysis that follows}
-In practice, however, we do not need to wait till the buffer is \emph{completely} full till we see good hash rates. We will demonstrate how we can get away with a much smaller number of hashes to fill up \emph{almost all} of the buffer, thereby reaching very good hash rates relatively quickly.
+% The factor of 64 comes from the fact that calculating each hash requires sampling the DAG 64 times. Given this, let us do a simple calculation for one extreme case, where we allocate a buffer as large as the entire DAG on the browser (in order to get an upper bound on the number of hashes it would take to fill this buffer up). Here $f_1 = 1$ and $n = 16777186$ (for our private test network), which, using ~\ref{eq:6}, gives us $4512210 < E(H) <= 4512210$ hashes. Hence, it takes around 4.5 million hashes to fill up a buffer as large as the entire DAG. If $f_1 < 1$, the number of hashes should be less than 4.5 million, thus making it a very loose upper bound on the number of hashes needed to fill up a DAG buffer (and thereby reaching a steady-state hash rate). 
+
+% In practice, however, we do not need to wait till the buffer is \emph{completely} full till we see good hash rates. We will demonstrate how we can get away with a much smaller number of hashes to fill up \emph{almost all} of the buffer, thereby reaching very good hash rates relatively quickly.
+
+
 % lower bound (python exp): (n/64.0)*(log(n) + 1.0/(2*n) + g - 1.0/(12*(n**2) + (2*(7-12*g)/(2*g-1))))
 % upper bound (python exp): (n/64.0)*(log(n) + 1.0/(2*n) + g - 1.0/(12*(n**2) + 6.0/5))
 
 % Now let us say that we do not want to wait for the entire buffer to fill up -- how many hashes would we have to compute until a reasonable fraction of the buffer is full? For this, we have the following corollary:
 % \begin{corollary}
 % \label{earlyTermination}
-\makebox[\textwidth][l]{If we further define,}
-\makebox[\textwidth][c]{Fraction of DAG buffer to be filled = $f_2$; $f_2$ $\in$ [0,1]}
-\makebox[\textwidth][c]{$x  = E(H) - \frac{n}{64}\ln{\frac{nf_1}{nf_1 - nf_2f_1 - 1}} - \frac{1}{128f_1} + \frac{n}{768({nf_1})^2+128\frac{7-12\gamma}{2\gamma - 1}}$}
-\makebox[\textwidth][l]{Then,}
-    \begin{gather}
-   \frac{n}{768({nf_1 - nf_2f_1 - 1})^2+128\frac{7-12\gamma}{2\gamma - 1}} - \frac{1}{768({nf_1})^2+128\frac{7-12\gamma}{2\gamma - 1}} < x \\
-   x <= \frac{n}{768({nf_1-nf_2f_1-1})^2+\frac{6}{5}} - \frac{n}{12({nf_1})^128+\frac{6}{5}} 
-	\end{gather}
-% \end{corollary}
-% \begin{proof}
-Then, for a buffer with space for $f_1$ slices, the number of slices we want to fill it with in order for a fraction $f_2$ of it to be full would be: \\
-\makebox[\textwidth][c]{Number of slices to fill DAG buffer with = $nf_2f_1$}
-This would modify equation \ref{eq:6} for the expected number of trials as follows:
-\begin{gather}
-    E(t) = \sum_{x=0}^{nf_2f_1}\frac{1}{P_x} = \sum_{x=0}^{nf_2f_1}\frac{n}{nf_1-x} = n\sum_{x=0}^{nf_2f_1}\frac{1}{nf_1-x}
-\end{gather}
-This is essentially an early termination of the summation in equation ~\ref{eq:6}, and can be expressed as follows:
-\begin{gather}
-    E(t) = n\sum_{x=0}^{nf_2f_1}\frac{1}{nf_1-x} = n(\sum_{x=0}^{nf_1-1}\frac{1}{nf_1-x} - \sum_{x=nf_2f_1+1}^{nf_1-1}\frac{1}{nf_1-x}) \\
-    E(t) = n[H_{nf_1} - H_{nf_1 - nf_2f_1 - 1}]\\
-\end{gather}
-Again, using the bounds on the nth Harmonic Number~\cite{harmonicNumber}, substituting $\frac{E(t)}{64} = E(H)$ and $x$, and simplifying, we get the following: \\
-\makebox[\textwidth][l]{Let}
-\begin{gather}
+% \makebox[\textwidth][l]{If we further define,}
+% \makebox[\textwidth][c]{Fraction of DAG buffer to be filled = $f_2$; $f_2$ $\in$ [0,1]}
+% \makebox[\textwidth][c]{$x  = E(H) - \frac{n}{64}\ln{\frac{nf_1}{nf_1 - nf_2f_1 - 1}} - \frac{1}{128f_1} + \frac{n}{768({nf_1})^2+128\frac{7-12\gamma}{2\gamma - 1}}$}
+% \makebox[\textwidth][l]{Then,}
+%     \begin{gather}
+%    \frac{n}{768({nf_1 - nf_2f_1 - 1})^2+128\frac{7-12\gamma}{2\gamma - 1}} - \frac{1}{768({nf_1})^2+128\frac{7-12\gamma}{2\gamma - 1}} < x \\
+%    x <= \frac{n}{768({nf_1-nf_2f_1-1})^2+\frac{6}{5}} - \frac{n}{12({nf_1})^128+\frac{6}{5}} 
+% 	\end{gather}
+% % \end{corollary}
+% % \begin{proof}
+% Then, for a buffer with space for $f_1$ slices, the number of slices we want to fill it with in order for a fraction $f_2$ of it to be full would be: \\
+% \makebox[\textwidth][c]{Number of slices to fill DAG buffer with = $nf_2f_1$}
+% This would modify equation \ref{eq:6} for the expected number of trials as follows:
+% \begin{gather}
+%     E(t) = \sum_{x=0}^{nf_2f_1}\frac{1}{P_x} = \sum_{x=0}^{nf_2f_1}\frac{n}{nf_1-x} = n\sum_{x=0}^{nf_2f_1}\frac{1}{nf_1-x}
+% \end{gather}
+% This is essentially an early termination of the summation in equation ~\ref{eq:6}, and can be expressed as follows:
+% \begin{gather}
+%     E(t) = n\sum_{x=0}^{nf_2f_1}\frac{1}{nf_1-x} = n(\sum_{x=0}^{nf_1-1}\frac{1}{nf_1-x} - \sum_{x=nf_2f_1+1}^{nf_1-1}\frac{1}{nf_1-x}) \\
+%     E(t) = n[H_{nf_1} - H_{nf_1 - nf_2f_1 - 1}]\\
+% \end{gather}
+% Again, using the bounds on the nth Harmonic Number~\cite{harmonicNumber}, substituting $\frac{E(t)}{64} = E(H)$ and $x$, and simplifying, we get the following: \\
+% \makebox[\textwidth][l]{Let}
+% \begin{gather}
 % 	n[
 %     \ln{\frac{nf_1}{nf_1 - nf_2f_1 - 1}} + \frac{1}{2nf_1} - \frac{1}{12({nf_1})^2+2\frac{7-12\gamma}{2\gamma - 1}} \\ - \frac{1}{2(nf_1 - nf_2f_1 - 1)} + \frac{1}{12({nf_1 - nf_2f_1 - 1})^2+2\frac{7-12\gamma}{2\gamma - 1}}] < E(t) \\
 %     E(t) <= n(\ln{\frac{nf_1}{nf_1 - nf_2f_1 - 1}} + \frac{1}{2nf_1} - \frac{1}{12({nf_1})^2+\frac{6}{5}} \\
 %     - \frac{1}{2(nf_1-nf_2f_1-1)} + \frac{1}{12({nf_1-nf_2f_1-1})^2+\frac{6}{5}}) \\
 %     x  = E(H) - \frac{n}{64}\ln{\frac{nf_1}{nf_1 - nf_2f_1 - 1}} - \frac{1}{128f_1} + \frac{n}{768({nf_1})^2+128\frac{7-12\gamma}{2\gamma - 1}} \\
-   \frac{n}{768({nf_1 - nf_2f_1 - 1})^2+128\frac{7-12\gamma}{2\gamma - 1}} - \frac{1}{768({nf_1})^2+128\frac{7-12\gamma}{2\gamma - 1}} < x \\
-   x <= \frac{n}{768({nf_1-nf_2f_1-1})^2+\frac{6}{5}} - \frac{n}{12({nf_1})^128+\frac{6}{5}} 
-\end{gather}    
+%    \frac{n}{768({nf_1 - nf_2f_1 - 1})^2+128\frac{7-12\gamma}{2\gamma - 1}} - \frac{1}{768({nf_1})^2+128\frac{7-12\gamma}{2\gamma - 1}} < x \\
+%    x <= \frac{n}{768({nf_1-nf_2f_1-1})^2+\frac{6}{5}} - \frac{n}{12({nf_1})^128+\frac{6}{5}} 
+% \end{gather}    
 %     \ln{()}) \\
 %     E(t) = n\log{\frac{1}{1-f_2-\frac{1}{nf_1}}}
 
@@ -254,7 +304,7 @@ Again, using the bounds on the nth Harmonic Number~\cite{harmonicNumber}, substi
 %     E(H) = \frac{n}{64}\log{\frac{1}{1-f_2-\frac{1}{nf_1}}}
 % \end{gather}
 % \end{proof}
-Now, using ~\ref{eq:13}, if we set $n = 16777186$, $f_1 = 1$ and $f_2 = 0.95$, we get $E(H) = 785312$ hashes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Interestingly, since for realistic cases $n >> f_1$, $\frac{1}{nf_1} \to 0$, and so 
 % \begin{gather}
@@ -262,8 +312,6 @@ Now, using ~\ref{eq:13}, if we set $n = 16777186$, $f_1 = 1$ and $f_2 = 0.95$, w
 % \end{gather}
 % Figure X shows a graph of how $E(H)$ varies as a function of the fraction of the buffer that we want to be full, $f$ if we set $n = 16777186$ (the total number of DAG slices on the experimental private test network). 
 
-Hence, we see that even computing merely 800k hashes fills a DAG buffer as large as the entire DAG by more than 95\%, as opposed to calculating 4.5 million to fill the buffer entirely. (Note that this number should be smaller for smaller buffer sizes; so this is again a rough upper bound). This suggests that the fuller the buffer is, the marginal cost of computing more hashes outweighs the rate at which the buffer is filled up. In fact, as we will see in the results, filling up 95\% of a buffer as large as the DAG already starts giving us good hash rates for a browser (10kH/s). 
-This means that reaching a reasonably steady state is not as hard as it seems at face value, making this approach viable for web setting where users might not stay on websites for long. Given this result, we compute 800k hashes for all our experiments, as discussed in the next section.
 % Beyond that, the marginal cost of computing more hashes outweighs the rate at which the DAG is filled up. Hence, as we will see in the next section, for our experiments, we compute 800,000 hashes.
 
 \section{Results}
@@ -347,26 +395,49 @@ Figure~\ref{fig:bufferRateHM} then shows a heat-map of how the DAG buffer hit-ra
 
 As expected, we see that the hit rate increases both with the size of the Buffer and with the number of hashes computed.
 
-\trishita{Might want to get rid of figs 8 9 and 10 since we don't have much room}
-In Figures~\ref{fig:NativeWebAsm},~\ref{fig:WebAsmJS} and~\ref{fig:NativeJS} we show the percentage difference of the hashrates between the native miner and the browser miner implementations. We also compare the performance of the ~\verb|JavaScript| and ~\verb|WebAssembly|  miners.
+Table ~\ref{table:perf} shows us how the performance of each of the miners compare. Interestingly, the most conspicuous aspect is the fact that the performance variation between different implementations is not uniform across the buffer hit rate and the size of the buffer. We also see that for obvious reasons, the native miner outperforms both the ~\verb|JavaScript| and the ~\verb|WebAssembly| miner. However, we see that the ~\verb|WebAssembly| miner is at most 40.5\% slower than the native miner -- which is not very far off considering the overhead of running programs within browsers. The ~\verb|JavaScript| miner, on the other hand, is ~\textbf{at least} 47.2\% slower (and at most 82.0\% slower).
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=250px,keepaspectratio]{Native_Miner_vs_WebAssembly_miner_Hash_Rate_Percent_Improvement.pdf}
-\caption{\label{fig:NativeWebAsm} Native miner vs. WebAssembly miner Hash Rate Percent Improvement}
-\end{figure}
+\begin{table}[t]
+\caption{Performance Difference accross different Implementations}\label{table:perf}
+\vspace{-2ex}
+\begin{center}
+\begin{tabular}{ c  c  c  c}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=250px,keepaspectratio]{WebAssembly_Miner_vs_JavaScript_miner_Hash_Rate_Percent_Improvement.pdf}
-\caption{\label{fig:WebAsmJS} WebAssembly miner vs. JavaScript miner Hash Rate Percent Improvement}
-\end{figure}
+&\makecell{\textbf{WASM/JS}} & \makecell{\textbf{Native/JS}} & \makecell{\textbf{Native/WASM}}\\
+\cline{2\ -2} \cline{3\ -3} \cline{4\ -4}
+\makecell{\% Diff in smallest hash rate} & 35.9\% &  55.0\% & 38.9\% \\
+\makecell{\% Diff in peak hash rate} & 73.2\% &  81.3\% & 30.2\% \\
+\makecell{Min perf \% diff} &  24.4\% &  47.2\% & 23.9\% \\
+\makecell{Max perf \% diff}  &  73.3\% &  82.0\% & 40.5\%\\ 
+\makecell{Avg. Hash Rate \% diff \\
+(averaged over all buffer sizes \\and cache hit rates)}&  30.6\% &  55.6\% & 35.9\%\\
+\end{tabular}
+\end{center}
+\vspace{-3ex}
+\end{table}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=250px,keepaspectratio]{Native_Miner_vs_JavaScript_miner_Hash_Rate_Percent_Improvement.pdf}
-\caption{\label{fig:NativeJS} Native miner vs. JavaScript miner Hash Rate Percent Improvement}
-\end{figure}
+
+
+% \trishita{Got rid of figs 8 9 and 10 since we don't have much room}
+% In Figures~\ref{fig:NativeWebAsm},~\ref{fig:WebAsmJS} and~\ref{fig:NativeJS} we show the percentage difference of the hashrates between the native miner and the browser miner implementations. We also compare the performance of the ~\verb|JavaScript| and ~\verb|WebAssembly|  miners.
+
+% \begin{figure}[h]
+% \centering
+% \includegraphics[width=250px,keepaspectratio]{Native_Miner_vs_WebAssembly_miner_Hash_Rate_Percent_Improvement.pdf}
+% \caption{\label{fig:NativeWebAsm} Native miner vs. WebAssembly miner Hash Rate Percent Improvement}
+% \end{figure}
+
+% \begin{figure}[h]
+% \centering
+% \includegraphics[width=250px,keepaspectratio]{WebAssembly_Miner_vs_JavaScript_miner_Hash_Rate_Percent_Improvement.pdf}
+% \caption{\label{fig:WebAsmJS} WebAssembly miner vs. JavaScript miner Hash Rate Percent Improvement}
+% \end{figure}
+
+% \begin{figure}[h]
+% \centering
+% \includegraphics[width=250px,keepaspectratio]{Native_Miner_vs_JavaScript_miner_Hash_Rate_Percent_Improvement.pdf}
+% \caption{\label{fig:NativeJS} Native miner vs. JavaScript miner Hash Rate Percent Improvement}
+% \end{figure}
 
 
 % \begin{figure}[!htb]
@@ -382,13 +453,11 @@ In Figures~\ref{fig:NativeWebAsm},~\ref{fig:WebAsmJS} and~\ref{fig:NativeJS} we 
 % \caption{Percentage difference in Hash Rates for different miner implementations}\label{fig:PerfChangeHM}
 % \end{figure}
 
-We see that for obvious reasons, the native miner outperforms both the ~\verb|JavaScript| and the ~\verb|WebAssembly| miner. However, we see that the ~\verb|WebAssembly| miner is at most 40\% slower than the native miner -- which is not very far off considering the overhead of running programs within browsers. The ~\verb|JavaScript| miner, on the other hand, is ~\textbf{at least} 47\% slower (and at most 82\% slower).
-
 Finally, we tabulate the most important results from our analysis in table ~\ref{table:results}
 \trishita{To Do: Fill in other, meaningful, metrics -- any suggestions?}
 
 \begin{table}[t]
-\caption{Results}\label{table:results}
+\caption{Main Results}\label{table:results}
 \vspace{-2ex}
 \begin{center}
 \begin{tabular}{ c  c  c  c}
@@ -398,9 +467,9 @@ Finally, we tabulate the most important results from our analysis in table ~\ref
 \makecell{Median Hash Rate \\
 (for a buffer the size of the DAG)} & 15278H/s &  5290H/s & 10504H/s \\
 Peak Hash Rate &  56800H/s &  10626H/s & 39651H/s \\
-\makecell{Maximum Time to reach steady state hash rate \\ (buffer as large as DAG)}  &  X s &  X s & X s\\ 
+\makecell{Maximum Time to reach steady state \\ hash rate (buffer as large as DAG)}  &  X s &  X s & X s\\ 
 \makecell{Avg. Hash Rate \% diff with Native Miner \\
-(averaged over all buffer sizes)}&  NA &  56\% & 36\%\\
+(averaged over all buffer sizes)}&  NA &  55.6\% & 35.9\%\\
 \end{tabular}
 \end{center}
 \vspace{-3ex}
