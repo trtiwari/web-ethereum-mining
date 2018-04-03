@@ -153,7 +153,7 @@ We must point out that both our current implementations in \verb|JavaScript| and
 \end{figure}
 
 \subsection{Theoretical Analysis}
-With this lazy-evaluation based approach, we can calculate exactly how many hashes we would have to compute in order to fill up a buffer of a given size. This is important because once the buffer in the browser fills up, the hash rate that the browser gives is at its maximum, steady-state. In this section, we will mathematically demonstrate that filling a buffer the size of the DAG up should take at most 4.5 million hashes, while filling up 95\% of this buffer takes merely 800k hashes. This is a significant difference since in our experimental set-up, the browser takes X s to compute 4.5 million hashes, while only Y s to compute 800k hashes. The approach we take is similar to the Coupon Collector problem \cite{couponCollector}, and is discussed below. Note that for simplification, we assume that the DAG is randomly sampled in order to compute hashes. In reality, this is not entirely true and hence the results we obtain from this analysis are more conservative than what we see in practice. In fact, while we show here that filling up 95\% of a buffer as big as the DAG takes 800k hashes, whereas in reality it only takes half as many hashes~\ref{section:Results} \\
+With this lazy-evaluation based approach, we can calculate exactly how many hashes we would have to compute in order to fill up a buffer of a given size. This is important because once the buffer in the browser fills up, the hash rate that the browser gives is at its maximum, steady-state. In this section, we will mathematically demonstrate that filling a buffer the size of the DAG up should take at most 4.5 million hashes, while filling up 99.5\% of this buffer takes merely 1.4 million hashes. This is a significant difference since in our experimental set-up, the browser takes X s to compute 4.5 million hashes, while only Y s to compute 1.4 million hashes. The approach we take is similar to the Coupon Collector problem \cite{couponCollector}, and is discussed below. Note that for simplification, we assume that the DAG is randomly sampled in order to compute hashes. In reality, this is not entirely true and hence the results we obtain from this analysis are more conservative than what we see in practice. In fact, while we show here that filling up 99.5\% of a buffer as big as the DAG takes 1.4 million hashes, whereas in reality it only takes half as many hashes, as shown in Section~\ref{sec:results} \\
 
 \makebox[\textwidth][l]{If we define}
 \makebox[\textwidth][c]{Number of DAG slices = N}
@@ -181,7 +181,9 @@ The number of slices $n$ needed to fill up a buffer of size $f_1$ for a given $\
 \begin{gather}
 	n = Nf_1(1-\delta) %= Nf_1(1-\frac{\omega}{a})
 \end{gather}
-This means that we are willing to allocate a buffer that is fraction $f_1$ of the entire DAG, but instead of filling up all $Nf_1$ slices, we are willing to forgo $Nf_1\delta$ slices. Using the Coupon Collector proof~\cite{couponCollector}, we know that the expected number of trials $E(t)$ of obtaining the $xth$ new slice after having buffered $x-1$ slices is:\\
+This means that we are willing to allocate a buffer that is fraction $f_1$ of the entire DAG, but instead of filling up all $Nf_1$ slices, we are willing to forgo $Nf_1\delta$ slices.
+
+Now, using the Coupon Collector proof~\cite{couponCollector}, we know that the expected number of trials $E(t)$ of obtaining the $xth$ new slice after having buffered $x-1$ slices is:\\
 \begin{gather}
 	E(t_x) = \frac{Nf_1}{Nf_1-(x-1)}
 \end{gather}
@@ -196,9 +198,11 @@ Splitting this into two summations,
     \label{eq:expectedHashes}
 	E(H) = \frac{Nf_1}{a}[H_{Nf_1} -H_{Nf_1\delta}]
 \end{gather}
-Now, using equation ~\ref{eq:expectedHashes}, bounds on Harmonic Numbers ~\cite{harmonicNumber}, and setting $N = 16777186$, $f_1 = 1$, $a = 64$ and $\delta = 0.95$, we get $E(H) = 785312$ hashes.
-Hence, we see that even computing merely 800k hashes fills a DAG buffer as large as the entire DAG by more than 95\%, as opposed to calculating 4.5 million to fill the buffer entirely. (Note that this number should be smaller for smaller buffer sizes; so this is again a rough upper bound). This suggests that the fuller the buffer is, the marginal cost of computing more hashes outweighs the rate at which the buffer is filled up. In fact, as we will see in the results, filling up 95\% of a buffer as large as the DAG already starts giving us good hash rates for a browser (10kH/s). 
-This means that reaching a reasonably steady state is not as hard as it seems at face value, making this approach viable for web setting where users might not stay on websites for long. Given this result, we compute 800k hashes for all our experiments, as discussed in the next section.
+Now, using equation~\ref{eq:expectedHashes}, bounds on Harmonic Numbers~\cite{harmonicNumber}, and setting $N = 16777186$, $f_1 = 1$, $a = 64$ and $\delta = 0$, we get $E(H) = 4.5$ million hashes. However, if we slightly increase $\delta$ to 0.005, we get $E(H) = 1.4$ million hashes. Hence, we see that even computing merely 1.4 million hashes fills a DAG buffer as large as the entire DAG by more than 99.5\%, as opposed to calculating 4.5 million to fill the buffer entirely. (Note that this number should be smaller for smaller buffer sizes ($f_1 < 1$); so this is a rough upper bound). 
+% This suggests that the fuller the buffer is, the marginal cost of computing more hashes outweighs the rate at which the buffer is filled up. 
+In fact, as we will see in the results, filling up 99.5\% of a buffer as large as the DAG already starts giving us good hash rates for a browser -- 35kH/s for the ~\verb|WebAssembly| miner, whereas the hash rate for a completely full buffer is only marginally higher at XkH/s. 
+This means that reaching a reasonably steady state is not as hard as it seems at face value, making this approach viable for web setting where users might not stay on websites for long. 
+% Given this result, we compute 800k hashes for all our experiments, as discussed in the next section.
 
 
 
@@ -339,6 +343,7 @@ Our experimental set up consisted of a machine with an Intel i7-7700HQ processor
 % \end{figure}
 
 \subsection{Implementation Results}
+\label{sec:results}
 Figures~\ref{fig:NativeMinerHM},~\ref{fig:WebAsmMinerHM} and ~\ref{fig:JSMinerHM} below shows a heat-map of how the hash rate varies for each of the three implementations as a function of both the size of the buffer allocated to store the DAG (as a percentage of the size of the entire DAG) and the number of hashes computed in the browser. 
 % \trishita{To Do: chanege to log scale, fix size }
 
