@@ -11,7 +11,9 @@
 \usepackage{makecell}
 \usepackage{amsmath}
 \usepackage{algorithmic}
+\usepackage{amssymb}
 \newcommand{\trishita}[1]{{\color{magenta}\bfseries[Trishita: #1]}}
+\newenvironment{claimproof}[1]{\par\noindent\underline{Proof:}\space#1}{\hfill $\blacksquare$}
 
 % Used for displaying a sample figure. If possible, figure files should
 % be included in EPS format.
@@ -46,7 +48,7 @@ Ari Trachtenberg%\orcidID{2222--3333-4444-5555}
 %
 \begin{abstract}
 We consider the problem of mining crytocurrencies by harnessing the inherent distribution capabilities of the World Wide Web. More specifically, we consider
-the mining of the Ethereum cryptocurrency by apportioning elements of the corresponding Proof-of-Work calculations among a number of web clients. These calculations are handled through individualized code that runs on the client browsers, and is thereafter collated at a web server to complete a mining operation. Our approach is based on a lazy evaluation technique designed to function within the expected limitations of the clients, including bounds on memory, computation and communication bandwidth to the server. We provide proofs-of-concept based in JavaScript and WebAssembly, with the latter reaching hash rates up to roughly 39kH/s, which is only 30.2\% slower than the corresponding native C++-based miner.
+the mining of the Ethereum cryptocurrency by apportioning elements of the corresponding Proof-of-Work calculations among a number of web clients. These calculations are handled through individualized code that runs on the client browsers, and is thereafter collated at a web server to complete a mining operation. Our approach is based on a lazy evaluation technique designed to function within the expected limitations of the clients, including bounds on memory, computation and communication bandwidth to the server. We provide proofs-of-concept based in JavaScript and WebAssembly, with the latter reaching hash rates up to roughly 39 kiloHashes per second, which is only 30.2\% slower than the corresponding native C++-based miner.
 Finally, we explore several applications for which this hash rate seems practical, including monetization of web content, rate limitation, and private Ethereum networks. Though several distributed web-based cryptominers have appeared in the wild (for other currencies), either in malware or in commercial trials, we believe that this is the first open-source cryptominer of this type.
 % The process of legitimating cryptocurrencies (such as Bitcoin and Ethereum) is done
 % through mining, often in a competitive and distributed manner by means of a small number of
@@ -66,24 +68,28 @@ Finally, we explore several applications for which this hash rate seems practica
 %
 %
 \section{Introduction}
-In today's world, crypto-currencies are gaining more and more traction as a viable form of currency. As such, people have been looking for efficient ways to mine the numerous crypto-currencies available. While much of these efforts have included creating new hardware, there has been considerable work done in re-using existing infrastructure in smarter ways to increase performance. One such effort is seen in using web browser as a platform for distributed computing ~\cite{Cushing}. Furthermore, more recently, the growing popularity of CoinHive ~\cite{coinhive} shows that there have been successful endeavors in distributed web browser crypto-currency mining, reinforcing its viability as a concept. In this work, we attempt to further extend this field by providing an open\-source implementations of web-base miners for Ethereum in \verb|JavaScript| and \verb|WebAssembly|. Indeed, given that Ethereum has applications beyond being used as a currency, there are a multitude of applications like web authentication rate limiting, website usage tracking for advertisement companies, private Ethereum networks and web content monetization, where our miner is practical to use.
-
-\subsection{Related Work}
-So far, there has been quite a lot of work done on distributed systems ~\cite{scheduling},~\cite{parallel},~\cite{orca}. Additionally, with the growing popularity of dynamic web-content and client side scripting languages like \verb|JavaScript| and \verb|WebAssembly|, web-browsers have also become a lucrative option for implementing distributed systems. As such, there has been some work done in exploring this relatively new avenue ~\cite{WebFlow} ~\cite{Duda}. 
-Indeed, ``Distributed Computing on an Ensemble of Browsers'' by Cushing~\cite{Cushing} shows that the \verb|JavaScript| Engine has had enough improvements in performance to make computationally heavy programs feasible in a distributed web browsing unit. 
-% In addition, the work by Duda and Dłubacz~\cite{Duda} was instrumental in the field as one of the first web browsing computational systems to not require the host machine to install any additional applications in order to participate. This is important since we would want our web miner to be operable without requiring the user to install any unfamiliar software. 
-Furthermore, \verb|WebAssembly|  ~\cite{webAssembly} is one of the newest platforms intended for CPU intensive browser computing (such as image rendering), and claims to be only 20\% slower than native code ~\cite{wasmPerf}, as compared to the much slower \verb|JavsScript|. Instead of relying on \verb|JavaScript|, web developers can now write C/C++ and compile it into \verb|WebAssembly| using some of the openly available \verb|WebAssembly| compilers ~\cite{emscripten}. Indeed, given that now \verb|WebAssembly| is supported by all major browsers ~\cite{webAssembly}, industry is also making use of this powerful framework. One sees this through the recent development of increasingly popular Monero mining \verb|WebAssembly| library CoinHive ~\cite{coinhive}.
+Cryptocurrencies are increasingly gaining traction as a viable form of currency.  This has been accompanied by a correspondingly increasing interest in the efficient validation (or \emph{mining}) of cryptocurrency transactions.  Whereas initial efforts in this domain have focused on creating dedicated hardware for this task, %AT - citation needed
+more recent approaches have examined repurposing existing infrastructure.  Indeed, one such class of efforts has focused on the use of client web browsers as a platform for distributed computing~\cite{Cushing}. The growing popularity of CoinHive~\cite{coinhive} is a case in point of the potential success of distributed in-browser cryptocurrency mining as a commercial (if malicious) enterprise.
 
 \subsection{Our Contributions}
-Our research involves providing implementations of a distributed, web browser based Ethereum miners in \verb|JavaScript| and \verb|WebAssembly|, and studying whether or not it is feasible for real world purposes. While there has been prior academic work done in related fields, none of the distributed web browser implementations in these works involve crypto-currency mining. While CoinHive does perform distributed mining using web browsers, it is closed source, and also works with a different crypto-currency (Monero). Hence, we are pioneers in offering an open source architecture for Ethereum mining with web browsers. Our miner gives us a hashrate of about 39kH/s, which, given the versatility of the Ethereum framework, is useful and practical for many applications like web authentication rate limiting, website usage tracking for advertisement companies, private Ethereum networks, web content monetization, as discussed below.
+In this work, we explore the web-based crypocurrency mining of the popular Ethereum cryptocurrency, %AT - citation needed
+and posit a number of potential applications consequent to this platform.  As such, our main contributions are as follows:
+\begin{itemize}
+\item We provide an open-source implementaiton of a web-based Ethereum cryptominer in both \verb|JavaScript| and \verb|WebAssembly|.  Though miners for other currencies exist in the wild (e.g. Coinhive), they are all properietary and closed-source.
+\item We posit a number of potential applications built upon such a platform, including rate-limiting server access, usage tracking, and content monetization.
+\item We provide analysis and experimental evidence of the potential efficacy of our approach to the applications above.
+\end{itemize}
+
+% Our research involves providing implementations of a distributed, web browser based Ethereum miners in \verb|JavaScript| and \verb|WebAssembly|, and studying whether or not it is feasible for real world purposes. While there has been prior academic work done in related fields, none of the distributed web browser implementations in these works involve crypto-currency mining. While CoinHive does perform distributed mining using web browsers, it is closed source, and also works with a different crypto-currency (Monero). Hence, we are pioneers in offering an open source architecture for Ethereum mining with web browsers. Our miner gives us a hashrate of about 39kH/s, which, given the versatility of the Ethereum framework, is useful and practical for many applications like web authentication rate limiting, website usage tracking for advertisement companies, private Ethereum networks, web content monetization, as discussed below.
 
 % \subsection{Applications}
 
 
 \subsection{Roadmap}
-The remainder of the paper is organized as follows. In Section 2 we discuss the various potential applications our miner could have. Then, in Section 3 we cover the relevant background to understand the functioning of the miner -- namely, a description of the Ethash, the Ethereum mining Proof-of-Work, and \verb|WebAssembly|, the language our best-performing browser miner is implemented in. Section 4 outlines our approach to distributing the Ethash PoW over numerous browsers given the resource constraints. Finally, we present the results in Section 5. We conclude and discuss the future work in Sections 6 and 7 respectively.  
+The remainder of the paper is organized as follows. In Section~\ref{sec:applications} we discuss various potential applications our mining platform. Then, in Section~\ref{sec:background} we cover the relevant background and related literature for our work.  In particular, we provide a self-contained description of Ethash, the Ethereum mining Proof-of-Work (PoW), and \verb|WebAssembly|, the language in which we implement an efficient miner. Section~\ref{sec:approach} outlines our approach to distributing the Ethash PoW over numerous browsers, each with their own resource constraints. Finally, we present the results in Section~\ref{sec:results}. We conclude and discuss the future work in Sectionn~\ref{sec:conclusion}.  
 
 \section{Applications}
+\label{sec:applications}
 % In this work, we propose approaches to mine Ethereum, a popular crypto-currency, in a distributed fashion through web browsers. Our approach can be used for a variety of purposes, outlined as follows. \\ \\
 % \textbf{Web Content Monetization}
 With the growth in global Internet usage, hosting websites has become a lucrative business. As a result, new methods of monetizing electronic content have surfaced with time. While some are more successful than others, all of them have issues associated with them. For instance, selling advertisement space is now resulting in declining revenue \cite{decliningRevenue} for website owners due to the advent of new technologies such as AdBlock \cite{Adblock}, Brave Browser \cite{BraveBrowser}, etc. In addition, too many advertisements also tend to increase the loading time for web-pages. Moreover, such advertisements are sometimes not placed correctly and cover the contents of the website. Thus, this approach does not provide good user experience. \\ \\
@@ -97,6 +103,7 @@ One other use-case could involve website advertisement companies. Today, website
 Finally, we would also like to note that Ethereum is an extremely flexible currency in the sense that it allows for private coin networks -- i.e., networks that do not mine on the actual, public Ethereum block-chain, but rather on private (and often smaller) instances of the crypto-currency. Our browser miner can be used on any such private network to serve the network owner whatever he/she wishes to implement with the mining PoW.
 
 \section{Background}
+\label{sec:background}
 % \subsection{Ethereum}
 % \trishita{Not sure if I need this paragraph, since I think the readers will probably be familiar with what crypto-curriencies are}
 \subsection{JavaScript and WebAssembly}
@@ -109,7 +116,7 @@ For very long, \verb|JavaScript| has been the only language available to make dy
 Ethereum is a crypto-currency that was released in July 2015 by Vitalik Buterin, Gavin Wood and Jeffrey Wilcke. Ethereum uses the Ethash algorithm (derived from the Dagger and Hashimoto algorithms ~\cite{dagger-hashimoto}) for its PoW for mining blocks. Before we discuss how mining works with Ethash, we would first like to establish some basic terminology about the data structures involved in the PoW:
 \begin{itemize}
 \item \textbf{Seed}: Ethash operates by first generating a 256 bit seed. This seed is different for every epoch (30,000 blocks). For the first epoch it is the Keccak-256 hash of a series of 32 bytes of zeros. For every other epoch it is always the Keccak-256 hash of the previous seed hash. 
-\item \textbf{Cache}: The seed for a particular epoch is used to compute a pseudo-random cache. This cache is simply an array 4 byte integers ~\cite{Ethmining}. The cache production process involves using the seed hash to first sequentially filling up X bytes of memory (size of the cache), then performing Y passes of the RandMemoHash algorithm ~\cite{randmemohash}. 
+\item \textbf{Cache}: The seed for a particular epoch is used to compute a pseudo-random cache. This cache is simply an array 4 byte integers ~\cite{Ethmining}. The cache production process involves using the seed hash to first sequentially fill up the Cache, then performing two passes of the RandMemoHash algorithm~\cite{randmemohash} on top of it to get the final Cache value. 
 % This transforms the initial cache to give us the final value for the cache. 
 Lightweight clients may use this cache for verifying hashes (discussed below), while full node clients can use it to calculate a DAG (Directed Acyclic Graph) dataset, as described below. 
 \item \textbf{DAG}: A Directed Acyclic Graph stored as a large byte array (currently around 2GB in size). The DAG has the following two attributes:
@@ -158,7 +165,14 @@ While mining is memory intensive, verification is relatively lightweight. This i
 % \trishita{Too long of a sentence; need to reword}
 Given that we now know that the crux of having a good hashrate for Ethereum lies in having quick access to the DAG, one of the biggest challenges with mining it on a distributed ensemble of browsers would be to transfer and store this data structure within each worker browser. However, given that the DAG for an Ethereum network is at least 1GB (and growing) in size transferring it to the browser every time a client loads our web page would be impractical. Furthermore, even if we somehow manage to transfer the DAG to the client when the web page loads, the browser would still have to store it in memory, thereby using a sizeable amount of resources on the client machine. We attempt to address some of these concerns through our approach as discussed in the next section. 
 
+\subsection{Related Work}
+So far, there has been quite a lot of work done on distributed systems ~\cite{scheduling},~\cite{parallel},~\cite{orca}. Additionally, with the growing popularity of dynamic web-content and client side scripting languages like \verb|JavaScript| and \verb|WebAssembly|, web-browsers have also become a lucrative option for implementing distributed systems. As such, there has been some work done in exploring this relatively new avenue ~\cite{WebFlow} ~\cite{Duda}. 
+Indeed, ``Distributed Computing on an Ensemble of Browsers'' by Cushing~\cite{Cushing} shows that the \verb|JavaScript| Engine has had enough improvements in performance to make computationally heavy programs feasible in a distributed web browsing unit. 
+% In addition, the work by Duda and Dłubacz~\cite{Duda} was instrumental in the field as one of the first web browsing computational systems to not require the host machine to install any additional applications in order to participate. This is important since we would want our web miner to be operable without requiring the user to install any unfamiliar software. 
+Furthermore, \verb|WebAssembly|  ~\cite{webAssembly} is one of the newest platforms intended for CPU intensive browser computing (such as image rendering), and claims to be only 20\% slower than native code ~\cite{wasmPerf}, as compared to the much slower \verb|JavsScript|. Instead of relying on \verb|JavaScript|, web developers can now write C/C++ and compile it into \verb|WebAssembly| using some of the openly available \verb|WebAssembly| compilers ~\cite{emscripten}. Indeed, given that now \verb|WebAssembly| is supported by all major browsers ~\cite{webAssembly}, industry is also making use of this powerful framework. One sees this through the recent development of increasingly popular Monero mining \verb|WebAssembly| library CoinHive~\cite{coinhive}. In terms of the potential monetization aspect of the project, there exists an ethical alternative to CoinHive called the Basic Attention Token ~\trishita{Need to citeNeed to cite}. The Basic Attention Token is an ERC20 Token built on Ethereum that is used along with the Brave browser to generate Ad revenue for website publishers by measuring a user's attention span on an advertisement. Note that this is not a replacement for Ad revenue, but a platform to balance the ties between website users, publishers, and advertisers. It ensures that users get only ads they would accept, advertisers pay for actual users instead of click bots, and publishers actually get revenue instead of pleading the users to turn off their Ad blockers.
+
 \section{Our Approach}
+\label{sec:approach}
 % \trishita{I think it would be nice if we show how we modified the algorithm shown in the previous section. I will add that over here}
 We propose a lazy-evaluation based approach to alleviate the network and memory requirements for mining Ethereum in a distributed scenario on browsers. Specifically, as soon as each browser connects to the webserver, the server sends it the current header of the block being mined and the Cache. Once the browser receives the Cache, it allocates an array buffer to store the DAG slices that fall between indices 0 and $n$ that will be computed in the future. (Note that the $n$ is a variable parameter reflecting the length of the buffer with which we experiment in our analysis). Once the buffer is allocated, the browser can start iterating over nonces to compute hashes.  
 
@@ -209,14 +223,22 @@ We must point out that both our current implementations in \verb|JavaScript| and
 
 \subsection{Theoretical Analysis}
 With this lazy-evaluation based approach, we can calculate exactly how many hashes we would have to compute in order to fill up a buffer of a given size. This is important because once the buffer in the browser fills up, the hash rate that the browser gives is at its maximum, steady-state. In this section, we will mathematically demonstrate that filling a buffer the size of the DAG up should take at most 4.5 million hashes, while filling up 99.5\% of this buffer takes merely 1.4 million hashes. This is a significant difference since in our experimental set-up, the browser takes X s to compute 4.5 million hashes, while only Y s to compute 1.4 million hashes. The approach we take is similar to the Coupon Collector problem \cite{couponCollector}, and is discussed below. Note that for simplification, we assume that the DAG is randomly sampled in order to compute hashes. In reality, this is not entirely true and hence the results we obtain from this analysis are more conservative than what we see in practice. In fact, while we show here that filling up 99.5\% of a buffer as big as the DAG takes 1.4 million hashes, whereas in reality it only takes half as many hashes, as shown in Section~\ref{sec:results} \\
-% \trishita{To Do: Still need to incorporate prof. Starobinski's  most recent feedback}
-\makebox[\textwidth][l]{If we define}
-\makebox[\textwidth][c]{Number of DAG slices = N}
-% \makebox[\textwidth][c]{Fraction of the DAG we want to buffer = $f_1$}
-\makebox[\textwidth][c]{Number of DAG slices needed to compute a single hash = a}
-\makebox[\textwidth][c]{Failure probability of finding a specific slice in the buffer (Buffer miss rate)= $\delta$}
+\begin{claim}
+If we define Number of DAG slices = $N$, number of DAG slices needed to compute a single hash = $a$, failure probability of finding a specific slice in the buffer (Buffer miss rate)= $\delta$, failure probability of computing a hash just using slices in the buffer = $\omega$, expected number of hashes it takes to fill the buffer = E(H), and the nth Harmonic Number = $H_n$, then: \\
+\begin{equation}
+	E(H) = \frac{N}{a}(H_{N} -H_{N\delta})
+\end{equation}
+\end{claim} 
+
+% \makebox[\textwidth][l]{If we define}
+% \makebox[\textwidth][c]{Number of DAG slices = N}
+% \makebox[\textwidth][c]{Number of DAG slices needed to compute a single hash = a}
+% \makebox[\textwidth][c]{Failure probability of finding a specific slice in the buffer (Buffer miss rate)= $\delta$}
 % \makebox[\textwidth][c]{Failure probability of computing a hash just using slices in the buffer = $\omega$}
-\makebox[\textwidth][c]{nth Harmonic Number = $H_n$}
+% \makebox[\textwidth][c]{nth Harmonic Number = $H_n$}
+
+% keeping this out for now
+%%%%%%%%%%%%%%%%%%%%%%%%
 % \makebox[\textwidth][c]{Euler-Mascheroni constant = $\gamma = 0.57721566...$}
 % \makebox[\textwidth][c]{Expected number of hashes it takes to fill the buffer = E(H)}
 % \begin{gather}\label{eq:slicevshash}
@@ -232,28 +254,55 @@ With this lazy-evaluation based approach, we can calculate exactly how many hash
 % \begin{gather}
 % 	1-\delta = 1-\frac{\omega}{a}
 % \end{gather}
-The number of slices $n$ needed to fill up a buffer of size $f_1$ for a given $\delta$ is given by:
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{claimproof}
+The number of slices $n$ needed to fill up a buffer with $N$ slices for a given $\delta$ is given by:
 \begin{gather}
-	n = N(1-\delta) %= Nf_1(1-\frac{\omega}{a})
+	n = \left \lfloor{N(1-\delta)}\right \rfloor  %= Nf_1(1-\frac{\omega}{a})
 \end{gather}
-This means that we are willing to allocate a buffer that is fraction $f_1$ of the entire DAG, but instead of filling up all $Nf_1$ slices, we are willing to forgo $Nf_1\delta$ slices.
+This means that even though we are allocating a buffer that can hold $N$ slices, we are willing to forgo $N\delta$ slices.
 
-Now, using the Coupon Collector proof~\cite{couponCollector}, we know that the expected number of trials $E(t)$ of obtaining the $xth$ new slice after having buffered $x-1$ slices is:\\
+Now, using the Coupon Collector proof~\cite{couponCollector}, we know that the expected number of trials $E(t_i)$ of obtaining the $ith$ new slice after having buffered $i-1$ slices is:\\
 \begin{gather}
-	E(t_x) = \frac{N}{N-(x-1)}
+	E(t_i) = \frac{N}{N-(i-1)}
 \end{gather}
 we see that the expected number of trials in order to obtain $n$ slices is given by
 \begin{gather}
-	E(t) = \sum_{x=1}^{n}E(t_x) = N\sum_{x=1}^{n}\frac{1}{N-x+1} = Nf_1\sum_{x=1}^{N(1-\delta)}\frac{1}{N-x+1}
+	E(t) = \sum_{i=1}^{n}E(t_i) = N\sum_{i=1}^{n}\frac{1}{N-i+1} = N\sum_{i=1}^{\left \lfloor{N(1-\delta)}\right \rfloor}\frac{1}{N-i+1}
 \end{gather}
 Splitting this into two summations,
 \begin{gather}
-	E(t) = N[\sum_{x=1}^{N}\frac{1}{N-x+1} - \sum_{x=N(1-\delta)+1}^{N}\frac{1}{N-x+1}] \\
-    E(t) = N[H_{N} -H_{N\delta}] \\
-    \label{eq:expectedHashes}
-	E(H) = \frac{N}{a}[H_{N} -H_{N\delta}]
+	E(t) = N(\sum_{i=1}^{N}\frac{1}{N-i+1} - \sum_{i=\left \lfloor{N(1-\delta)}\right \rfloor+1}^{N}\frac{1}{N-i+1}) \\
+    \label{eq:expectedTrials}
+    E(t) = N(H_{N} -H_{N\delta})
 \end{gather}
-Now, using equation~\ref{eq:expectedHashes}, bounds on Harmonic Numbers~\cite{harmonicNumber}, and setting $N = 16777186$, $f_1 = 1$, $a = 64$ and $\delta = 0$, we get $E(H) = 4.5$ million hashes. However, if we slightly increase $\delta$ to 0.005, we get $E(H) = 1.4$ million hashes. Hence, we see that even computing merely 1.4 million hashes fills a DAG buffer as large as the entire DAG by more than 99.5\%, as opposed to calculating 4.5 million to fill the buffer entirely. (Note that this number should be smaller for smaller buffer sizes ($f_1 < 1$); so this is a rough upper bound). 
+We now relate the failure probability of calculating a hash just from slices stored in the buffer with the failure probability of having a specific slice in the buffer:
+\begin{gather}
+	(1-\delta)^a = 1-\omega \\
+    (1-\delta)^a = 1-a\delta;\;\delta \to 0 \\
+	1-a\delta = 1-\omega \\
+    \label{eq:deltaomega}
+	\delta = \frac{\omega}{a}
+\end{gather}
+Hence, it follows from Equation~\ref{eq:deltaomega} that 
+\begin{gather}
+	\label{eq:hashvsslice}
+	E(H) = \frac{E(t)}{a}
+\end{gather}
+Finally, from Equation~\ref{eq:hashvsslice} and~\ref{eq:expectedTrials}, we obtain:
+\begin{gather}
+    \label{eq:expectedHashes}
+	E(H) = \frac{N}{a}(H_{N} -H_{N\delta})
+\end{gather}    
+\end{claimproof}
+We now define the Euler-Mascheroni constant as $\gamma = 0.57721566...$ and use the following bounds on Harmonic Numbers~\cite{harmonicNumber} to obtain results when when using Equation~\ref{eq:expectedHashes}:
+\begin{gather}
+    \label{eq:boundHarmonic}
+	-\frac{1}{12n^2+{2\frac{7-12\gamma}{2\gamma-1}}}\le H_n-\ln n-\frac1{2n}-\gamma<-\frac{1}{12n^2+\frac{6}{5}}
+\end{gather}  
+% -\frac{1}{12n^2+{2(7-12\gamma)}/{(2\gamma-1)}}\le H(n)-\ln n-\frac1{2n}-\gamma<-\frac{1}{12n^2+6/5}
+
+Now, using Equations~\ref{eq:expectedHashes} and~\ref{eq:boundHarmonic}, and setting $N = 16777186$, $a = 64$ and $\delta = 0$, we get $E(H) \approx 4.5$ million hashes. However, if we slightly increase $\delta$ to 0.005, we get $E(H) \approx 1.4$ million hashes. Hence, we see that even computing merely 1.4 million hashes fills a DAG buffer as large as the entire DAG by more than 99.5\%, as opposed to calculating 4.5 million to fill the buffer entirely. 
 % This suggests that the fuller the buffer is, the marginal cost of computing more hashes outweighs the rate at which the buffer is filled up. 
 In fact, as we will see in the results, filling up 99.5\% of a buffer as large as the DAG already starts giving us good hash rates for a browser -- 35kH/s for the ~\verb|WebAssembly| miner, whereas the hash rate for a completely full buffer is only marginally higher at XkH/s. 
 This means that reaching a reasonably steady state is not as hard as it seems at face value, making this approach viable for web setting where users might not stay on websites for long. 
@@ -374,6 +423,7 @@ This means that reaching a reasonably steady state is not as hard as it seems at
 % Beyond that, the marginal cost of computing more hashes outweighs the rate at which the DAG is filled up. Hence, as we will see in the next section, for our experiments, we compute 800,000 hashes.
 
 \section{Results}
+\label{sec:results}
 \subsection{Experimental set up}
 Our experimental set up consisted of a machine with an Intel i7-7700HQ processor with 8 cores and 16GB ram. These results were obtained from a private Ethereum test network at Epoch 0. The DAG size was 16777186 slices (1.074GB). The cache size was 1.677MB. We ran the implementations in ~\verb|JavaScript| and ~\verb|WebAssembly| in the browser, and a native miner written in ~\verb|C++| that employs the same approach outside of the browser for control results. Each miner was run till 800k hashes were computed and the hash rate and buffer hit rate were sampled every 10k hashes. (Note that both the hash rate and buffer hit rate sampled at a particular time reflected the values over the 10k most recent hashes).
 
@@ -458,7 +508,7 @@ As expected, we see that the hit rate increases both with the size of the Buffer
 Table ~\ref{table:perf} shows us how the performance of each of the miners compare. Interestingly, the most conspicuous aspect is the fact that the performance variation between different implementations is not uniform across the buffer hit rate and the size of the buffer. We also see that for obvious reasons, the native miner outperforms both the ~\verb|JavaScript| and the ~\verb|WebAssembly| miner. However, we see that the ~\verb|WebAssembly| miner is at most 40.5\% slower than the native miner -- which is not very far off considering the overhead of running programs within browsers. The ~\verb|JavaScript| miner, on the other hand, is ~\textbf{at least} 47.2\% slower (and at most 82.0\% slower).
 
 \begin{table}[t]
-\caption{Performance Difference accross different Implementations}\label{table:perf}
+\caption{Performance variations across different Implementations}\label{table:perf}
 \vspace{-2ex}
 \begin{center}
 \begin{tabular}{ c  c  c  c}
@@ -539,11 +589,12 @@ Peak Hash Rate &  56800H/s &  10626H/s & 39651H/s \\
 % Note that this is the computational power of one machine and in reality, there would be hundreds or thousands of machines mining simultaneously, which will be analyzed in the next section. In comparison to Monero or Bitcoin browser miners who mine on an average of about 30-60H/s, our hashrate is significantly better than those.
 
 \section{Conclusion}
+\label{sec:conclusion}
 We have successfully created a proof of concept distributed, web-based Ethereum miner that can be used towards monetizing electronic content, web-authentication rate limiting, private test networks, user tracking for advertisers, etc. Our implementation is standalone, and hence can simply be embedded within a website without having the client install any external dependencies. We get the best steady state hash rates for our \verb|JavaScript| and \verb|WebAssembly| implementations (10.6k and 39.6k respectively) when the cache hit rates approach 1, (which takes approx 800k Hashes). 
 
 % Furthermore, we provide an API that can be used by any implementation of Ethereum (\verb|geth| or Ethereum's implementation in \verb|C++|). We believe this can be a be especially viable in a private testnet, within a company for example, and with further research has the potential to make a real impact.
 
-\section{Future Work}
+\paragraph{Future Work}
 While we were able to create a browser based miner for Ethereum, there is still work to be done. As was shown, our current implementation is far slower than the traditional methods for mining. One way we can look to speed this process up is to tap into the client machine's GPU. There is a \verb|JavaScript| library called WebCL that binds to the OpenCL library which allows the \verb|JavaScript| to speak directly to the GPU for better parallel performance. Knowing that Ethereum was created for GPU mining and based on our results, it should provide a substantial improvement. 
 % In addition, because of the memory hard requirements of the Ethereum protocol we should also see a better performance if we can somehow get the DAG to be directly accessible to the client instead of having to send slices over the network to all the clients. Therefore, we want to look into the use of \verb|remoteStorage| ~\cite{remote}, which allows the user to have complete control over the data. By moving the data closer to the computation we are hoping to cut the added time caused by the network.
 Ethereum is also currently working on Casper, their Proof-of-Stake algorithm, which has already been deployed to private testnets for testing. Working with that and the fact that Casper is open-source, it would be possible to create a theoretical Proof-of-Stake distributed browser miner implementation in preparation for the fork. However, seeing as though Proof-of-Stake would virtually eliminate the necessity of massive amounts of processing power, users would most likely have to provide ``stakes" in order for such an implementation to be possible ~\cite{PoSproof}. Further research will be necessary to determine whether browser mining for Casper is viable or not, as the final form of Casper is still hazy and exactly how much ``stake'' is required to mine is uncertain.
