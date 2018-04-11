@@ -5,11 +5,12 @@ import numpy as np
 import math
 import matplotlib
 
-font = {'family' : 'normal',
-        'weight' : 'bold',
-        'size'   : 55}
+font = {#'family' : 'normal',
+        #'weight' : 'bold',
+        'size'   : 20}
 
 matplotlib.rc('font', **font)
+
 
 n = 16777186
 
@@ -118,39 +119,40 @@ def miner_res(title,cache_hit,hash_rate,label=None):
 	# # divider = make_axes_locatable(ax)
 	# # cax = divider.append_axes("right", size="5%", pad=0.05)
 	# plt.colorbar(fraction=0.046, pad=0.04)
-	# plt.ylabel('Buffer Size as a fraction of DAG')
+	# plt.ylabel('Buffer Size (fraction of DAG)')
 	# plt.xlabel('Hashes Computed (in thousands)')
 	# # plt.title(title + " Log(Hash Rate)")
 	# print title + " Hash Rate HM.pdf"
 	# plt.show()
 	# plt.savefig(title + " Hash Rate HM.pdf",bbox_inches='tight')
 
-	plt.imshow(cache_hit,origin='lower', cmap='gist_ncar',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
-	plt.colorbar(fraction=0.046, pad=0.04)
-	plt.ylabel('Buffer Size as a fraction of DAG')
-	plt.xlabel('Hashes Computed (in thousands)')
-	# plt.title(title + " Buffer Hit Rate Percent")
-	print title + " Buffer Hit Rate.pdf"
-	plt.show()
+	# plt.imshow(cache_hit,origin='lower', cmap='gist_ncar',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
+	# plt.colorbar(fraction=0.046, pad=0.04)
+	# plt.ylabel('Buffer Size (fraction of DAG)')
+	# plt.xlabel('Hashes Computed (in thousands)')
+	# # plt.title(title + " Buffer Hit Rate Percent")
+	# print title + " Buffer Hit Rate.pdf"
+	# plt.show()
 	# plt.savefig(title + " Buffer Hit Rate.pdf", bbox_inches='tight')
 
-	# hash_list = list()
-	# time_list = list()
-	# cache_list = list()
+	hash_list = list()
+	time_list = list()
+	cache_list = list()
 
-	# for c,h in zip(cache_hit,hash_rate):
-	# 	cache_list.extend(c)
-	# 	hash_list.extend(h)
-	# 	time_list.extend(1/np.array(h))
+	for c,h in zip(cache_hit,hash_rate):
+		cache_list.extend(c)
+		hash_list.extend(np.log(np.array(h)))
+		time_list.extend(1/np.array(h))
 
-	# plt.plot(cache_list,hash_list,'o',label=label)
-	# plt.xlabel('Buffer Hit Rate')
-	# plt.ylabel('Hash Rate (H/s)')
-	# plt.title(title)
-	# # plt.show()
-	# if label != None:
-	# 	plt.legend()
-	# plt.savefig(title + " Hash Rate.pdf", bbox_inches='tight')
+	plt.plot(cache_list,hash_list,'o',label=label)
+	plt.xlabel('Hit Rate')
+	plt.ylabel('Hash Rate (log Hashes/sec)')
+	plt.title(title)
+	# plt.show()
+	if label != None:
+		plt.legend()
+	print title + " Hash Rate.pdf"
+	# plt.savefig(title + " Hash Rate-1.pdf", bbox_inches='tight')
 
 	# plt.plot(cache_list,time_list,'ro')
 	# plt.xlabel('Buffer Hit Rate')
@@ -163,31 +165,33 @@ def miner_res(title,cache_hit,hash_rate,label=None):
 # miner_res("WebAssembly Miner",cache_hit_rate_wasm_miner,hash_rate_wasm_miner)
 # miner_res("JavaScript Miner",cache_hit_rate_js_miner,hash_rate_js_miner)
 
-# miner_res("All Miners",cache_hit_rate_native_miner,hash_rate_native_miner,label='Native')
-# miner_res("All Miners",cache_hit_rate_wasm_miner,hash_rate_wasm_miner,label='WebAssembly')
-# miner_res("All Miners",cache_hit_rate_js_miner,hash_rate_js_miner,label='JavaScript')
+miner_res("All Miners",cache_hit_rate_native_miner,hash_rate_native_miner,label='Native')
+miner_res("All Miners",cache_hit_rate_wasm_miner,hash_rate_wasm_miner,label='WebAssembly')
+miner_res("All Miners",cache_hit_rate_js_miner,hash_rate_js_miner,label='JavaScript')
+plt.show()
 
 
 def miner_comparison(title,h1,h2):
+	print title
 	h_diff = (np.array(h1) - np.array(h2))/np.array(h1)
-	# avg = 0
-	# num = 0
-	# for row in h_diff:
-	# 	avg+=sum(row)
-	# 	num+=len(row)
-	# print avg/float(num)
+	avg = 0
+	num = 0
+	for row in h_diff:
+		avg+=sum(row)
+		num+=len(row)
+	print "Avg:",avg/float(num)
 
-	# max_diff = 0
-	# for row in h_diff:
-	# 	if max_diff < max(row):
-	# 		max_diff = max(row)
-	# print max_diff
+	max_diff = 0
+	for row in h_diff:
+		if max_diff < max(row):
+			max_diff = max(row)
+	print "Max:",max_diff
 
 	min_diff = 1
 	for row in h_diff:
 		if min_diff > min(row):
 			min_diff = min(row)
-	print min_diff
+	print "Min:",min_diff
 
 
 	# plt.imshow(h_diff, origin='lower',cmap='gist_ncar',interpolation='nearest',extent=[10,800,0,1],aspect=500,vmin=0, vmax=1)
@@ -199,19 +203,19 @@ def miner_comparison(title,h1,h2):
 	# # plt.savefig(title + " Hash Rate Percent Improvement.pdf", bbox_inches='tight')
 	# plt.show()
 
-miner_comparison('Native Miner vs WebAssembly miner',hash_rate_native_miner,hash_rate_wasm_miner)
-miner_comparison('Native Miner vs JavaScript miner',hash_rate_native_miner,hash_rate_js_miner)
+# miner_comparison('Native Miner vs WebAssembly miner',hash_rate_native_miner,hash_rate_wasm_miner)
+# miner_comparison('Native Miner vs JavaScript miner',hash_rate_native_miner,hash_rate_js_miner)
 # miner_comparison('WebAssembly Miner vs JavaScript miner',hash_rate_wasm_miner,hash_rate_js_miner)
 
 def hash_rate_trajectory(title,hash_rate,label=None):
-	plt.plot(np.arange(10,801,10),hash_rate,label=label)
+	plt.plot(np.arange(10,801,10),hash_rate,'o',label=label)
 	plt.xlabel('Hashes computed (in thousands)')
 	plt.ylabel('Hash Rate (H/s)')
 	plt.title(title)
 	# plt.show()
 	if label != None:
 		plt.legend()
-	plt.savefig(title+' Trajectory.pdf', bbox_inches='tight')
+	# plt.savefig(title+' Trajectory.pdf', bbox_inches='tight')
 
 
 # hash_rate_trajectory("JavaScript Miner",hash_rate_js_miner[-1])
