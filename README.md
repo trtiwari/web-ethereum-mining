@@ -1,4 +1,4 @@
-# WebEth: a distributed, browser-based Ethereum Miner
+# WebEth: a distributed, browser-based Ethereum Miner in WASM and JS
 
 Usage:
 There is 2 aspects to this: the client (browser) and the server (the one that distributes the PoW)
