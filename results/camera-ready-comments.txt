@@ -1,0 +1,28 @@
+
+email/phone consulate
+
+put the diagram before
+
+leave out timeout
+
+section 5: web content monetization -- mention if this were to be used with the real ethereum, this is how many clients we would need. (a small paragraph)
+
+scalability -- it can be run independently (limited interaction with server makes it more scalable, not necessarily efficient)
+
+reviewer 2:
+
+in the experiments -- talk about how it doesn't take much more time, even though it takes a lot more hashes.
+
+--------------------------------------
+future work (for ourself):
+
+where is the turning point for the hash rate
+timeout
+scalability
+
+------------------------------------------------------------
+why 99.999995% (maybe fully fill the buffer instead of this wierd random number -- within 10-e6 percent full)
+
+think about analysis -- conservative part (is it really more conservative?)
+
+replace the bounds with the estimate

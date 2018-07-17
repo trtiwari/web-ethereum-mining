@@ -6,6 +6,8 @@
 #include <cstdlib>
 using namespace emscripten;
 
+// uncomment unit tests and checkpoints to validate correct working
+
 class Params
 {
 	public:
@@ -456,46 +458,6 @@ class Keccak
 		}
 };
 
-/*
-// FIX -- only works for ascii, not for the entire range of utf-16
-char nibbleToChar(char nibble)
-{
-	return (nibble < 10 ? 48 : 87) + nibble + '0';
-}
-
-int charToNibble(int chr)
-{
-	if (chr >= 48 && chr <= 57)
-	{
-		return chr - 48;
-	}
-	if (chr >= 65 && chr <= 70)
-	{
-		return chr - 65 + 10;
-	}
-	if (chr >= 97 && chr <= 102)
-	{
-		return chr - 97 + 10;
-	}
-	return 0;
-}
-*/
-// might want to implement this in js only
-// this method is invoked a lot, so there will be a lot of communication overhead
-// if the browser constantly has to contact the webasm module
-/*
-string bytesToHexString(char * bytes)
-{
-	string str = "";
-	for (int i = 0; i != sizeof(bytes)/sizeof(*bytes); ++i)
-	{
-		str = str + nibbleToChar(bytes[i] >> 4);
-		str = str + nibbleToChar(bytes[i] & 0xf);
-	}
-	return str;
-}
-*/
-
 
 unsigned int fnv(unsigned int x, unsigned int y)
 {
@@ -598,7 +560,6 @@ class Ethash
 		{
 			// compute initial hash
 
-			// TO DO: use header hash instead of header
 			//checked from the javascript version of the miner that the header size is always 32 bytes (8 ints)
 
 			// the header
@@ -717,6 +678,7 @@ EMSCRIPTEN_BINDINGS(mineModule){
 	function("mine", &mine);
 }
 
+// uncomment to check native performance (ie., outside of browser)
 
 /*
 int main()

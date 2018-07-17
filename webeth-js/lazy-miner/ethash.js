@@ -6,6 +6,7 @@
 "use strict";
 
 // we save some values of in this dag object
+// uncomment checkpoints put in at various places to validate hashes
 
 var NUM_DAG_SLICES = 11744033;
 var hashWords = 16;
@@ -274,7 +275,7 @@ class Ethash
 		// final keccak hashes
 		this.keccak.digestWords(this.retWords, 0, 8, this.initWords, 0, 24); // keccak-256(s + cmix)
 		// return [this.initBytes,this.retBytes];
-		// CHANGE BACK TO RETBYTES!!
+		// CHANGE BACK TO RETBYTES
 		return this.retWords;
 	};
 	

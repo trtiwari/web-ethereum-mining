@@ -1,0 +1,61 @@
+
+Response Letter to Reviewer Comments
+
+
+Overall comments: We thank the TPC committee for the constructive feedback provided on our paper. Our response to specific comments is provided below.
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 23
+TITLE: Distributed Web Mining of Ethereum
+AUTHORS: Trishita Tiwari, David Starobinski and Ari Trachtenberg
+
+----------- Overall evaluation -----------
+The paper proposes, analyzes, and describes an implementation of a new open source web-based miner for the Ethereum cryptocurrency using a centralized server. The system makes a use of the WASM to achieve its relatively high hash rate. I really liked the use of WASM and the good analysis. But believe that there are some issues that should be addressed:
+
+ - Web based cryptocurrency miners regardless of being opensource or proprietary, as suggested, already exist in the market for quite a while. The paper suggests that WebEth has better results because of design decisions and a choice of technology (Web Assembly). I would expect to see a comparison between WebEth and other popular web-based cryptocurrency miners to make evaluation easier.
+
+Response: As we discuss in the paper, to our knowledge, there is only one main commercial (closed source) web crypto miner on the market, namely CoinHive for Monero. However, Monero uses a completely different PoW algorithm (Cryptonite), which is inherently different from Ethash. Hence, a direct comparison between WebEth and CoinHive would not be insightful. 
+
+ - Section 3 jumps straight into implementation. A design section that better explains the overall design of WebEth is missing. It would also help to breakdown 3.1 to different subsections and provide a specific one to WebEth miner.
+
+Response: We have restructured Section 3 so it includes a general overview before delving into the details of the implementation. There are now three separate subsections, one for the lazy evaluation algorithm, one for the implementation, and the last one for the performance evaluation.
+
+ - Did you consider allowing the server to notify the clients once a new valid hash was found? I would expect that with sufficiently large number of clients, this would have better performance than waiting for a timeout. Regardless, some analysis on the length of the timeout would be nice.
+
+Response: This comment is well-taken. We now mention this issue in Section 6 as a possible area for future work. 
+
+ - How many nodes do I need to actually profit from mining ether these days?
+
+Response:  We have now included a ball park estimate within Section 5.
+
+ - Some popular websites have millions of daily visitors. How does the system perform with 10K/100K/1M miners? Does it require an entire set of servers to handle the requests? It seems very solvable but would be great to see a few words about scalability.
+
+Response:  We added a sentence regarding scalability at the end of Section 3.2.
+
+==== Minor issues ===
+abstract - You are comparing implementations to a miner. miner probably should be "one" or "implementation"
+Introduction -
+- "...efficient validation (or mining) or cryptocurrency..." - remove (or mining), this is not the meaning of the term (And also conflicts with the description on 2.1).
+- "Instead, WebEth employs an lazy approach to generating..." - a*, to generate*
+- Fig 2 - Did you mean WebEth architecture?
+Overall - Captions to figures would help to better understand them.
+- Fig 8 is missing
+
+Response: Thank you. We have fixed these typos. 
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 23
+TITLE: Distributed Web Mining of Ethereum
+AUTHORS: Trishita Tiwari, David Starobinski and Ari Trachtenberg
+
+
+----------- Overall evaluation -----------
+The paper considers the use of World Wide Web for mining cryptocurrencies. It proposes a  browser-
+based distributed miner of the Ethereum cryptocurrency, WebEth. The design of WebEth is described in the paper together with the experimental evaluations of  two prototype implementations in JavaScript and WebAssembly. The paper presents also a couple of possible applications that a WWW based crypto-miner can be used.
+
+The paper is well written and describes probably the first open-source web-based cryptominer. The paper also presents a possible of application of such a cryptominer.
+
+As the paper explains WebEth uses lazy evaluation, as the time passes the buffer of the browser starts filling up and makes hash computations faster. The hash rate reaches its maximum steady-state only once the buffer in the browser is almost full, though. It would have been nice to discuss this in the context of the applications proposed and in the context of browser user behavior.
+
+Response: We have added a brief discussion at the end of Section 3.3 about the buffer fill rate in the context of websites.

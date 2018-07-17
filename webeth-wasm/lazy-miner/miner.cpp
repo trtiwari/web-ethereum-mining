@@ -459,31 +459,6 @@ class Keccak
 		}
 };
 
-// FIX -- only works for ascii, not for the entire range of utf-16
-/*
-char nibbleToChar(char nibble)
-{
-	return (nibble < 10 ? 48 : 87) + nibble + '0';
-}
-
-unsigned int charToNibble(unsigned int chr)
-{
-	if (chr >= 48 && chr <= 57)
-	{
-		return chr - 48;
-	}
-	if (chr >= 65 && chr <= 70)
-	{
-		return chr - 65 + 10;
-	}
-	if (chr >= 97 && chr <= 102)
-	{
-		return chr - 97 + 10;
-	}
-	return 0;
-}
-*/
-
 void store(std::string dagStr, unsigned int startIndex,unsigned int endIndex)
 {
 		std::stringstream ss(dagStr);
@@ -653,7 +628,6 @@ class Ethash
 		{
 			// compute initial hash
 
-			// TO DO: use header hash instead of header
 			//checked from the javascript version of the miner that the header size is always 32 bytes (8 ints)
 
 			// the header
@@ -783,6 +757,7 @@ EMSCRIPTEN_BINDINGS(mineModule){
 	function("mine", &mine);
 }
 
+// uncomment to check native performance (ie., outside of browser)
 
 /*
 int main()
